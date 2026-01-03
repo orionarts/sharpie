@@ -1548,8 +1548,8 @@ impl Ship { // {{{3
                 torp.len,
                 metric(torp.len, LengthLong, torp.units),
                 match torp.num {
-                    1 => " -",
-                    _ => &format!("es - {:.3} t each,", torp.wgt_weaps() / torp.num as f64).to_string(),
+                    1 => " -".to_string(),
+                    _ => format!("es - {:.3} t each,", torp.wgt_weaps() / torp.num as f64),
                 },
                 torp.wgt_weaps()
             );
