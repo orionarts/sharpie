@@ -1,0 +1,48 @@
+import { TabWidget } from "std-widgets.slint";
+import { SummaryTab } from "./summary-tab.slint";
+import { BatteryTab } from "./battery-tab.slint";
+
+// Guns tab {{{1
+//
+// Contains a summary tab and one tab for each battery
+//
+export component GunsTab inherits TabWidget {
+    callback field-edited();
+
+    Tab {
+        title: "Summary";
+        SummaryTab {
+            field-edited => { root.field-edited(); }
+        }
+    }
+    Tab {
+        title: "Main Battery";
+        BatteryTab {
+            field-edited => { root.field-edited(); }
+        }
+    }
+    Tab {
+        title: "2nd Battery";
+        BatteryTab {
+            field-edited => { root.field-edited(); }
+        }
+    }
+    Tab {
+        title: "3rd Battery";
+        BatteryTab {
+            field-edited => { root.field-edited(); }
+        }
+    }
+    Tab {
+        title: "4th Battery";
+        BatteryTab {
+            field-edited => { root.field-edited(); }
+        }
+    }
+    Tab {
+        title: "5th Battery";
+        BatteryTab {
+            field-edited => { root.field-edited(); }
+        }
+    }
+}

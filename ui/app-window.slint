@@ -1,29 +1,138 @@
+// Sharpie main window {{{1
+//
 import {
-    Button,
+    GroupBox,
+    HorizontalBox,
+    TabWidget,
     TextEdit,
     VerticalBox,
 } from "std-widgets.slint";
 
+import { HullFields,
+         HullTab,
+         ShipIdentity }      from "tabs/hull.slint";
+import { FreeboardTab }   from "tabs/freeboard.slint";
+import { GunsTab }        from "tabs/guns/guns.slint";
+import { WeaponsTab }     from "tabs/weapons.slint";
+import { ArmorTab }       from "tabs/armor.slint";
+import { EnginesTab }     from "tabs/engines.slint";
+import { PerformanceTab } from "tabs/performance.slint";
+
+export { AboutDialog } from "dialogs/about-dialog.slint";
+
+// Main window {{{1
+//
 export component MainWindow inherits Window {
-    callback load_ship();
-    callback convert_ship();
+    title: "Sharpie";
+    width: root.report-visible ? 1080px : 580px;
+    height: 640px;
 
-    in-out property <string> report_str: "Load or convert a ship";
+    in-out property <ShipIdentity> identity;
+    in-out property <HullFields> hull-fields;
 
+    in-out property <[string]> bow-labels: [];
+    in-out property <[string]> stern-labels: [];
+
+    in-out property <string> report-str: "Load or create a ship";
+    in-out property <bool> report-visible: true;
+
+    // Menu callbacks
+    callback load-ship();
+    callback save-ship();
+    callback convert-ship();
+    callback clear-ship();
+    callback exit-app();
+    callback toggle-report();
+    callback show-about();
+
+    // Other callbacks
+    callback field-edited();
+
+    // Menu bar {{{2
+    //
+    MenuBar {
+        Menu {
+            title: "File";
+            MenuItem { title: "Open ship";                shortcut: @keys(Control + O);         activated => { root.load-ship(); } }
+            MenuItem { title: "Save ship";                shortcut: @keys(Control + S);         activated => { root.save-ship(); } }
+            MenuItem { title: "Convert SpringSharp ship"; shortcut: @keys(Control + Shift + O); activated => { root.convert-ship(); } }
+            MenuSeparator {}
+            MenuItem { title: "Clear all";                                                      activated => { root.clear-ship(); } }
+            MenuSeparator {}
+            MenuItem { title: "Exit";                                                           activated => { root.exit-app(); } }
+        }
+        Menu {
+            title: "View";
+            MenuItem { title: root.report-visible ? "Hide Report" : "Show Report"; shortcut: @keys(Control + R); activated => { root.toggle-report(); } }
+        }
+        Menu {
+            title: "Help";
+            MenuItem { title: "About Sharpie"; shortcut: @keys(F1); activated => { root.show-about(); } }
+        }
+    }
+
+    // Tabs {{{2
+    //
     VerticalBox {
-        Button {
-            text: "Load Ship";
-            clicked => { root.load_ship(); }
-        }
-        Button {
-            text: "Convert SpringSharp Ship";
-            clicked => { root.convert_ship(); }
-        }
+        HorizontalBox {
+            TabWidget {
+                width: 500px;
+                Tab {
+                    title: "Hull";
+                    HullTab {
+                        identity <=> root.identity;
+                        hull-fields <=> root.hull-fields;
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+                Tab {
+                    title: "Freeboard";
+                    FreeboardTab {
+                        hull-fields <=> root.hull-fields;
+                        bow-labels <=> root.bow-labels;
+                        stern-labels <=> root.stern-labels;
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+                Tab {
+                    title: "Guns";
+                    GunsTab {
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+                Tab {
+                    title: "Weapons";
+                    WeaponsTab {
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+                Tab {
+                    title: "Armor";
+                    ArmorTab {
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+                Tab {
+                    title: "Engines";
+                    EnginesTab {
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+                Tab {
+                    title: "Performance";
+                    PerformanceTab {
+                        field-edited => { root.field-edited(); }
+                    }
+                }
+            }
 
-        report := TextEdit {
-            width: 600px;
-            height: 500px;
-            text: root.report_str;
+            GroupBox {
+                title: "Report";
+                visible: root.report-visible;
+                report := TextEdit {
+                    text: root.report_str;
+                }
+            }
         }
     }
 }

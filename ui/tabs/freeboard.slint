@@ -1,0 +1,177 @@
+import {
+    ComboBox,
+    GroupBox,
+    HorizontalBox,
+    LineEdit,
+    ScrollView,
+    VerticalBox,
+} from "std-widgets.slint";
+import { HullFields } from "./hull.slint";
+
+// Freeboard tab {{{1
+//
+export component FreeboardTab inherits ScrollView {
+    in-out property <image> hull-image;
+    in-out property <HullFields> hull-fields: {
+        disp-kind: 0,
+        disp-cb: "",
+        disp-d: "",
+        len-kind: 0,
+        len-lwl: "",
+        len-loa: "",
+        b: "",
+        bb: "",
+        t: "",
+        bow-type: 0,
+        ram-len: "",
+        stern-type: 0,
+        stern-overhang: "",
+        fc-len: "",
+        fd-len: "",
+        qd-len: "",
+        fc-fwd: "",
+        fc-aft: "",
+        fd-fwd: "",
+        fd-aft: "",
+        ad-fwd: "",
+        ad-aft: "",
+        qd-fwd: "",
+        qd-aft: "",
+        bow-angle: "",
+    };
+
+    in-out property <[string]> bow-labels: [];
+    in-out property <[string]> stern-labels: [];
+
+    callback field-edited();
+
+    VerticalBox {
+        HorizontalBox {
+            Image {
+                width: 494px;
+                height: 156px;
+                source: root.hull-image;
+            }
+        }
+
+        GroupBox {
+            title: "Bow and Stern";
+            VerticalBox {
+                HorizontalBox {
+                    Text { text: "Bow:"; width: 80px; vertical-alignment: center; }
+                    ComboBox {
+                        width: 130px;
+                        model: root.bow-labels;
+                        current-index <=> root.hull-fields.bow-type;
+                        selected => { root.field-edited(); }
+                    }
+                    // Protrusion length applies to Bulbous (Forward) and Ram
+                    LineEdit {
+                        text <=> root.hull-fields.ram-len;
+                        enabled: root.hull-fields.bow-type >= 2;
+                        edited => { root.field-edited(); }
+                    }
+                }
+                HorizontalBox {
+                    Text { text: "Stern:"; width: 80px; vertical-alignment: center; }
+                    ComboBox {
+                        width: 130px;
+                        model: root.stern-labels;
+                        current-index <=> root.hull-fields.stern-type;
+                        selected => { root.field-edited(); }
+                    }
+                }
+                HorizontalBox {
+                    Text { text: "Stn overhang:"; width: 80px; vertical-alignment: center; }
+                    LineEdit {
+                        text <=> root.hull-fields.stern-overhang;
+                        edited => { root.field-edited(); }
+                    }
+                }
+                HorizontalBox {
+                    Text { text: "Bow angle:"; width: 80px; vertical-alignment: center; }
+                    LineEdit {
+                        text <=> root.hull-fields.bow-angle;
+                        edited => { root.field-edited(); }
+                    }
+                }
+            }
+        }
+
+        GroupBox {
+            title: "Decks";
+            VerticalBox {
+                HorizontalBox {
+                    Text { text: ""; width: 80px; }
+                    Text { text: "len %"; width: 45px; vertical-alignment: center; }
+                    Text { text: "fwd"; width: 50px; vertical-alignment: center; }
+                    Text { text: "aft"; vertical-alignment: center; }
+                }
+                HorizontalBox {
+                    Text { text: "Forecastle:"; width: 80px; vertical-alignment: center; }
+                    LineEdit {
+                        width: 45px;
+                        text <=> root.hull-fields.fc-len;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        width: 50px;
+                        text <=> root.hull-fields.fc-fwd;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        text <=> root.hull-fields.fc-aft;
+                        edited => { root.field-edited(); }
+                    }
+                }
+                HorizontalBox {
+                    Text { text: "Foredeck:"; width: 80px; vertical-alignment: center; }
+                    LineEdit {
+                        width: 45px;
+                        text <=> root.hull-fields.fd-len;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        width: 50px;
+                        text <=> root.hull-fields.fd-fwd;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        text <=> root.hull-fields.fd-aft;
+                        edited => { root.field-edited(); }
+                    }
+                }
+                HorizontalBox {
+                    Text { text: "Aft deck:"; width: 80px; vertical-alignment: center; }
+                    Text { text: ""; width: 45px; }
+                    LineEdit {
+                        width: 50px;
+                        text <=> root.hull-fields.ad-fwd;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        text <=> root.hull-fields.ad-aft;
+                        edited => { root.field-edited(); }
+                    }
+                }
+                HorizontalBox {
+                    Text { text: "Quarterdeck:"; width: 80px; vertical-alignment: center; }
+                    LineEdit {
+                        width: 45px;
+                        text <=> root.hull-fields.qd-len;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        width: 50px;
+                        text <=> root.hull-fields.qd-fwd;
+                        edited => { root.field-edited(); }
+                    }
+                    LineEdit {
+                        text <=> root.hull-fields.qd-aft;
+                        edited => { root.field-edited(); }
+                    }
+                }
+            }
+        }
+    }
+}
