@@ -19,8 +19,12 @@ build:
 gui:
 	cargo run
 
+# `slint/live-preview` activates slint's live-preview machinery at the
+# version locked in Cargo.lock (the extra crates are only pulled in while
+# the feature is on). --locked fails loudly if the lock cannot satisfy the
+# request, e.g. a Cargo.toml version bump that has not been `cargo update`d.
 live-preview:
-	SLINT_LIVE_PREVIEW=1 cargo run --features slint/live-preview
+	SLINT_LIVE_PREVIEW=1 cargo run --locked --features slint/live-preview
 
 $(SLINT_VIEWER):
 	mkdir -p target
