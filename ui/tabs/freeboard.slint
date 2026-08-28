@@ -1,176 +1,144 @@
 import {
+    Button,
     ComboBox,
+    GridBox,
     GroupBox,
     HorizontalBox,
-    LineEdit,
     ScrollView,
     VerticalBox,
 } from "std-widgets.slint";
+
+import { Entry }       from "../widgets/entry.slint";
+import { RowLabel }    from "../widgets/row-label.slint";
+import { ColumnLabel } from "../widgets/column-label.slint";
 import { HullFields } from "./hull.slint";
+import { Layout }      from "../layout.slint";
+import { FieldRow }   from "../widgets/field-row.slint";
 
 // Freeboard tab {{{1
 //
 export component FreeboardTab inherits ScrollView {
-    in-out property <image> hull-image;
-    in-out property <HullFields> hull-fields: {
-        disp-kind: 0,
-        disp-cb: "",
-        disp-d: "",
-        len-kind: 0,
-        len-lwl: "",
-        len-loa: "",
-        b: "",
-        bb: "",
-        t: "",
-        bow-type: 0,
-        ram-len: "",
-        stern-type: 0,
-        stern-overhang: "",
-        fc-len: "",
-        fd-len: "",
-        qd-len: "",
-        fc-fwd: "",
-        fc-aft: "",
-        fd-fwd: "",
-        fd-aft: "",
-        ad-fwd: "",
-        ad-aft: "",
-        qd-fwd: "",
-        qd-aft: "",
-        bow-angle: "",
-    };
+    in-out property <HullFields> hull-fields;
 
+    in-out property <image> hull-image;
     in-out property <[string]> bow-labels: [];
     in-out property <[string]> stern-labels: [];
 
     callback field-edited();
+    callback save-picture();
+    callback depth-lock-toggled();
+    callback set-freeboards(which: int);
 
-    VerticalBox {
-        HorizontalBox {
-            Image {
-                width: 494px;
-                height: 156px;
-                source: root.hull-image;
+    VerticalLayout {
+        spacing: Layout.grid-spacing;
+        GridBox { // {{{2
+            Row {
+                Button {
+                    col: 1;
+                    height: Layout.edit-height;
+                    enabled: !root.hull-fields.depth-locked;
+                    text: "Flush deck";
+                    clicked => { root.set-freeboards(0); }
+                }
+                Button {
+                    height: Layout.edit-height;
+                    enabled: !root.hull-fields.depth-locked;
+                    text: "Mid break";
+                    clicked => { root.set-freeboards(1); }
+                }
+                Button {
+                    height: Layout.edit-height;
+                    text: "Save Picture...";
+                    clicked => { root.save-picture(); }
+                }
+            }
+            Row {
+                Image { colspan: 5; source: root.hull-image; }
+            }
+
+            Row {
+                Text { width: Layout.edit-width; }
+                Text { width: Layout.edit-width; }
+                Text { width: Layout.edit-width; }
+                Text { width: Layout.edit-width; }
+                Text { width: Layout.combo-width + 20px; }
+            }
+
+            Row {
+                ColumnLabel { col: 1; text: "Length\n(% of Lwl):"; }
+                ColumnLabel { text: "Freeboard —\nForward:"; }
+                ColumnLabel { text: "Freeboard —\nAft:"; }
+            }
+
+            Row {
+                RowLabel { text: "Forecastle:"; }
+                Entry { text <=> root.hull-fields.fc-len; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.fc-fwd; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.fc-aft; edited => { root.field-edited(); } }
+                ComboBox { model: root.bow-labels; current-index <=> root.hull-fields.bow-type; selected => { root.field-edited(); } }
+            }
+
+            Row {
+                RowLabel { text: "Foredeck:"; }
+                Entry { text <=> root.hull-fields.fd-len; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.fd-fwd; enabled: !root.hull-fields.depth-locked; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.fd-aft; enabled: !root.hull-fields.depth-locked; edited => { root.field-edited(); } }
+                // Depth lock toggle. When locked the Fore and Aft deck
+                // freeboards are read-only and stay constant relative to the
+                // draft
+                depth-lock-btn := Button {
+                    rowspan: 2;
+                    text: root.hull-fields.depth-locked ? "Depth Locked" : "Depth Unlocked";
+                    clicked => {
+                        root.hull-fields.depth-locked = !root.hull-fields.depth-locked;
+                        root.depth-lock-toggled();
+                    }
+                }
+            }
+            Row {
+                RowLabel { text: "Aft deck:"; }
+                Entry { text: root.hull-fields.ad-len; read-only: true; enabled: false; }
+                Entry { text <=> root.hull-fields.ad-fwd; enabled: !root.hull-fields.depth-locked; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.ad-aft; enabled: !root.hull-fields.depth-locked; edited => { root.field-edited(); } }
+            }
+            Row {
+                RowLabel { text: "Quarterdeck:"; }
+                Entry { text <=> root.hull-fields.qd-len; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.qd-fwd; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.qd-aft; edited => { root.field-edited(); } }
+                ComboBox { model: root.stern-labels; current-index <=> root.hull-fields.stern-type; selected => { root.field-edited(); } }
             }
         }
 
-        GroupBox {
-            title: "Bow and Stern";
-            VerticalBox {
-                HorizontalBox {
-                    Text { text: "Bow:"; width: 80px; vertical-alignment: center; }
-                    ComboBox {
-                        width: 130px;
-                        model: root.bow-labels;
-                        current-index <=> root.hull-fields.bow-type;
-                        selected => { root.field-edited(); }
-                    }
-                    // Protrusion length applies to Bulbous (Forward) and Ram
-                    LineEdit {
-                        text <=> root.hull-fields.ram-len;
-                        enabled: root.hull-fields.bow-type >= 2;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Stern:"; width: 80px; vertical-alignment: center; }
-                    ComboBox {
-                        width: 130px;
-                        model: root.stern-labels;
-                        current-index <=> root.hull-fields.stern-type;
-                        selected => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Stn overhang:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.stern-overhang;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Bow angle:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.bow-angle;
-                        edited => { root.field-edited(); }
-                    }
-                }
+        GridBox { // {{{2
+            Row {
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
             }
-        }
+            Row {
+                ColumnLabel { col: 4; text: "Average\nfreeboard:"; }
+            }
+            Row {
+                freeboard := Entry { col: 4; text: root.hull-fields.freeboard; }
+            }
 
-        GroupBox {
-            title: "Decks";
-            VerticalBox {
-                HorizontalBox {
-                    Text { text: ""; width: 80px; }
-                    Text { text: "len %"; width: 45px; vertical-alignment: center; }
-                    Text { text: "fwd"; width: 50px; vertical-alignment: center; }
-                    Text { text: "aft"; vertical-alignment: center; }
-                }
-                HorizontalBox {
-                    Text { text: "Forecastle:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        width: 45px;
-                        text <=> root.hull-fields.fc-len;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        width: 50px;
-                        text <=> root.hull-fields.fc-fwd;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        text <=> root.hull-fields.fc-aft;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Foredeck:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        width: 45px;
-                        text <=> root.hull-fields.fd-len;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        width: 50px;
-                        text <=> root.hull-fields.fd-fwd;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        text <=> root.hull-fields.fd-aft;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Aft deck:"; width: 80px; vertical-alignment: center; }
-                    Text { text: ""; width: 45px; }
-                    LineEdit {
-                        width: 50px;
-                        text <=> root.hull-fields.ad-fwd;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        text <=> root.hull-fields.ad-aft;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Quarterdeck:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        width: 45px;
-                        text <=> root.hull-fields.qd-len;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        width: 50px;
-                        text <=> root.hull-fields.qd-fwd;
-                        edited => { root.field-edited(); }
-                    }
-                    LineEdit {
-                        text <=> root.hull-fields.qd-aft;
-                        edited => { root.field-edited(); }
-                    }
-                }
+            Row {
+                ColumnLabel { text: "Waterline\nlength (Lwl):"; }
+                ColumnLabel { text: "Bow Angle\n(+ve = fore):"; }
+                ColumnLabel { text: "Ram Length:"; }
+                ColumnLabel { text: "Stern overhang:"; }
+                ColumnLabel { text: "Length OA:"; }
+            }
+
+            Row {
+                Entry { text: root.hull-fields.len-lwl; }
+                Entry { text <=> root.hull-fields.bow-angle; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.ram-len; enabled: root.hull-fields.bow-type >= 2; edited => { root.field-edited(); } }
+                Entry { text <=> root.hull-fields.stern-overhang; edited => { root.field-edited(); } }
+                Entry { text: root.hull-fields.len-loa; }
             }
         }
     }

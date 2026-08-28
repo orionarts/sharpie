@@ -1,4 +1,5 @@
 import { HorizontalBox } from "std-widgets.slint";
+import { Layout }        from "../layout.slint";
 
 // FieldRow {{{1
 /// Reusable label-plus-content row
@@ -7,7 +8,7 @@ export component FieldRow inherits HorizontalBox {
     in property <string> label;
     Text {
         text: root.label;
-        width: 80px;
+        width: Layout.label-width;
         vertical-alignment: center;
     }
     @children

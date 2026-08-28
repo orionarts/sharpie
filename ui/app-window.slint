@@ -9,8 +9,9 @@ import {
 } from "std-widgets.slint";
 
 import { HullFields,
+         HullComputed,
          HullTab,
-         ShipIdentity }      from "tabs/hull.slint";
+         ShipIdentity }   from "tabs/hull.slint";
 import { FreeboardTab }   from "tabs/freeboard.slint";
 import { GunsTab }        from "tabs/guns/guns.slint";
 import { WeaponsTab }     from "tabs/weapons.slint";
@@ -18,23 +19,28 @@ import { ArmorTab }       from "tabs/armor.slint";
 import { EnginesTab }     from "tabs/engines.slint";
 import { PerformanceTab } from "tabs/performance.slint";
 
+import { Layout         } from "layout.slint";
+
 export { AboutDialog } from "dialogs/about-dialog.slint";
 
 // Main window {{{1
 //
 export component MainWindow inherits Window {
     title: "Sharpie";
-    width: root.report-visible ? 1080px : 580px;
-    height: 640px;
+    width: Layout.tab-width +
+        (root.report-visible ? Layout.report-width : 0px);
+    height: 800px;
 
     in-out property <ShipIdentity> identity;
     in-out property <HullFields> hull-fields;
+    in-out property <HullComputed> hull-computed;
+    in-out property <image> hull-image;
 
     in-out property <[string]> bow-labels: [];
     in-out property <[string]> stern-labels: [];
 
     in-out property <string> report-str: "Load or create a ship";
-    in-out property <bool> report-visible: true;
+    in-out property <bool> report-visible: false;
 
     // Menu callbacks
     callback load-ship();
@@ -47,6 +53,10 @@ export component MainWindow inherits Window {
 
     // Other callbacks
     callback field-edited();
+    callback draft-edited();
+    callback depth-lock-toggled();
+    callback freeboards-est(which: int);
+    callback save-picture();
 
     // Menu bar {{{2
     //
@@ -76,22 +86,28 @@ export component MainWindow inherits Window {
     VerticalBox {
         HorizontalBox {
             TabWidget {
-                width: 500px;
+                width: Layout.tab-width;
                 Tab {
                     title: "Hull";
                     HullTab {
                         identity <=> root.identity;
                         hull-fields <=> root.hull-fields;
+                        hull-computed <=> root.hull-computed;
                         field-edited => { root.field-edited(); }
+                        draft-edited => { root.draft-edited(); }
                     }
                 }
                 Tab {
                     title: "Freeboard";
                     FreeboardTab {
+                        hull-image <=> root.hull-image;
                         hull-fields <=> root.hull-fields;
                         bow-labels <=> root.bow-labels;
                         stern-labels <=> root.stern-labels;
                         field-edited => { root.field-edited(); }
+                        save-picture => { root.save-picture(); }
+                        depth-lock-toggled => { root.depth-lock-toggled(); }
+                        set-freeboards(which) => { root.freeboards-est(which); }
                     }
                 }
                 Tab {
@@ -129,9 +145,7 @@ export component MainWindow inherits Window {
             GroupBox {
                 title: "Report";
                 visible: root.report-visible;
-                report := TextEdit {
-                    text: root.report_str;
-                }
+                report := TextEdit { text: root.report_str; read-only: true; }
             }
         }
     }

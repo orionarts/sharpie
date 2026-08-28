@@ -1,0 +1,9 @@
+import { LineEdit } from "std-widgets.slint";
+import { Layout }   from "../layout.slint";
+
+/// Text entry box with default height
+///
+export component Entry inherits LineEdit {
+    height: Layout.edit-height;
+    horizontal-alignment: right;
+}

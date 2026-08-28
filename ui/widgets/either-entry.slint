@@ -1,0 +1,38 @@
+import { Entry }  from "./entry.slint";
+import { Layout } from "../layout.slint";
+
+// EitherEntry {{{1
+/// Text box that is either editable (stored value) or a read-only display
+/// (derived value). Clicking the read-only box emits `activated` so the
+/// caller can make it editable; `edited` has the same meaning as Entry.
+///
+export component EitherEntry inherits Rectangle {
+    forward-focus: ftrap;
+
+    in-out property <string> text;
+    in property <bool> editable: true;
+
+    callback edited;
+    callback activated;
+
+    // Hand focus to the Entry so a caller can focus() this component and
+    // have the caret land in the text field, despite LineEdit having no
+    // focus() of its own.
+    ftrap := FocusScope {
+        forward-focus: entry;
+        entry := Entry {
+            x: 0; y: 0; width: 100%; height: 100%;
+            enabled: root.editable;
+            text <=> root.text;
+            edited => { root.edited(); }
+        }
+    }
+
+    // Only intercept clicks while read-only; otherwise the events fall
+    // through to the Entry underneath.
+    TouchArea {
+        enabled: !root.editable;
+        mouse-cursor: pointer;
+        clicked => { root.activated(); }
+    }
+}

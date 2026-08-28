@@ -1,12 +1,10 @@
-import {
-    LineEdit,
-    VerticalBox,
-    HorizontalBox,
-    GroupBox,
-    GridBox,
-    ScrollView,
-} from "std-widgets.slint";
-import { FieldRow } from "../widgets/field-row.slint";
+import { GridBox, ScrollView } from "std-widgets.slint";
+
+import { Entry }       from "../widgets/entry.slint";
+import { EitherEntry } from "../widgets/either-entry.slint";
+import { RowLabel }    from "../widgets/row-label.slint";
+import { ColumnLabel } from "../widgets/column-label.slint";
+import { Layout }      from "../layout.slint";
 
 // Ship entry fields {{{1
 //
@@ -20,8 +18,9 @@ export struct ShipIdentity {
 // Hull entry fields {{{1
 //
 export struct HullFields {
-    // Either/or pairs: *-kind records which LineEdit was edited last
-    // (0 = first, 1 = second); the other shows the derived counterpart
+    // Either/or pairs: *-kind records which LineEdit is being entered
+    // (0 = first, 1 = second); the other is read-only and shows the derived
+    // counterpart. Clicking a read-only box makes it the one being entered.
     disp-kind: int,
     disp-cb: string,
     disp-d: string,
@@ -43,6 +42,7 @@ export struct HullFields {
     fc-len: string,
     fd-len: string,
     qd-len: string,
+    ad-len: string,
 
     fc-fwd: string,
     fc-aft: string,
@@ -53,146 +53,178 @@ export struct HullFields {
     qd-fwd: string,
     qd-aft: string,
 
+    freeboard: string,
+
     bow-angle: string,
+
+    // Depth lock: when locked, the (freeboard + draft) total is held
+    // constant so a draft change is compensated by the freeboards. The
+    // depth-* stashes are in imperial feet.
+    depth-locked: bool,
+    depth-fc-for: float,
+    depth-fc-aft: float,
+    depth-fd-for: float,
+    depth-fd-aft: float,
+    depth-ad-for: float,
+    depth-ad-aft: float,
+    depth-qd-for: float,
+    depth-qd-aft: float,
+
+    engine-year: string,
+}
+
+// Computed hull values, shown read-only {{{1
+//
+export struct HullComputed {
+    t-max: string,
+    cb-max: string,
+    d-max: string,
+    wp-imp: string,
+    wp-metric: string,
+    ws-imp: string,
+    ws-metric: string,
+    len2beam: string,
+    vn: string,
 }
 
 // Hull tab {{{1
 //
 export component HullTab inherits ScrollView {
-    in-out property <ShipIdentity> identity: {
-        name: "",
-        country: "",
-        kind: "",
-        year: "1950",
-    };
-    in-out property <HullFields> hull-fields: {
-        disp-kind: 0,
-        disp-cb: "",
-        disp-d: "",
-        len-kind: 0,
-        len-lwl: "",
-        len-loa: "",
-        b: "",
-        bb: "",
-        t: "",
-        bow-type: 0,
-        ram-len: "",
-        stern-type: 0,
-        stern-overhang: "",
-        fc-len: "",
-        fd-len: "",
-        qd-len: "",
-        fc-fwd: "",
-        fc-aft: "",
-        fd-fwd: "",
-        fd-aft: "",
-        ad-fwd: "",
-        ad-aft: "",
-        qd-fwd: "",
-        qd-aft: "",
-        bow-angle: "",
-    };
+    in-out property <ShipIdentity> identity;
+    in-out property <HullFields> hull-fields;
+
+    in-out property <HullComputed> hull-computed;
 
     callback field-edited();
+    callback draft-edited();
 
-    VerticalBox {
-        GroupBox {
-            title: "Ship Identity";
-            VerticalBox {
-                FieldRow {
-                    label: "Name:";
-                    LineEdit {
-                        text <=> root.identity.name;
-                        edited => { root.field-edited(); }
-                    }
+    GridBox { // {{{2
+        spacing: Layout.grid-spacing;
+
+        // This row exists solely to set the column widths
+        Row {
+            // These blank widgets are solely so we can set column widths in the
+            // first row
+            Text { height: 0px; width: Layout.label-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width + 80px; }
+            Text { height: 0px; width: Layout.edit-width; }
+        }
+
+        // Ship {{{2
+        Row {
+            Text { text: "Ship:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+        }
+        Row {
+            RowLabel { text: "Name:"; }
+            Entry { colspan: 2; horizontal-alignment: left; text <=> root.identity.name; edited => { root.field-edited(); } }
+            ColumnLabel { col: 4; text: "Year:"; }
+        }
+        Row {
+            RowLabel { text: "Country:"; }
+            Entry { colspan: 2; horizontal-alignment: left; text <=> root.identity.country; edited => { root.field-edited(); } }
+            RowLabel { text: "Ship laid down:"; }
+            Entry { text <=> root.identity.year; edited => { root.field-edited(); } }
+        }
+        Row {
+            RowLabel { text: "Type:"; }
+            Entry { colspan: 2; horizontal-alignment: left; text <=> root.identity.kind; edited => { root.field-edited(); } }
+            RowLabel { text: "Engine built:"; }
+            Entry { text <=> root.hull-fields.engine-year; edited => { root.field-edited(); } }
+        }
+
+        // Dimension {{{2
+        Row {
+            Text { text: "Dimension:"; colspan: 5; font-weight: 700; height: Layout.edit-height; vertical-alignment: bottom; }
+        }
+        Row {
+            ColumnLabel { text: "Length:"; col: 1; }
+            GridLayout {
+                spacing: Layout.grid-spacing;
+                rowspan: 3;
+                colspan: 3;
+                Row {
+                    ColumnLabel { text: "Beam:"; col: 1; }
+                    ColumnLabel { col: 3; text: root.hull-fields.depth-locked ? "Draft\n(depth locked):" : "Draft\n(hull only):"; }
                 }
-                FieldRow {
-                    label: "Country:";
-                    LineEdit {
-                        text <=> root.identity.country;
-                        edited => { root.field-edited(); }
-                    }
+                Row {
+                    RowLabel { text: "Hull:"; }
+                    Entry { text <=> root.hull-fields.b; edited => { root.field-edited(); } }
+                    RowLabel { text: "Normal:"; }
+                    Entry { text <=> root.hull-fields.t; edited => { root.draft-edited(); } }
                 }
-                FieldRow {
-                    label: "Kind:";
-                    LineEdit {
-                        text <=> root.identity.kind;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                FieldRow {
-                    label: "Year:";
-                    LineEdit {
-                        text <=> root.identity.year;
-                        edited => { root.field-edited(); }
-                    }
+                Row {
+                    RowLabel { text: "Bulges:"; }
+                    Entry { text <=> root.hull-fields.bb; edited => { root.field-edited(); } }
+                    RowLabel { text: "Maximum:"; }
+                    Entry { text: root.hull-computed.t-max; enabled: false; }
                 }
             }
         }
-
-        GroupBox {
-            title: "Dimensions";
-            VerticalBox {
-                HorizontalBox {
-                    Text { text: "Cb:"; width: 40px; vertical-alignment: center; }
-                    LineEdit {
-                        width: 70px;
-                        text <=> root.hull-fields.disp-cb;
-                        edited => {
-                            root.hull-fields.disp-kind = 0;
-                            root.field-edited();
-                        }
-                    }
-                    Text { text: "Disp (t):"; width: 55px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.disp-d;
-                        edited => {
-                            root.hull-fields.disp-kind = 1;
-                            root.field-edited();
-                        }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "LWL:"; width: 40px; vertical-alignment: center; }
-                    LineEdit {
-                        width: 70px;
-                        text <=> root.hull-fields.len-lwl;
-                        edited => {
-                            root.hull-fields.len-kind = 0;
-                            root.field-edited();
-                        }
-                    }
-                    Text { text: "LOA:"; width: 40px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.len-loa;
-                        edited => {
-                            root.hull-fields.len-kind = 1;
-                            root.field-edited();
-                        }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Beam:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.b;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Beam bulges:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.bb;
-                        edited => { root.field-edited(); }
-                    }
-                }
-                HorizontalBox {
-                    Text { text: "Draft:"; width: 80px; vertical-alignment: center; }
-                    LineEdit {
-                        text <=> root.hull-fields.t;
-                        edited => { root.field-edited(); }
-                    }
-                }
+        Row {
+            RowLabel { text: "Waterline:"; }
+            len-lwl := EitherEntry {
+                text <=> root.hull-fields.len-lwl;
+                editable: root.hull-fields.len-kind == 0;
+                edited => { root.hull-fields.len-kind = 0; root.field-edited(); }
+                activated => { root.hull-fields.len-kind = 0; len-lwl.focus(); }
             }
+        }
+        Row {
+            RowLabel { text: "Overall:"; }
+            len-loa := EitherEntry {
+                text <=> root.hull-fields.len-loa;
+                editable: root.hull-fields.len-kind == 1;
+                edited => { root.hull-fields.len-kind = 1; root.field-edited(); }
+                activated => { root.hull-fields.len-kind = 1; len-loa.focus(); }
+            }
+        }
+        // Displacement {{{2
+        Row {
+            Text { text: "Displacement:"; colspan: 5; font-weight: 700; height: Layout.edit-height; vertical-alignment: bottom; }
+        }
+        Row {
+            ColumnLabel { text: "Block\nCoefficient:"; col: 1; }
+            ColumnLabel { text: "Displacement:"; }
+        }
+        Row {
+            RowLabel { text: "Normal:"; }
+            disp-cb := EitherEntry {
+                text <=> root.hull-fields.disp-cb;
+                editable: root.hull-fields.disp-kind == 0;
+                edited => { root.hull-fields.disp-kind = 0; root.field-edited(); }
+                activated => { root.hull-fields.disp-kind = 0; disp-cb.focus(); }
+            }
+            disp-d := EitherEntry {
+                text <=> root.hull-fields.disp-d;
+                editable: root.hull-fields.disp-kind == 1;
+                edited => { root.hull-fields.disp-kind = 1; root.field-edited(); }
+                activated => { root.hull-fields.disp-kind = 1; disp-d.focus(); }
+            }
+        }
+        Row {
+            RowLabel { text: "Maximum:"; }
+            Entry { text: root.hull-computed.cb-max; enabled: false; }
+            Entry { text: root.hull-computed.d-max; enabled: false; }
+        }
+        Row {
+            ColumnLabel { text: "Waterplane\narea:"; col: 1; }
+            ColumnLabel { text: "Wetted\nsurface area:"; }
+        }
+        Row {
+            RowLabel { text: "Square feet:"; }
+            Entry { text: root.hull-computed.wp-imp; enabled: false; }
+            Entry { text: root.hull-computed.ws-imp; enabled: false; }
+            RowLabel { text: "Length : Beam:"; }
+            Entry { text: root.hull-computed.len2beam; enabled: false; }
+        }
+        Row {
+            RowLabel { text: "Square meters:"; }
+            Entry { text: root.hull-computed.wp-metric; enabled: false; }
+            Entry { text: root.hull-computed.ws-metric; enabled: false; }
+            RowLabel { text: "Natural Speed:"; }
+            Entry { text: root.hull-computed.vn; enabled: false; }
         }
     }
 }
