@@ -1,4 +1,4 @@
-import { GridBox, ScrollView } from "std-widgets.slint";
+import { GridBox, ScrollView, Slider } from "std-widgets.slint";
 
 import { Entry }       from "../widgets/entry.slint";
 import { EitherEntry } from "../widgets/either-entry.slint";
@@ -77,6 +77,7 @@ export struct HullFields {
 //
 export struct HullComputed {
     t-max: string,
+    cb: float,
     cb-max: string,
     d-max: string,
     wp-imp: string,
@@ -183,6 +184,29 @@ export component HullTab inherits ScrollView {
         // Displacement {{{2
         Row {
             Text { text: "Displacement:"; colspan: 5; font-weight: 700; height: Layout.edit-height; vertical-alignment: bottom; }
+        }
+        Row {
+            Text {
+                col: 1;
+                colspan: 4;
+                horizontal-alignment: center;
+                text: "Destroyer » Cruiser » Battleship » Merchant hullform";
+            }
+        }
+        Row {
+            Slider {
+                col: 1;
+                colspan: 4;
+                minimum: 0.3;
+                maximum: 1.0;
+                step: 0.001;
+                value <=> root.hull-computed.cb;
+                changed(v) => {
+                    root.hull-fields.disp-kind = 0;
+                    root.hull-fields.disp-cb = v.to-fixed(3);
+                    root.field-edited();
+                }
+            }
         }
         Row {
             ColumnLabel { text: "Block\nCoefficient:"; col: 1; }

@@ -151,6 +151,7 @@ pub fn hull_to_ui(ship: &Ship, ui: &MainWindow) {
 
     ui.set_hull_computed(HullComputed {
         t_max:     fmt_meas(ship.t_max(), u, 2).into(),
+        cb:        h.cb() as f32,
         cb_max:    num!(ship.cb_max(), 3).into(),
         d_max:     num!(ship.d_max(), 0).into(),
         wp_imp:    num!(h.wp().imp(), 0).into(),
@@ -269,6 +270,10 @@ pub fn hull_derived_to_ui(ship: &Ship, ui: &MainWindow) {
     f.freeboard = fmt_meas(h.freeboard.average(), h.units, 2).into();
 
     ui.set_hull_fields(f);
+
+    let mut c = ui.get_hull_computed();
+    c.cb = h.cb() as f32;
+    ui.set_hull_computed(c);
 }
 
 // apply_depth_lock {{{2
