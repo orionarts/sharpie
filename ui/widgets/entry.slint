@@ -6,4 +6,11 @@ import { Layout }   from "../layout.slint";
 export component Entry inherits LineEdit {
     height: Layout.edit-height;
     horizontal-alignment: right;
+
+    // Select contents when gaining focus
+    changed has-focus => {
+        if self.has-focus {
+            self.select-all();
+        }
+    }
 }
