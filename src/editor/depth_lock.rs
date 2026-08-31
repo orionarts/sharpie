@@ -5,9 +5,7 @@
 //! the opposite direction. These functions work only on the domain [`Hull`];
 //! UI formatting is the caller's (GUI layer) responsibility.
 
-use crate::calc::hull::Hull;
-use crate::calc::units::{Measurement, UnitType::LengthLong, Units};
-use crate::calc::Freeboard;
+use crate::calc::{Freeboard, Measurement, UnitType::LengthLong, Units};
 
 // stash_depths {{{1
 /// Capture the depth stash (freeboard + draft) for each of the eight deck
@@ -15,19 +13,19 @@ use crate::calc::Freeboard;
 /// feet (order fc_fwd, fc_aft, fd_fwd, fd_aft, ad_fwd, ad_aft, qd_fwd, qd_aft);
 /// the length fractions are left at their defaults.
 ///
-pub fn stash_depths(h: &Hull) -> Freeboard {
-    let t = h.t.imp();
+pub fn stash_depths(t: Measurement, fb: Freeboard) -> Freeboard {
+    let t = t.imp();
     let m = |v: f64| Measurement::new(v, LengthLong, Units::Imperial);
 
     Freeboard {
-        fc_fwd: m(h.freeboard.fc_fwd.imp() + t),
-        fc_aft: m(h.freeboard.fc_aft.imp() + t),
-        fd_fwd: m(h.freeboard.fd_fwd.imp() + t),
-        fd_aft: m(h.freeboard.fd_aft.imp() + t),
-        ad_fwd: m(h.freeboard.ad_fwd.imp() + t),
-        ad_aft: m(h.freeboard.ad_aft.imp() + t),
-        qd_fwd: m(h.freeboard.qd_fwd.imp() + t),
-        qd_aft: m(h.freeboard.qd_aft.imp() + t),
+        fc_fwd: m(fb.fc_fwd.imp() + t),
+        fc_aft: m(fb.fc_aft.imp() + t),
+        fd_fwd: m(fb.fd_fwd.imp() + t),
+        fd_aft: m(fb.fd_aft.imp() + t),
+        ad_fwd: m(fb.ad_fwd.imp() + t),
+        ad_aft: m(fb.ad_aft.imp() + t),
+        qd_fwd: m(fb.qd_fwd.imp() + t),
+        qd_aft: m(fb.qd_aft.imp() + t),
         ..Freeboard::default()
     }
 }
@@ -39,17 +37,19 @@ pub fn stash_depths(h: &Hull) -> Freeboard {
 /// steady. The hull freeboards are updated in place, and the resulting
 /// freeboard (length fractions preserved) is returned.
 ///
-pub fn derive_freeboards(h: &mut Hull, depths: &Freeboard) -> Freeboard {
-    let t = h.t.imp();
+pub fn derive_freeboards(t: Measurement, depths: &Freeboard) -> Freeboard {
+    let t = t.imp();
     let m = |v: f64| Measurement::new(v, LengthLong, Units::Imperial);
 
-    h.freeboard.fc_fwd = m(depths.fc_fwd.imp() - t);
-    h.freeboard.fc_aft = m(depths.fc_aft.imp() - t);
-    h.freeboard.fd_fwd = m(depths.fd_fwd.imp() - t);
-    h.freeboard.fd_aft = m(depths.fd_aft.imp() - t);
-    h.freeboard.ad_fwd = m(depths.ad_fwd.imp() - t);
-    h.freeboard.ad_aft = m(depths.ad_aft.imp() - t);
-    h.freeboard.qd_fwd = m(depths.qd_fwd.imp() - t);
-    h.freeboard.qd_aft = m(depths.qd_aft.imp() - t);
-    h.freeboard.clone()
+    Freeboard {
+        fc_fwd: m(depths.fc_fwd.imp() - t),
+        fc_aft: m(depths.fc_aft.imp() - t),
+        fd_fwd: m(depths.fd_fwd.imp() - t),
+        fd_aft: m(depths.fd_aft.imp() - t),
+        ad_fwd: m(depths.ad_fwd.imp() - t),
+        ad_aft: m(depths.ad_aft.imp() - t),
+        qd_fwd: m(depths.qd_fwd.imp() - t),
+        qd_aft: m(depths.qd_aft.imp() - t),
+        ..Freeboard::default()
+    }
 }

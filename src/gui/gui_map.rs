@@ -285,7 +285,7 @@ pub fn hull_derived_to_ui(ship: &Ship, ui: &MainWindow) {
 ///
 pub fn apply_depth_lock(ship: &Ship, ui: &MainWindow) {
     let mut f = ui.get_hull_fields();
-    let depths = depth_lock::stash_depths(&ship.hull);
+    let depths = depth_lock::stash_depths(ship.hull.t, ship.hull.freeboard.clone());
 
     if f.depth_locked {
         f.depth_fc_for = depths.fc_fwd.imp() as f32;
@@ -327,7 +327,8 @@ pub fn depth_locked_to_ui(ship: &mut Ship, ui: &MainWindow) {
         ..Freeboard::default()
     };
 
-    let fb = depth_lock::derive_freeboards(&mut ship.hull, &depths);
+    let fb = depth_lock::derive_freeboards(ship.hull.t, &depths);
+    copy_heights(&mut ship.hull.freeboard, &fb);
 
     f.fc_fwd = SharedString::from(fmt_meas(fb.fc_fwd, ship.hull.units, 2));
     f.fc_aft = SharedString::from(fmt_meas(fb.fc_aft, ship.hull.units, 2));
@@ -351,8 +352,9 @@ pub fn set_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     let mut f = ui.get_hull_fields();
     let h = &mut ship.hull;
 
-    let est = freeboard_est::freeboard_est(h.lwl().imp(), Ship::year_adj(ship.year), which);
-    let fb = freeboard_est::apply_freeboard_est(h, &est);
+    let est = freeboard_est::freeboard_est(h.lwl(), ship.year, which);
+    let fb = freeboard_est::apply_freeboard_est(&est);
+    copy_heights(&mut h.freeboard, &fb);
 
     f.fc_fwd = SharedString::from(fmt_meas(fb.fc_fwd, h.units, 2));
     f.fc_aft = SharedString::from(fmt_meas(fb.fc_aft, h.units, 2));
@@ -383,6 +385,21 @@ pub fn hull_image_to_ui(ship: &Ship, ui: &MainWindow) {
 }
 
 // Helpers {{{1
+// copy_heights {{{2
+/// Copy src's eight freeboard height fields into dst, leaving the length
+/// fractions untouched.
+///
+fn copy_heights(dst: &mut Freeboard, src: &Freeboard) {
+    dst.fc_fwd = src.fc_fwd;
+    dst.fc_aft = src.fc_aft;
+    dst.fd_fwd = src.fd_fwd;
+    dst.fd_aft = src.fd_aft;
+    dst.ad_fwd = src.ad_fwd;
+    dst.ad_aft = src.ad_aft;
+    dst.qd_fwd = src.qd_fwd;
+    dst.qd_aft = src.qd_aft;
+}
+
 // fmt_meas {{{2
 /// Format a Measurement in the ship's unit system.
 ///

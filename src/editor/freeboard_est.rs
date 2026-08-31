@@ -3,30 +3,34 @@
 //! These are stateless helpers ported from SpringSharp 3b3's
 //! `btnFlushClick`/`btnBreakClick` (SpringSharp3b3.cs lines 1741 and 1770).
 
-use crate::calc::hull::Hull;
-use crate::calc::units::{Measurement, UnitType::LengthLong, Units};
-use crate::calc::Freeboard;
+use crate::calc::{
+    Freeboard,
+    Measurement,
+    Ship,
+    UnitType::LengthLong,
+    Units,
+};
 
 // freeboard_est {{{1
 /// Estimated freeboards for the "Flush deck" / "Mid break" buttons.
 ///
-/// `lwl_ft` is the waterline length in feet, `adj` is the date adjustment
-/// (`Ship::year_adj`), and `which` selects the preset (0 = flush deck, anything
-/// else = mid break). The height fields of the returned [`Freeboard`] are in
-/// imperial feet; the length fractions are left at their defaults.
+/// `which` selects the preset (0 = flush deck, anything else = mid break). The
+/// height fields of the returned [`Freeboard`] are in imperial feet; the length
+/// fractions are set to 0.
 ///
-pub fn freeboard_est(lwl_ft: f64, adj: f64, which: i32) -> Freeboard {
+pub fn freeboard_est(lwl: Measurement, year: u32, which: i32) -> Freeboard {
     let m = |v: f64| Measurement::new(v, LengthLong, Units::Imperial);
-    let bow = (1.1 - (1.0 - adj) * 0.5) * lwl_ft.sqrt();
+    let lwl = lwl.imp();
+    let bow = (1.1 - (1.0 - Ship::year_adj(year)) * 0.5) * lwl.sqrt();
 
     let (fc_aft, fd_fwd, fd_aft, ad_fwd, ad_aft, qd_fwd, qd_aft) = match which {
         0 => {
-            let other = 0.7 * lwl_ft.sqrt();
+            let other = 0.7 * lwl.sqrt();
             let mid = (bow + other) / 2.0;
             (mid, mid, other, other, other, other, other)
         }
         _ => {
-            let other = 0.9 * lwl_ft.sqrt();
+            let other = 0.9 * lwl.sqrt();
             let aft = other / 2.0;
             (other, other, other, aft, aft, aft, aft)
         }
@@ -48,22 +52,25 @@ pub fn freeboard_est(lwl_ft: f64, adj: f64, which: i32) -> Freeboard {
 }
 
 // apply_freeboard_est {{{1
-/// Fill the freeboard height fields from the "Flush deck"/"Mid break" estimates.
+/// Build a [`Freeboard`] carrying the height estimates from "Flush deck"/"Mid
+/// break".
 ///
-/// Mirrors SpringSharp's `btnFlushClick`/`btnBreakClick`, writing the heights
-/// back into the ship so the display, image and report stay in sync. The length
-/// fractions are left untouched and carried through on the returned freeboard.
+/// Mirrors SpringSharp's `btnFlushClick`/`btnBreakClick`. This is a pure
+/// constructor only; the caller is responsible for writing the returned
+/// heights back into the ship so the display, image and report stay in sync.
 ///
-pub fn apply_freeboard_est(h: &mut Hull, est: &Freeboard) -> Freeboard {
-    h.freeboard.fc_fwd = est.fc_fwd;
-    h.freeboard.fc_aft = est.fc_aft;
-    h.freeboard.fd_fwd = est.fd_fwd;
-    h.freeboard.fd_aft = est.fd_aft;
-    h.freeboard.ad_fwd = est.ad_fwd;
-    h.freeboard.ad_aft = est.ad_aft;
-    h.freeboard.qd_fwd = est.qd_fwd;
-    h.freeboard.qd_aft = est.qd_aft;
-    h.freeboard.clone()
+pub fn apply_freeboard_est(est: &Freeboard) -> Freeboard {
+    Freeboard {
+        fc_fwd: est.fc_fwd,
+        fc_aft: est.fc_aft,
+        fd_fwd: est.fd_fwd,
+        fd_aft: est.fd_aft,
+        ad_fwd: est.ad_fwd,
+        ad_aft: est.ad_aft,
+        qd_fwd: est.qd_fwd,
+        qd_aft: est.qd_aft,
+        ..Freeboard::default()
+    }
 }
 
 // Testing {{{1
@@ -79,8 +86,9 @@ mod tests {
     // Test flush deck estimate {{{2
     #[test]
     fn est_flush_deck() {
-        // LWL 400 ft, dateAdj 1.0 -> bow 22 ft, elsewhere 14 ft.
-        let est = freeboard_est(400.0, 1.0, 0);
+        // LWL 400 ft, year 1890 (dateAdj 1.0) -> bow 22 ft, elsewhere 14 ft.
+        let lwl = Measurement::new(400.0, LengthLong, Units::Imperial);
+        let est = freeboard_est(lwl, 1890, 0);
         assert!(close(est.fc_fwd.imp(), 22.0)); // fc_fwd
         assert!(close(est.fc_aft.imp(), 18.0)); // fc_aft
         assert!(close(est.fd_fwd.imp(), 18.0)); // fd_fwd
@@ -92,7 +100,8 @@ mod tests {
     #[test]
     fn est_mid_break() {
         // Other heights at 0.9 * sqrt(400) = 18 ft, aft of the break 9 ft.
-        let est = freeboard_est(400.0, 1.0, 1);
+        let lwl = Measurement::new(400.0, LengthLong, Units::Imperial);
+        let est = freeboard_est(lwl, 1890, 1);
         assert!(close(est.fc_fwd.imp(), 22.0)); // fc_fwd
         assert!(close(est.fc_aft.imp(), 18.0)); // fc_aft
         assert!(close(est.fd_aft.imp(), 18.0)); // fd_aft
@@ -104,7 +113,8 @@ mod tests {
     #[test]
     fn est_old_ship_bow() {
         // year 1850 -> dateAdj 0.4 -> bow factor 0.8.
-        let est = freeboard_est(400.0, 0.4, 0);
+        let lwl = Measurement::new(400.0, LengthLong, Units::Imperial);
+        let est = freeboard_est(lwl, 1850, 0);
         assert!(close(est.fc_fwd.imp(), 16.0));
     }
 }
