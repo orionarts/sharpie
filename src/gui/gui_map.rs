@@ -1,8 +1,9 @@
 //! Binary-side mapping between the domain [`Ship`] and the Slint UI.
 //!
 //! Declared only from `main.rs`, keeping the library GUI-free. Each GUI
-//! group gets a `*_to_ui` push and an `apply_*` pull; parsing failures
-//! leave the corresponding domain value untouched.
+//! group gets a `push_*` to move values ship -> UI and a `pull_*` to move them
+//! UI -> ship; parsing failures leave the corresponding domain value
+//! untouched.
 
 use slint::{ModelRc, SharedString, VecModel};
 
@@ -41,10 +42,10 @@ fn label_model(labels: impl Iterator<Item = &'static str>) -> ModelRc<SharedStri
 }
 
 // Identity {{{1
-// identity_to_ui {{{2
+// push_identity {{{2
 /// Push ship identity fields into the UI.
 ///
-pub fn identity_to_ui(ship: &Ship, ui: &MainWindow) {
+pub fn push_identity(ship: &Ship, ui: &MainWindow) {
     ui.set_identity(ShipIdentity {
         name: ship.name.clone().into(),
         country: ship.country.clone().into(),
@@ -53,13 +54,13 @@ pub fn identity_to_ui(ship: &Ship, ui: &MainWindow) {
     });
 }
 
-// apply_identity {{{2
+// pull_identity {{{2
 /// Pull ship identity fields from the UI into the ship.
 ///
 /// The year is only accepted when it is a four-digit number inside the
 /// legal range; anything else leaves the stored year untouched.
 ///
-pub fn apply_identity(ui: &MainWindow, ship: &mut Ship) {
+pub fn pull_identity(ui: &MainWindow, ship: &mut Ship) {
     let id = ui.get_identity();
 
     ship.name = id.name.to_string();
@@ -77,14 +78,14 @@ pub fn apply_identity(ui: &MainWindow, ship: &mut Ship) {
 }
 
 // Hull inputs {{{1
-// hull_to_ui {{{2
+// push_hull {{{2
 /// Push editable hull fields into the UI.
 ///
 /// For each either/or pair the active box shows the stored value and the
 /// inactive box shows the derived counterpart (e.g., displacement derived
 /// from a given Cb).
 ///
-pub fn hull_to_ui(ship: &Ship, ui: &MainWindow) {
+pub fn push_hull(ship: &Ship, ui: &MainWindow) {
     let h = &ship.hull;
     let u = h.units;
 
@@ -163,13 +164,13 @@ pub fn hull_to_ui(ship: &Ship, ui: &MainWindow) {
     });
 }
 
-// apply_hull {{{2
+// pull_hull {{{2
 /// Pull editable hull fields from the UI into the ship.
 ///
 /// Only the box flagged by each either/or pair's kind index is parsed; a
 /// failed parse keeps both the prior variant and its value.
 ///
-pub fn apply_hull(ui: &MainWindow, ship: &mut Ship) {
+pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
     let f = ui.get_hull_fields();
     let h = &mut ship.hull;
 
@@ -245,15 +246,15 @@ pub fn apply_hull(ui: &MainWindow, ship: &mut Ship) {
     }
 }
 
-// hull_derived_to_ui {{{2
+// push_hull_derived {{{2
 /// Refresh only the derived, read-only hull boxes in the UI.
 ///
-/// Unlike hull_to_ui(), this leaves the box being entered untouched so that
+/// Unlike push_hull(), this leaves the box being entered untouched so that
 /// partially-typed input is not reformatted under the caret. Only the
 /// read-only derived boxes are updated (e.g., LOA from a given LWL and the
 /// average freeboard from the deck freeboards).
 ///
-pub fn hull_derived_to_ui(ship: &Ship, ui: &MainWindow) {
+pub fn push_hull_derived(ship: &Ship, ui: &MainWindow) {
     let mut f = ui.get_hull_fields();
     let h = &ship.hull;
 
@@ -276,14 +277,14 @@ pub fn hull_derived_to_ui(ship: &Ship, ui: &MainWindow) {
     ui.set_hull_computed(c);
 }
 
-// apply_depth_lock {{{2
+// stash_depth_lock {{{2
 /// Capture the depth stashes when the hull depth is locked.
 ///
 /// Each stash is the (freeboard + draft) total in imperial feet for one of
 /// the eight deck corners; while locked, draft changes are compensated by
-/// moving the freeboards so the total stays put (see depth_locked_to_ui).
+/// moving the freeboards so the total stays put (see push_depth_locked).
 ///
-pub fn apply_depth_lock(ship: &Ship, ui: &MainWindow) {
+pub fn stash_depth_lock(ship: &Ship, ui: &MainWindow) {
     let mut f = ui.get_hull_fields();
     let depths = depth_lock::stash_depths(ship.hull.t, ship.hull.freeboard.clone());
 
@@ -301,14 +302,14 @@ pub fn apply_depth_lock(ship: &Ship, ui: &MainWindow) {
     ui.set_hull_fields(f);
 }
 
-// depth_locked_to_ui {{{2
+// push_depth_locked {{{2
 /// Re-derive the freeboard boxes from the depth stashes after a draft
 /// change while the depth is locked.
 ///
 /// Each freeboard becomes (stash - draft), so the keel-to-deck height
 /// holds steady. Both the ship and the UI text are updated.
 ///
-pub fn depth_locked_to_ui(ship: &mut Ship, ui: &MainWindow) {
+pub fn push_depth_locked(ship: &mut Ship, ui: &MainWindow) {
     let mut f = ui.get_hull_fields();
     if !f.depth_locked {
         return;
@@ -342,13 +343,13 @@ pub fn depth_locked_to_ui(ship: &mut Ship, ui: &MainWindow) {
     ui.set_hull_fields(f);
 }
 
-// set_freeboard_est {{{2
+// push_freeboard_est {{{2
 /// Fill the eight freeboard boxes from the "Flush deck"/"Mid break" estimates.
 ///
 /// Mirrors SpringSharp's `btnFlushClick`/`btnBreakClick`, but also writes the
 /// values back into the ship so the display, image and report stay in sync.
 ///
-pub fn set_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
+pub fn push_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     let mut f = ui.get_hull_fields();
     let h = &mut ship.hull;
 
@@ -367,7 +368,7 @@ pub fn set_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     ui.set_hull_fields(f);
 }
 
-// hull_image_to_ui {{{1
+// push_hull_image {{{1
 //
 /// Render the hull side profile in memory and push it into the UI.
 ///
@@ -375,7 +376,7 @@ pub fn set_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
 /// error (essentially impossible for the deterministic SVG) leaves the previous
 /// image in place.
 ///
-pub fn hull_image_to_ui(ship: &Ship, ui: &MainWindow) {
+pub fn push_hull_image(ship: &Ship, ui: &MainWindow) {
     if let Ok(img) = slint::Image::load_from_svg_data(
         hull_draw::hull_svg(&ship.hull, &ship.name).as_bytes(),
     ) {
