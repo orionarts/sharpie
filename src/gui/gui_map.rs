@@ -42,18 +42,6 @@ fn label_model(labels: impl Iterator<Item = &'static str>) -> ModelRc<SharedStri
 }
 
 // Identity {{{1
-// push_identity {{{2
-/// Push ship identity fields into the UI.
-///
-pub fn push_identity(ship: &Ship, ui: &MainWindow) {
-    ui.set_identity(ShipIdentity {
-        name: ship.name.clone().into(),
-        country: ship.country.clone().into(),
-        kind: ship.kind.clone().into(),
-        year: ship.year.to_string().into(),
-    });
-}
-
 // pull_identity {{{2
 /// Pull ship identity fields from the UI into the ship.
 ///
@@ -77,7 +65,101 @@ pub fn pull_identity(ui: &MainWindow, ship: &mut Ship) {
     }
 }
 
-// Hull inputs {{{1
+// push_identity {{{2
+/// Push ship identity fields into the UI.
+///
+pub fn push_identity(ship: &Ship, ui: &MainWindow) {
+    ui.set_identity(ShipIdentity {
+        name: ship.name.clone().into(),
+        country: ship.country.clone().into(),
+        kind: ship.kind.clone().into(),
+        year: ship.year.to_string().into(),
+    });
+}
+
+// Hull {{{1
+// pull_hull {{{2
+/// Pull editable hull fields from the UI into the ship.
+///
+/// Only the box flagged by each either/or pair's kind index is parsed; a
+/// failed parse keeps both the prior variant and its value.
+///
+pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
+    let f = ui.get_hull_fields();
+    let h = &mut ship.hull;
+
+    match f.disp_kind {
+        0 => {
+            if let Some(v) = parse(&f.disp_cb) {
+                h.disp = Displacement::Cb(v);
+            }
+        },
+        _ => {
+            if let Some(v) = parse(&f.disp_d) {
+                h.disp = Displacement::D(v);
+            }
+        },
+    }
+
+    match f.len_kind {
+        0 => {
+            if let Some(v) = parse(&f.len_lwl) {
+                h.len = Length::Lwl(Measurement::new(v, LengthLong, h.units));
+            }
+        },
+        _ => {
+            if let Some(v) = parse(&f.len_loa) {
+                h.len = Length::Loa(Measurement::new(v, LengthLong, h.units));
+            }
+        },
+    }
+
+    set_meas(&mut h.b, &f.b, h.units);
+    set_meas(&mut h.bb, &f.bb, h.units);
+    set_meas(&mut h.t, &f.t, h.units);
+
+    // Rebuild the bow type from the dropdown; protrusion variants reuse
+    // the edited length when it parses, otherwise the previous length.
+    let probe = match parse(&f.ram_len) {
+        Some(v) => Measurement::new(v, LengthLong, h.units),
+        None => h.bow_type.ram_len(),
+    };
+    h.bow_type = match BowType::from_index(f.bow_type.max(0) as usize) {
+        BowType::Ram(_) => BowType::Ram(probe),
+        BowType::BulbForward(_) => BowType::BulbForward(probe),
+        plain => plain,
+    };
+
+    h.stern_type = SternType::from_index(f.stern_type.max(0) as usize);
+    set_meas(&mut h.stern_overhang, &f.stern_overhang, h.units);
+
+    if let Some(v) = parse(&f.bow_angle) {
+        h.bow_angle = v;
+    }
+
+    set_frac(&mut h.freeboard.fc_len, &f.fc_len);
+    set_frac(&mut h.freeboard.fd_len, &f.fd_len);
+    set_frac(&mut h.freeboard.qd_len, &f.qd_len);
+
+    set_meas(&mut h.freeboard.fc_fwd, &f.fc_fwd, h.units);
+    set_meas(&mut h.freeboard.fc_aft, &f.fc_aft, h.units);
+    set_meas(&mut h.freeboard.fd_fwd, &f.fd_fwd, h.units);
+    set_meas(&mut h.freeboard.fd_aft, &f.fd_aft, h.units);
+    set_meas(&mut h.freeboard.ad_fwd, &f.ad_fwd, h.units);
+    set_meas(&mut h.freeboard.ad_aft, &f.ad_aft, h.units);
+    set_meas(&mut h.freeboard.qd_fwd, &f.qd_fwd, h.units);
+    set_meas(&mut h.freeboard.qd_aft, &f.qd_aft, h.units);
+
+    let eng_year = f.engine_year.to_string();
+    if eng_year.len() == 4 {
+        if let Ok(y) = eng_year.parse::<u32>() {
+            if (YEAR_MIN..=YEAR_MAX).contains(&y) {
+                ship.engine.year = y;
+            }
+        }
+    }
+}
+
 // push_hull {{{2
 /// Push editable hull fields into the UI.
 ///
@@ -162,88 +244,6 @@ pub fn push_hull(ship: &Ship, ui: &MainWindow) {
         len2beam:  format!("{} : 1", num!(h.len2beam(), 2)).into(),
         vn:        num!(h.vn(), 2).into(),
     });
-}
-
-// pull_hull {{{2
-/// Pull editable hull fields from the UI into the ship.
-///
-/// Only the box flagged by each either/or pair's kind index is parsed; a
-/// failed parse keeps both the prior variant and its value.
-///
-pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
-    let f = ui.get_hull_fields();
-    let h = &mut ship.hull;
-
-    match f.disp_kind {
-        0 => {
-            if let Some(v) = parse(&f.disp_cb) {
-                h.disp = Displacement::Cb(v);
-            }
-        },
-        _ => {
-            if let Some(v) = parse(&f.disp_d) {
-                h.disp = Displacement::D(v);
-            }
-        },
-    }
-
-    match f.len_kind {
-        0 => {
-            if let Some(v) = parse(&f.len_lwl) {
-                h.len = Length::Lwl(Measurement::new(v, LengthLong, h.units));
-            }
-        },
-        _ => {
-            if let Some(v) = parse(&f.len_loa) {
-                h.len = Length::Loa(Measurement::new(v, LengthLong, h.units));
-            }
-        },
-    }
-
-    set_meas(&mut h.b, &f.b, h.units);
-    set_meas(&mut h.bb, &f.bb, h.units);
-    set_meas(&mut h.t, &f.t, h.units);
-
-    // Rebuild the bow type from the dropdown; protrusion variants reuse
-    // the edited length when it parses, otherwise the previous length.
-    let probe = match parse(&f.ram_len) {
-        Some(v) => Measurement::new(v, LengthLong, h.units),
-        None => h.bow_type.ram_len(),
-    };
-    h.bow_type = match BowType::from_index(f.bow_type.max(0) as usize) {
-        BowType::Ram(_) => BowType::Ram(probe),
-        BowType::BulbForward(_) => BowType::BulbForward(probe),
-        plain => plain,
-    };
-
-    h.stern_type = SternType::from_index(f.stern_type.max(0) as usize);
-    set_meas(&mut h.stern_overhang, &f.stern_overhang, h.units);
-
-    if let Some(v) = parse(&f.bow_angle) {
-        h.bow_angle = v;
-    }
-
-    set_frac(&mut h.freeboard.fc_len, &f.fc_len);
-    set_frac(&mut h.freeboard.fd_len, &f.fd_len);
-    set_frac(&mut h.freeboard.qd_len, &f.qd_len);
-
-    set_meas(&mut h.freeboard.fc_fwd, &f.fc_fwd, h.units);
-    set_meas(&mut h.freeboard.fc_aft, &f.fc_aft, h.units);
-    set_meas(&mut h.freeboard.fd_fwd, &f.fd_fwd, h.units);
-    set_meas(&mut h.freeboard.fd_aft, &f.fd_aft, h.units);
-    set_meas(&mut h.freeboard.ad_fwd, &f.ad_fwd, h.units);
-    set_meas(&mut h.freeboard.ad_aft, &f.ad_aft, h.units);
-    set_meas(&mut h.freeboard.qd_fwd, &f.qd_fwd, h.units);
-    set_meas(&mut h.freeboard.qd_aft, &f.qd_aft, h.units);
-
-    let eng_year = f.engine_year.to_string();
-    if eng_year.len() == 4 {
-        if let Ok(y) = eng_year.parse::<u32>() {
-            if (YEAR_MIN..=YEAR_MAX).contains(&y) {
-                ship.engine.year = y;
-            }
-        }
-    }
 }
 
 // push_hull_derived {{{2
@@ -371,7 +371,9 @@ pub fn push_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     ui.set_hull_fields(f);
 }
 
-// push_hull_image {{{1
+// Other {{{1
+//
+// push_hull_image {{{2
 //
 /// Render the hull side profile in memory and push it into the UI.
 ///
