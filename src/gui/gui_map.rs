@@ -353,17 +353,16 @@ pub fn set_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     let h = &mut ship.hull;
 
     let est = freeboard_est::freeboard_est(h.lwl(), ship.year, which);
-    let fb = freeboard_est::apply_freeboard_est(&est);
-    copy_heights(&mut h.freeboard, &fb);
+    copy_heights(&mut h.freeboard, &est);
 
-    f.fc_fwd = SharedString::from(fmt_meas(fb.fc_fwd, h.units, 2));
-    f.fc_aft = SharedString::from(fmt_meas(fb.fc_aft, h.units, 2));
-    f.fd_fwd = SharedString::from(fmt_meas(fb.fd_fwd, h.units, 2));
-    f.fd_aft = SharedString::from(fmt_meas(fb.fd_aft, h.units, 2));
-    f.ad_fwd = SharedString::from(fmt_meas(fb.ad_fwd, h.units, 2));
-    f.ad_aft = SharedString::from(fmt_meas(fb.ad_aft, h.units, 2));
-    f.qd_fwd = SharedString::from(fmt_meas(fb.qd_fwd, h.units, 2));
-    f.qd_aft = SharedString::from(fmt_meas(fb.qd_aft, h.units, 2));
+    f.fc_fwd = SharedString::from(fmt_meas(est.fc_fwd, h.units, 2));
+    f.fc_aft = SharedString::from(fmt_meas(est.fc_aft, h.units, 2));
+    f.fd_fwd = SharedString::from(fmt_meas(est.fd_fwd, h.units, 2));
+    f.fd_aft = SharedString::from(fmt_meas(est.fd_aft, h.units, 2));
+    f.ad_fwd = SharedString::from(fmt_meas(est.ad_fwd, h.units, 2));
+    f.ad_aft = SharedString::from(fmt_meas(est.ad_aft, h.units, 2));
+    f.qd_fwd = SharedString::from(fmt_meas(est.qd_fwd, h.units, 2));
+    f.qd_aft = SharedString::from(fmt_meas(est.qd_aft, h.units, 2));
 
     ui.set_hull_fields(f);
 }

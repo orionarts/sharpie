@@ -51,28 +51,6 @@ pub fn freeboard_est(lwl: Measurement, year: u32, which: i32) -> Freeboard {
     }
 }
 
-// apply_freeboard_est {{{1
-/// Build a [`Freeboard`] carrying the height estimates from "Flush deck"/"Mid
-/// break".
-///
-/// Mirrors SpringSharp's `btnFlushClick`/`btnBreakClick`. This is a pure
-/// constructor only; the caller is responsible for writing the returned
-/// heights back into the ship so the display, image and report stay in sync.
-///
-pub fn apply_freeboard_est(est: &Freeboard) -> Freeboard {
-    Freeboard {
-        fc_fwd: est.fc_fwd,
-        fc_aft: est.fc_aft,
-        fd_fwd: est.fd_fwd,
-        fd_aft: est.fd_aft,
-        ad_fwd: est.ad_fwd,
-        ad_aft: est.ad_aft,
-        qd_fwd: est.qd_fwd,
-        qd_aft: est.qd_aft,
-        ..Freeboard::default()
-    }
-}
-
 // Testing {{{1
 #[cfg(test)]
 mod tests {
