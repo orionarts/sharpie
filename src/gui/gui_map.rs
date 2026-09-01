@@ -331,14 +331,17 @@ pub fn push_depth_locked(ship: &mut Ship, ui: &MainWindow) {
     let fb = depth_lock::derive_freeboards(ship.hull.t, &depths);
     copy_heights(&mut ship.hull.freeboard, &fb);
 
-    f.fc_fwd = SharedString::from(fmt_meas(fb.fc_fwd, ship.hull.units, 2));
-    f.fc_aft = SharedString::from(fmt_meas(fb.fc_aft, ship.hull.units, 2));
-    f.fd_fwd = SharedString::from(fmt_meas(fb.fd_fwd, ship.hull.units, 2));
-    f.fd_aft = SharedString::from(fmt_meas(fb.fd_aft, ship.hull.units, 2));
-    f.ad_fwd = SharedString::from(fmt_meas(fb.ad_fwd, ship.hull.units, 2));
-    f.ad_aft = SharedString::from(fmt_meas(fb.ad_aft, ship.hull.units, 2));
-    f.qd_fwd = SharedString::from(fmt_meas(fb.qd_fwd, ship.hull.units, 2));
-    f.qd_aft = SharedString::from(fmt_meas(fb.qd_aft, ship.hull.units, 2));
+    f.fc_fwd = fmt_meas(fb.fc_fwd, ship.hull.units, 2).into();
+    f.fc_aft = fmt_meas(fb.fc_aft, ship.hull.units, 2).into();
+
+    f.fd_fwd = fmt_meas(fb.fd_fwd, ship.hull.units, 2).into();
+    f.fd_aft = fmt_meas(fb.fd_aft, ship.hull.units, 2).into();
+
+    f.ad_fwd = fmt_meas(fb.ad_fwd, ship.hull.units, 2).into();
+    f.ad_aft = fmt_meas(fb.ad_aft, ship.hull.units, 2).into();
+
+    f.qd_fwd = fmt_meas(fb.qd_fwd, ship.hull.units, 2).into();
+    f.qd_aft = fmt_meas(fb.qd_aft, ship.hull.units, 2).into();
 
     ui.set_hull_fields(f);
 }
