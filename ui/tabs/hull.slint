@@ -151,7 +151,7 @@ export component HullTab inherits ScrollView {
                 }
                 Row {
                     RowLabel { text: "Hull:"; }
-                    Entry { text <=> root.hull-fields.b; edited => { root.field-edited(); } }
+                    Entry { text <=> root.hull-fields.b; edited => { root.hull-fields.bb = root.hull-fields.b; root.field-edited(); } }
                     RowLabel { text: "Normal:"; }
                     Entry { text <=> root.hull-fields.t; edited => { root.draft-edited(); } }
                 }
