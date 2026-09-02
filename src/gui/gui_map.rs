@@ -5,20 +5,40 @@
 //! UI -> ship; parsing failures leave the corresponding domain value
 //! untouched.
 
-use slint::{ModelRc, SharedString, VecModel};
+use slint::{
+    Model,
+    ModelRc,
+    SharedString,
+    VecModel,
+};
 
 use crate::editor::{depth_lock, freeboard_est};
 use crate::calc::hull_draw;
 
-use crate::{HullComputed, HullFields, MainWindow, ShipIdentity};
+use crate::{
+    ASWFields,
+    ASWDerived,
+    HullComputed,
+    HullFields,
+    MainWindow,
+    MineFields,
+    MineDerived,
+    TorpedoFields,
+    TorpedoDerived,
+    ShipIdentity,
+    WeightFields,
+};
 use crate::calc::{
+    ASWType,
     BowType,
     Displacement,
     Freeboard,
     Length,
     Measurement,
+    MineType,
     Ship,
     SternType,
+    TorpedoMountType,
     UnitType::{Area, LengthLong},
     Units,
     YEAR_MAX,
@@ -30,8 +50,11 @@ use crate::{num, pct};
 /// Fill dropdown label models from each enum's `.sship` order.
 ///
 pub fn set_enum_models(ui: &MainWindow) {
+    ui.set_asw_type_labels(label_model(ASWType::ALL.iter().map(|v| v.label())));
     ui.set_bow_labels(label_model(BowType::ALL.iter().map(|v| v.label())));
+    ui.set_mine_type_labels(label_model(MineType::ALL.iter().map(|v| v.label())));
     ui.set_stern_labels(label_model(SternType::ALL.iter().map(|v| v.label())));
+    ui.set_torp_mount_labels(label_model(TorpedoMountType::ALL.iter().map(|v| v.label())));
 }
 
 // label_model {{{2
@@ -369,6 +392,175 @@ pub fn push_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     f.qd_aft = SharedString::from(fmt_meas(est.qd_aft, h.units, 2));
 
     ui.set_hull_fields(f);
+}
+
+// Weapons {{{1
+//
+// pull_asw {{{2
+pub fn pull_asw(ui: &MainWindow, ship: &mut Ship) {
+    let model = ui.get_asw_fields();
+    for (i, t) in ship.asw.iter_mut().enumerate() {
+        if let Some(row) = model.row_data(i) {
+            if let Some(v) = parse(&row.num)    { t.num = v as u32; }
+            if let Some(v) = parse(&row.reload) { t.reload = v as u32; }
+            set_meas(&mut t.wgt, &row.wgt, ship.hull.units);
+        }
+    }
+}
+
+// push_asw {{{2
+pub fn push_asw(ship: &Ship, ui: &MainWindow) {
+    let u = ship.hull.units;
+    let model: Vec<ASWFields> = ship.asw.iter().map(|t| {
+        ASWFields {
+            num:    t.num.to_string().into(),
+            reload: t.reload.to_string().into(),
+            wgt:   fmt_meas(t.wgt, u, 6).into(),
+        }
+    }).collect();
+
+    ui.set_asw_fields(ModelRc::new(VecModel::from(model)));
+
+    let derived: Vec<ASWDerived> = ship.asw.iter().map(|t| {
+        ASWDerived { total_wgt: num!(t.wgt(), 3).into() }
+    }).collect();
+
+    ui.set_asw_derived(ModelRc::new(VecModel::from(derived)));
+}
+
+// push_asw_total_wgt {{{2
+/// Refresh only the read-only total weight fields on the ASW tab,
+/// leaving the editable fields (and any active caret) untouched.
+///
+pub fn push_asw_total_wgt(ship: &Ship, ui: &MainWindow) {
+    let model: Vec<ASWDerived> = ship.asw.iter().map(|t| {
+        ASWDerived { total_wgt: num!(t.wgt(), 3).into() }
+    }).collect();
+
+    ui.set_asw_derived(ModelRc::new(VecModel::from(model)));
+}
+
+// pull_mines {{{2
+pub fn pull_mines(ui: &MainWindow, ship: &mut Ship) {
+    let model = ui.get_mine_fields();
+
+    if let Some(row) = model.row_data(0) {
+        if let Some(v) = parse(&row.num)    { ship.mines.num = v as u32; }
+        if let Some(v) = parse(&row.reload) { ship.mines.reload = v as u32; }
+        set_meas(&mut ship.mines.wgt,  &row.wgt,  ship.hull.units);
+    }
+}
+
+// push_mines {{{2
+pub fn push_mines(ship: &Ship, ui: &MainWindow) {
+    let u = ship.hull.units;
+    let model: Vec<MineFields> = [
+        MineFields {
+            num:    ship.mines.num.to_string().into(),
+            reload: ship.mines.reload.to_string().into(),
+            wgt:   fmt_meas(ship.mines.wgt, u, 6).into(),
+        }
+    ].to_vec();
+
+    ui.set_mine_fields(ModelRc::new(VecModel::from(model)));
+
+    let derived: Vec<MineDerived> = [
+        MineDerived { total_wgt: num!(ship.mines.wgt(), 3).into() }
+    ].to_vec();
+
+    ui.set_mine_derived(ModelRc::new(VecModel::from(derived)));
+}
+
+// push_mine_total_wgt {{{2
+pub fn push_mine_total_wgt(ship: &Ship, ui: &MainWindow) {
+    let derived: Vec<MineDerived> = [
+        MineDerived { total_wgt: num!(ship.mines.wgt(), 3).into() }
+    ].to_vec();
+
+    ui.set_mine_derived(ModelRc::new(VecModel::from(derived)));
+}
+
+// pull_torpedoes {{{2
+pub fn pull_torpedoes(ui: &MainWindow, ship: &mut Ship) {
+    let model = ui.get_torp_fields();
+    for (i, t) in ship.torps.iter_mut().enumerate() {
+        if let Some(row) = model.row_data(i) {
+            if let Some(v) = parse(&row.num)    { t.num = v as u32; }
+            if let Some(v) = parse(&row.mounts) { t.mounts = v as u32; }
+            set_meas(&mut t.diam, &row.diam, ship.hull.units);
+            set_meas(&mut t.len,  &row.len,  ship.hull.units);
+            t.kind = TorpedoMountType::from_index(row.kind.max(0) as usize);
+        }
+    }
+}
+
+// push_torpedoes {{{2
+pub fn push_torpedoes(ship: &Ship, ui: &MainWindow) {
+    let model: Vec<TorpedoFields> = ship.torps.iter().map(|t| {
+        let u = t.units;
+        TorpedoFields {
+            num:    t.num.to_string().into(),
+            mounts: t.mounts.to_string().into(),
+            kind:   t.kind.index() as i32,
+            diam:   fmt_meas(t.diam, u, 2).into(),
+            len:    fmt_meas(t.len, u, 2).into(),
+        }
+    }).collect();
+
+    ui.set_torp_fields(ModelRc::new(VecModel::from(model)));
+
+    let derived: Vec<TorpedoDerived> = ship.torps.iter().map(|t| {
+        TorpedoDerived { wgt: num!(t.wgt_weaps(), 3).into() }
+    }).collect();
+
+    ui.set_torp_derived(ModelRc::new(VecModel::from(derived)));
+}
+
+// push_torp_wgt {{{2
+/// Refresh only the read-only weight fields on the torpedoes tab,
+/// leaving the editable fields (and any active caret) untouched.
+///
+pub fn push_torp_wgt(ship: &Ship, ui: &MainWindow) {
+    let model: Vec<TorpedoDerived> = ship.torps.iter().map(|t| {
+        TorpedoDerived { wgt: num!(t.wgt(), 3).into() }
+    }).collect();
+
+    ui.set_torp_derived(ModelRc::new(VecModel::from(model)));
+}
+
+// pull_weights {{{2
+pub fn pull_weights(ui: &MainWindow, ship: &mut Ship) {
+    let wgts = ui.get_weight_fields();
+
+    if let Some(v) = parse(&wgts.vital) { ship.wgts.vital = v as u32; }
+    if let Some(v) = parse(&wgts.hull)  { ship.wgts.hull  = v as u32; }
+    if let Some(v) = parse(&wgts.on)    { ship.wgts.on    = v as u32; }
+    if let Some(v) = parse(&wgts.above) { ship.wgts.above = v as u32; }
+    if let Some(v) = parse(&wgts.void)  { ship.wgts.void  = v as u32; }
+}
+
+// push_weights {{{2
+pub fn push_weights(ship: &Ship, ui: &MainWindow) {
+    ui.set_weight_fields(WeightFields {
+        vital:      ship.wgts.vital.to_string().into(),
+        hull:       ship.wgts.hull.to_string().into(),
+        on:         ship.wgts.on.to_string().into(),
+        above:      ship.wgts.above.to_string().into(),
+        void:       ship.wgts.void.to_string().into(),
+        hull_space: num!(ship.hull_space(), 2).into(),
+        deck_space: num!(ship.deck_space(), 2).into(),
+    });
+}
+
+// push_weight_derived {{{2
+/// Refresh only the read-only hull/deck space fields, leaving the
+/// editable weight fields (and any active caret) untouched.
+///
+pub fn push_weight_derived(ship: &Ship, ui: &MainWindow) {
+    let mut w = ui.get_weight_fields();
+    w.hull_space = num!(ship.hull_space(), 2).into();
+    w.deck_space = num!(ship.deck_space(), 2).into();
+    ui.set_weight_fields(w);
 }
 
 // Other {{{1

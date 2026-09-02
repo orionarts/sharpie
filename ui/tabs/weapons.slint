@@ -1,11 +1,222 @@
-import { VerticalBox } from "std-widgets.slint";
+import {
+    ComboBox,
+    GridBox,
+    ScrollView,
+    Slider,
+} from "std-widgets.slint";
+
+import { Entry }       from "../widgets/entry.slint";
+import { RowLabel }    from "../widgets/row-label.slint";
+import { ColumnLabel } from "../widgets/column-label.slint";
+import { Layout }      from "../layout.slint";
+
+// Torpedo entry fields {{{1
+//
+export struct TorpedoFields {
+    mounts: string,
+    kind: int,
+    num: string,
+    diam: string,
+    len: string,
+}
+
+// Mine entry fields {{{1
+//
+export struct MineFields {
+    num: string,
+    reload: string,
+    wgt: string,
+}
+
+// ASW entry fields {{{1
+//
+export struct ASWFields {
+    num: string,
+    reload: string,
+    wgt: string,
+}
+
+// Derived (read-only) weight fields {{{1
+//
+export struct TorpedoDerived {
+    wgt: string,
+}
+export struct MineDerived {
+    total_wgt: string,
+}
+export struct ASWDerived {
+    total_wgt: string,
+}
+
+// Weight entry fields {{{1
+//
+export struct WeightFields {
+    vital: string,
+    hull: string,
+    on: string,
+    above: string,
+    void: string,
+    hull-space: string,
+    deck-space: string,
+}
 
 // Weapons tab {{{1
 //
-export component WeaponsTab inherits VerticalBox {
+export component WeaponsTab inherits ScrollView {
+    in-out property <[TorpedoFields]>  torp-fields;
+    in-out property <[TorpedoDerived]> torp-derived;
+    in-out property <[MineFields]>     mine-fields;
+    in-out property <[MineDerived]>    mine-derived;
+    in-out property <[ASWFields]>      asw-fields;
+    in-out property <[ASWDerived]>     asw-derived;
+    in-out property <WeightFields>     weight-fields;
+
+    in-out property <[string]> asw-type-labels: [];
+    in-out property <[string]> mine-type-labels: [];
+    in-out property <[string]> torp-mount-labels: [];
+
     callback field-edited();
 
-    Text {
-        text: "Weapons (TODO)";
+    VerticalLayout {
+        spacing: Layout.grid-spacing;
+
+        for torp[i] in root.torp-fields: GridBox {
+            Text { height: 0px; width: 100px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+
+            if i == 0: Row {
+                Text { }
+                ColumnLabel { width: 100px; text: "Number:"; }
+                ColumnLabel { width: 100px; text: "Sets:"; }
+                ColumnLabel { width: 100px; text: "Diameter:"; }
+                Text { }
+                ColumnLabel { width: 100px; text: "Length:"; }
+            }
+
+            Row {
+                RowLabel {
+                    text: i == 0 ?  "Main\nTorpedoes:" : "2nd\nTorpedoes:";
+                    font-weight: 700;
+                }
+                Entry { text <=> torp.num;    edited => root.field-edited(); }
+                Entry { text <=> torp.mounts; edited => root.field-edited(); }
+                Entry { text <=> torp.diam;   edited => root.field-edited(); }
+                ComboBox { width: 50px; }
+                Entry { text <=> torp.len;    edited => root.field-edited(); }
+            }
+
+            Row {
+                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.torp-mount-labels; current-index <=> torp.kind; selected => { root.field-edited(); } }
+                Entry { text: torp-derived[i].wgt; enabled: false; }
+            }
+
+            // TODO: Make this a custom widget and set color based on system theme
+            Rectangle { colspan: 6; height: 1px; background: white; }
+        }
+
+        for mines[i] in root.mine-fields: GridBox {
+            Text { height: 0px; width: 100px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+
+            if i == 0: Row {
+                Text { }
+                ColumnLabel { width: 100px; text: "Number:"; }
+                ColumnLabel { width: 100px; text: "Reloads:"; }
+                ColumnLabel { width: 100px; text: "Weight:"; }
+            }
+
+            Row {
+                RowLabel {
+                    text: "Mines:";
+                    font-weight: 700;
+                }
+                Entry { text <=> mines.num;    edited => root.field-edited(); }
+                Entry { text <=> mines.reload; edited => root.field-edited(); }
+                Entry { text <=> mines.wgt;   edited => root.field-edited(); }
+                ComboBox { width: 50px; }
+            }
+
+            Row {
+                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.mine-type-labels; current-index: 0; selected => { root.field-edited(); } }
+                Entry { text: mine-derived[i].total_wgt; enabled: false; }
+            }
+
+            // TODO: Make this a custom widget and set color based on system theme
+            Rectangle { colspan: 6; height: 1px; background: white; }
+        }
+
+        for asw[i] in root.asw-fields: GridBox {
+            Text { height: 0px; width: 100px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+            Text { height: 0px; width: 50px; }
+
+            Row {
+                RowLabel {
+                    text: i == 0 ?  "Main DC / AS\nMortars:" : "2nd DC / AS\nMortars:";
+                    font-weight: 700;
+                }
+                Entry { text <=> asw.num;    edited => root.field-edited(); }
+                Entry { text <=> asw.reload; edited => root.field-edited(); }
+                Entry { text <=> asw.wgt;   edited => root.field-edited(); }
+                ComboBox { width: 50px; }
+            }
+
+            Row {
+                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.asw-type-labels; current-index: 0; selected => { root.field-edited(); } }
+                Entry { text: asw-derived[i].total_wgt; enabled: false; }
+            }
+
+            // TODO: Make this a custom widget and set color based on system theme
+            Rectangle { colspan: 6; height: 1px; background: white; }
+        }
+
+        GridBox {
+            // This row exists solely to set the column widths
+            Row {
+                Text { height: 0px; width: 100px; }
+                Text { height: 0px; width: 50px; }
+                Text { height: 0px; width: 50px; }
+                Text { height: 0px; width: 50px; }
+                Text { height: 0px; width: 50px; }
+            }
+
+            Row {
+                RowLabel { text: "Misc weight:"; horizontal-alignment: left; font-weight: 700; }
+            }
+
+            Row {
+                ColumnLabel { text: "Hull —\nBelow water:"; }
+                ColumnLabel { text: "Hull —\nAbove water:"; }
+                ColumnLabel { text: "On deck:"; }
+                ColumnLabel { text: "Above Deck:"; }
+                ColumnLabel { text: "Void weight:"; }
+            }
+
+            Row {
+                Entry { text <=> root.weight-fields.vital; }
+                Entry { text <=> root.weight-fields.hull; }
+                Entry { text <=> root.weight-fields.on; }
+                Entry { text <=> root.weight-fields.above; }
+                Entry { text <=> root.weight-fields.void; }
+            }
+
+            Row {
+                RowLabel { text: "Hull space:"; }
+                Entry    { text: root.weight-fields.hull-space; enabled: false; }
+                RowLabel { text: "Deck space:"; }
+                Entry    { text: root.weight-fields.deck-space; enabled: false; }
+            }
+        }
     }
 }

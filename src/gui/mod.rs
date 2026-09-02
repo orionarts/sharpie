@@ -22,8 +22,12 @@ pub mod gui_map;
 /// Read all editable fields from the Slint UI back into the Ship
 ///
 fn pull_all(ui: &MainWindow, ship: &mut Ship) {
+    gui_map::pull_asw(ui, ship);
     gui_map::pull_identity(ui, ship);
     gui_map::pull_hull(ui, ship);
+    gui_map::pull_mines(ui, ship);
+    gui_map::pull_torpedoes(ui, ship);
+    gui_map::pull_weights(ui, ship);
 }
 
 // push_derived {{{2
@@ -36,6 +40,10 @@ fn pull_all(ui: &MainWindow, ship: &mut Ship) {
 fn push_derived(ship: &Ship, ui: &MainWindow) {
     gui_map::push_hull_derived(ship, ui);
     gui_map::push_hull_image(ship, ui);
+    gui_map::push_torp_wgt(ship, ui);
+    gui_map::push_mine_total_wgt(ship, ui);
+    gui_map::push_asw_total_wgt(ship, ui);
+    gui_map::push_weight_derived(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 
@@ -51,9 +59,13 @@ fn pull_then_push(ui: &MainWindow, ship: &mut Ship) {
 /// Push Ship fields and report from the Ship into the Slint UI
 ///
 fn push_all(ship: &Ship, ui: &MainWindow) {
+    gui_map::push_asw(ship, ui);
     gui_map::push_identity(ship, ui);
     gui_map::push_hull(ship, ui);
     gui_map::push_hull_image(ship, ui);
+    gui_map::push_mines(ship, ui);
+    gui_map::push_torpedoes(ship, ui);
+    gui_map::push_weights(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 

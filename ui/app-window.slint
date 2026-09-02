@@ -13,6 +13,13 @@ import { HullFields,
          HullTab,
          ShipIdentity }   from "tabs/hull.slint";
 import { FreeboardTab }   from "tabs/freeboard.slint";
+import { TorpedoFields,
+         TorpedoDerived } from "tabs/weapons.slint";
+import { MineFields,
+         MineDerived }    from "tabs/weapons.slint";
+import { ASWFields,
+         ASWDerived }     from "tabs/weapons.slint";
+import { WeightFields }   from "tabs/weapons.slint";
 import { GunsTab }        from "tabs/guns/guns.slint";
 import { WeaponsTab }     from "tabs/weapons.slint";
 import { ArmorTab }       from "tabs/armor.slint";
@@ -36,8 +43,19 @@ export component MainWindow inherits Window {
     in-out property <HullComputed> hull-computed;
     in-out property <image> hull-image;
 
+    in-out property <[TorpedoFields]>  torp-fields;
+    in-out property <[TorpedoDerived]> torp-derived;
+    in-out property <[MineFields]>     mine-fields;
+    in-out property <[MineDerived]>    mine-derived;
+    in-out property <[ASWFields]>      asw-fields;
+    in-out property <[ASWDerived]>     asw-derived;
+    in-out property <WeightFields>     weight-fields;
+
+    in-out property <[string]> asw-type-labels: [];
     in-out property <[string]> bow-labels: [];
+    in-out property <[string]> mine-type-labels: [];
     in-out property <[string]> stern-labels: [];
+    in-out property <[string]> torp-mount-labels: [];
 
     in-out property <string> report-str: "Load or create a ship";
     in-out property <bool> report-visible: false;
@@ -119,6 +137,16 @@ export component MainWindow inherits Window {
                 Tab {
                     title: "Weapons";
                     WeaponsTab {
+                        torp-fields <=> root.torp-fields;
+                        torp-derived <=> root.torp-derived;
+                        mine-fields <=> root.mine-fields;
+                        mine-derived <=> root.mine-derived;
+                        asw-fields <=> root.asw-fields;
+                        asw-derived <=> root.asw-derived;
+                        weight-fields <=> root.weight-fields;
+                        asw-type-labels <=> root.asw-type-labels;
+                        mine-type-labels <=> root.mine-type-labels;
+                        torp-mount-labels <=> root.torp-mount-labels;
                         field-edited => { root.field-edited(); }
                     }
                 }
