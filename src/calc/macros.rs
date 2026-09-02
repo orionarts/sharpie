@@ -85,6 +85,45 @@ macro_rules! choice_enum {
     };
 }
 
+// labels_enum! {{{1
+/// Generate boilerplate for enums whose variants each carry a list of menu labels,
+/// e.g., UnitType, where a variant maps to its imperial and metric unit names.
+///
+/// Unlike choice_enum!, each row carries one or more labels (e.g. ("in", "mm")) and the
+/// generated labels() and ALL() methods return the whole list for a variant. Expands to
+/// presentation-layer helpers on the variants (via &self), with no type-level list:
+///     labels(), ALL(): the menu labels for a variant
+///     from_index(): a single label for a variant by index
+///
+/// Out-of-range indices fall back to the first label.
+///
+#[macro_export]
+macro_rules! labels_enum {
+    ($name:ident { $( $variant:ident => ( $( $label:expr ),+ ) ),+ $(,)? }) => {
+        impl $name {
+            /// Convert variant into its menu labels.
+            #[allow(dead_code)]
+            pub fn labels(&self) -> &'static [&'static str] {
+                match self {
+                    $( $name::$variant => &[ $( $label ),+ ] ),+
+                }
+            }
+
+            /// Menu labels for this variant (synonym for labels()).
+            #[allow(dead_code, non_snake_case, clippy::upper_case_acronyms)]
+            pub fn ALL(&self) -> &'static [&'static str] {
+                self.labels()
+            }
+
+            /// Convert a menu index into a label for this variant.
+            #[allow(dead_code, clippy::wrong_self_convention)]
+            pub fn from_index(&self, index: usize) -> &'static str {
+                self.labels().get(index).copied().unwrap_or(self.labels()[0])
+            }
+        }
+    };
+}
+
 // num! {{{1
 /// Format a number with commas and the specified number of significant digits,
 /// 0 by default. If all digits that would be displayed after the decimal are 0,
