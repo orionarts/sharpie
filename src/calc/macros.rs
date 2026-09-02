@@ -86,17 +86,27 @@ macro_rules! choice_enum {
 }
 
 // num! {{{1
-/// Format a number with commas and the specified number of
-/// significant digits, 0 by default.
+/// Format a number with commas and the specified number of significant digits,
+/// 0 by default. If all digits that would be displayed after the decimal are 0,
+/// only an integer is returned.
 ///
 // This is a macro instead of a function to avoid having to cast
 // floats to ints or ints to floats
 #[macro_export]
 macro_rules! num {
     ($val:expr) => { num!($val, 0) };
-    ($val:expr, $digits: expr) => {
-        format_num::format_num!(&*format!(",.{}", $digits), $val)
-    };
+    ($val:expr, $digits: expr) => {{
+        let s = format_num::format_num!(&*format!(",.{}", $digits), $val);
+        if let Some(dot) = s.find('.') {
+            if s[dot + 1..].chars().all(|c| c == '0') {
+                s[..dot].to_string()
+            } else {
+                s
+            }
+        } else {
+            s
+        }
+    }};
 }
 
 // pct! {{{1
