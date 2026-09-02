@@ -137,9 +137,9 @@ pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
         },
     }
 
-    set_meas(&mut h.b, &f.b, h.units);
-    set_meas(&mut h.bb, &f.bb, h.units);
-    set_meas(&mut h.t, &f.t, h.units);
+    set_meas(&mut h.b, &f.b, h.units, LengthLong);
+    set_meas(&mut h.bb, &f.bb, h.units, LengthLong);
+    set_meas(&mut h.t, &f.t, h.units, LengthLong);
 
     // Rebuild the bow type from the dropdown; protrusion variants reuse
     // the edited length when it parses, otherwise the previous length.
@@ -154,7 +154,7 @@ pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
     };
 
     h.stern_type = SternType::from_index(f.stern_type.max(0) as usize);
-    set_meas(&mut h.stern_overhang, &f.stern_overhang, h.units);
+    set_meas(&mut h.stern_overhang, &f.stern_overhang, h.units, LengthLong);
 
     if let Some(v) = parse(&f.bow_angle) {
         h.bow_angle = v;
@@ -164,14 +164,14 @@ pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
     set_frac(&mut h.freeboard.fd_len, &f.fd_len);
     set_frac(&mut h.freeboard.qd_len, &f.qd_len);
 
-    set_meas(&mut h.freeboard.fc_fwd, &f.fc_fwd, h.units);
-    set_meas(&mut h.freeboard.fc_aft, &f.fc_aft, h.units);
-    set_meas(&mut h.freeboard.fd_fwd, &f.fd_fwd, h.units);
-    set_meas(&mut h.freeboard.fd_aft, &f.fd_aft, h.units);
-    set_meas(&mut h.freeboard.ad_fwd, &f.ad_fwd, h.units);
-    set_meas(&mut h.freeboard.ad_aft, &f.ad_aft, h.units);
-    set_meas(&mut h.freeboard.qd_fwd, &f.qd_fwd, h.units);
-    set_meas(&mut h.freeboard.qd_aft, &f.qd_aft, h.units);
+    set_meas(&mut h.freeboard.fc_fwd, &f.fc_fwd, h.units, LengthLong);
+    set_meas(&mut h.freeboard.fc_aft, &f.fc_aft, h.units, LengthLong);
+    set_meas(&mut h.freeboard.fd_fwd, &f.fd_fwd, h.units, LengthLong);
+    set_meas(&mut h.freeboard.fd_aft, &f.fd_aft, h.units, LengthLong);
+    set_meas(&mut h.freeboard.ad_fwd, &f.ad_fwd, h.units, LengthLong);
+    set_meas(&mut h.freeboard.ad_aft, &f.ad_aft, h.units, LengthLong);
+    set_meas(&mut h.freeboard.qd_fwd, &f.qd_fwd, h.units, LengthLong);
+    set_meas(&mut h.freeboard.qd_aft, &f.qd_aft, h.units, LengthLong);
 
     let eng_year = f.engine_year.to_string();
     if eng_year.len() == 4 {
@@ -403,7 +403,7 @@ pub fn pull_asw(ui: &MainWindow, ship: &mut Ship) {
         if let Some(row) = model.row_data(i) {
             if let Some(v) = parse(&row.num)    { t.num = v as u32; }
             if let Some(v) = parse(&row.reload) { t.reload = v as u32; }
-            set_meas(&mut t.wgt, &row.wgt, ship.hull.units);
+            set_meas(&mut t.wgt, &row.wgt, ship.hull.units, Weight);
         }
     }
 }
@@ -447,7 +447,7 @@ pub fn pull_mines(ui: &MainWindow, ship: &mut Ship) {
     if let Some(row) = model.row_data(0) {
         if let Some(v) = parse(&row.num)    { ship.mines.num = v as u32; }
         if let Some(v) = parse(&row.reload) { ship.mines.reload = v as u32; }
-        set_meas(&mut ship.mines.wgt,  &row.wgt,  ship.hull.units);
+        set_meas(&mut ship.mines.wgt,  &row.wgt,  ship.hull.units, Weight);
     }
 }
 
@@ -487,8 +487,8 @@ pub fn pull_torpedoes(ui: &MainWindow, ship: &mut Ship) {
         if let Some(row) = model.row_data(i) {
             if let Some(v) = parse(&row.num)    { t.num = v as u32; }
             if let Some(v) = parse(&row.mounts) { t.mounts = v as u32; }
-            set_meas(&mut t.diam, &row.diam, ship.hull.units);
-            set_meas(&mut t.len,  &row.len,  ship.hull.units);
+            set_meas(&mut t.diam, &row.diam, ship.hull.units, LengthSmall);
+            set_meas(&mut t.len,  &row.len,  ship.hull.units, LengthLong);
             t.kind = TorpedoMountType::from_index(row.kind.max(0) as usize);
         }
     }
@@ -617,11 +617,12 @@ fn parse(s: &SharedString) -> Option<f64> {
 // set_meas {{{2
 /// Overwrite a Measurement from UI text in the ship's unit system.
 ///
-/// Unparsable input leaves the current value untouched.
+/// Unparsable input leaves the current value untouched. `ut` supplies the
+/// factor for `units` (e.g. `LengthSmall` for a torpedo diameter).
 ///
-fn set_meas(field: &mut Measurement, s: &str, units: Units) {
+fn set_meas(field: &mut Measurement, s: &str, units: Units, ut: UnitType) {
     if let Ok(v) = s.trim().parse::<f64>() {
-        *field = Measurement::new(v, LengthLong, units);
+        *field = Measurement::new(v, ut, units);
     }
 }
 
