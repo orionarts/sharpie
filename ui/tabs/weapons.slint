@@ -18,6 +18,7 @@ export struct TorpedoFields {
     num: string,
     diam: string,
     len: string,
+    units: int,
 }
 
 // Mine entry fields {{{1
@@ -26,6 +27,7 @@ export struct MineFields {
     num: string,
     reload: string,
     wgt: string,
+    units: int,
 }
 
 // ASW entry fields {{{1
@@ -34,6 +36,7 @@ export struct ASWFields {
     num: string,
     reload: string,
     wgt: string,
+    units: int,
 }
 
 // Derived (read-only) weight fields {{{1
@@ -75,7 +78,11 @@ export component WeaponsTab inherits ScrollView {
     in-out property <[string]> mine-type-labels: [];
     in-out property <[string]> torp-mount-labels: [];
 
+    in-out property <[string]> length-small-labels: [];
+
     callback field-edited();
+
+    callback torp-units-edited(int);
 
     VerticalLayout {
         spacing: Layout.grid-spacing;
@@ -105,7 +112,7 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text <=> torp.num;    edited => root.field-edited(); }
                 Entry { text <=> torp.mounts; edited => root.field-edited(); }
                 Entry { text <=> torp.diam;   edited => root.field-edited(); }
-                ComboBox { width: 50px; }
+                ComboBox { width: 75px; model: root.length-small-labels; current-index <=> torp.units; selected =>{ root.torp-units-edited(i); } }
                 Entry { text <=> torp.len;    edited => root.field-edited(); }
             }
 
@@ -141,7 +148,7 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text <=> mines.num;    edited => root.field-edited(); }
                 Entry { text <=> mines.reload; edited => root.field-edited(); }
                 Entry { text <=> mines.wgt;   edited => root.field-edited(); }
-                ComboBox { width: 50px; }
+                ComboBox { width: 75px; model: root.length-small-labels; current-index <=> mines.units; selected =>{ root.field-edited(); } }
             }
 
             Row {
@@ -169,7 +176,7 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text <=> asw.num;    edited => root.field-edited(); }
                 Entry { text <=> asw.reload; edited => root.field-edited(); }
                 Entry { text <=> asw.wgt;   edited => root.field-edited(); }
-                ComboBox { width: 50px; }
+                ComboBox { width: 75px; model: root.length-small-labels; current-index <=> asw.units; selected =>{ root.field-edited(); } }
             }
 
             Row {

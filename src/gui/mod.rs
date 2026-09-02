@@ -122,6 +122,16 @@ fn field_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     pull_then_push(ui, &mut ship.borrow_mut());
 }
 
+// torp_units_edited {{{2
+/// Convert a torpedo set's units when its units combobox changes.
+///
+/// Unlike a text edit, this re-expresses the stored diameters/lengths in the
+/// new unit system rather than re-parsing the displayed text.
+///
+fn torp_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: usize) {
+    gui_map::convert_torp_units(&mut ship.borrow_mut(), ui, row);
+}
+
 // draft_edited {{{2
 fn draft_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     let mut s = ship.borrow_mut();
@@ -220,6 +230,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_save_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_ship          (&h.unwrap(), &s); }});
     ui.on_show_about         ({ let h = ui.as_weak();                       move ||      { show_about         (&h.unwrap()); }});
     ui.on_toggle_report      ({ let h = ui.as_weak();                       move ||      { toggle_report      (&h.unwrap()); }});
+    ui.on_torp_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { torp_units_edited  (&h.unwrap(), &s, row as usize); }});
 
     match ui.run() {
         Ok(_)    => Ok(()),

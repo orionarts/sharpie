@@ -39,7 +39,8 @@ use crate::calc::{
     Ship,
     SternType,
     TorpedoMountType,
-    UnitType::{Area, LengthLong},
+    UnitType,
+    UnitType::*,
     Units,
     YEAR_MAX,
     YEAR_MIN,
@@ -55,6 +56,8 @@ pub fn set_enum_models(ui: &MainWindow) {
     ui.set_mine_type_labels(label_model(MineType::ALL.iter().map(|v| v.label())));
     ui.set_stern_labels(label_model(SternType::ALL.iter().map(|v| v.label())));
     ui.set_torp_mount_labels(label_model(TorpedoMountType::ALL.iter().map(|v| v.label())));
+
+    ui.set_length_small_labels(label_model(UnitType::LengthSmall.ALL().iter().copied()));
 }
 
 // label_model {{{2
@@ -401,21 +404,30 @@ pub fn pull_asw(ui: &MainWindow, ship: &mut Ship) {
     let model = ui.get_asw_fields();
     for (i, t) in ship.asw.iter_mut().enumerate() {
         if let Some(row) = model.row_data(i) {
+            let units = match row.units.max(0) as usize {
+                1 => Units::Metric,
+                _ => Units::Imperial,
+            };
             if let Some(v) = parse(&row.num)    { t.num = v as u32; }
             if let Some(v) = parse(&row.reload) { t.reload = v as u32; }
-            set_meas(&mut t.wgt, &row.wgt, ship.hull.units, Weight);
+            set_meas(&mut t.wgt, &row.wgt, units, Weight);
+            t.units = units;
         }
     }
 }
 
 // push_asw {{{2
 pub fn push_asw(ship: &Ship, ui: &MainWindow) {
-    let u = ship.hull.units;
     let model: Vec<ASWFields> = ship.asw.iter().map(|t| {
+        let u = t.units;
         ASWFields {
             num:    t.num.to_string().into(),
             reload: t.reload.to_string().into(),
             wgt:   fmt_meas(t.wgt, u, 6).into(),
+            units: match t.units {
+                Units::Imperial => 0,
+                Units::Metric   => 1,
+            },
         }
     }).collect();
 
@@ -445,20 +457,28 @@ pub fn pull_mines(ui: &MainWindow, ship: &mut Ship) {
     let model = ui.get_mine_fields();
 
     if let Some(row) = model.row_data(0) {
+        let units = match row.units.max(0) as usize {
+            1 => Units::Metric,
+            _ => Units::Imperial,
+        };
         if let Some(v) = parse(&row.num)    { ship.mines.num = v as u32; }
         if let Some(v) = parse(&row.reload) { ship.mines.reload = v as u32; }
-        set_meas(&mut ship.mines.wgt,  &row.wgt,  ship.hull.units, Weight);
+        set_meas(&mut ship.mines.wgt,  &row.wgt,  units, Weight);
+        ship.mines.units = units;
     }
 }
 
 // push_mines {{{2
 pub fn push_mines(ship: &Ship, ui: &MainWindow) {
-    let u = ship.hull.units;
     let model: Vec<MineFields> = [
         MineFields {
             num:    ship.mines.num.to_string().into(),
             reload: ship.mines.reload.to_string().into(),
-            wgt:   fmt_meas(ship.mines.wgt, u, 6).into(),
+            wgt:   fmt_meas(ship.mines.wgt, ship.mines.units, 6).into(),
+            units: match ship.mines.units {
+                Units::Imperial => 0,
+                Units::Metric   => 1,
+            },
         }
     ].to_vec();
 
@@ -485,25 +505,48 @@ pub fn pull_torpedoes(ui: &MainWindow, ship: &mut Ship) {
     let model = ui.get_torp_fields();
     for (i, t) in ship.torps.iter_mut().enumerate() {
         if let Some(row) = model.row_data(i) {
+            t.units = match row.units.max(0) as usize {
+                1 => Units::Metric,
+                _ => Units::Imperial,
+            };
             if let Some(v) = parse(&row.num)    { t.num = v as u32; }
             if let Some(v) = parse(&row.mounts) { t.mounts = v as u32; }
-            set_meas(&mut t.diam, &row.diam, ship.hull.units, LengthSmall);
-            set_meas(&mut t.len,  &row.len,  ship.hull.units, LengthLong);
+            set_meas(&mut t.diam, &row.diam, t.units, LengthSmall);
+            set_meas(&mut t.len,  &row.len,  t.units, LengthLong);
             t.kind = TorpedoMountType::from_index(row.kind.max(0) as usize);
         }
     }
 }
 
+// convert_torp_units {{{2
+/// Convert a torpedo set's diam and len to a new unit system when its units
+/// combobox changes. Re-expresses the stored Measurements in the new units
+/// (so the saved ship stays consistent) and refreshes the UI.
+///
+pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: usize) {
+    let Some(t) = ship.torps.get_mut(row) else { return };
+    let Some(fields) = ui.get_torp_fields().row_data(row) else { return };
+    let new = if fields.units.max(0) == 1 { Units::Metric } else { Units::Imperial };
+    t.units = new;
+    t.diam.set_units(t.units);
+    t.len.set_units(t.units);
+    push_torpedoes(ship, ui);
+}
+
 // push_torpedoes {{{2
 pub fn push_torpedoes(ship: &Ship, ui: &MainWindow) {
     let model: Vec<TorpedoFields> = ship.torps.iter().map(|t| {
-        let u = t.units;
+        let units = match t.units {
+            Units::Imperial => 0,
+            Units::Metric   => 1,
+        };
         TorpedoFields {
             num:    t.num.to_string().into(),
             mounts: t.mounts.to_string().into(),
             kind:   t.kind.index() as i32,
-            diam:   fmt_meas(t.diam, u, 2).into(),
-            len:    fmt_meas(t.len, u, 2).into(),
+            diam:   fmt_meas(t.diam, t.units, 2).into(),
+            len:    fmt_meas(t.len, t.units, 2).into(),
+            units,
         }
     }).collect();
 
