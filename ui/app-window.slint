@@ -29,7 +29,7 @@ export component MainWindow inherits Window {
     title: "Sharpie";
     width: Layout.tab-width +
         (root.report-visible ? Layout.report-width : 0px);
-    height: 800px;
+    height: Layout.gui-height;
 
     in-out property <ShipIdentity> identity;
     in-out property <HullFields> hull-fields;
