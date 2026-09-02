@@ -44,13 +44,13 @@ export struct ASWFields {
 // Derived (read-only) weight fields {{{1
 //
 export struct TorpedoDerived {
-    wgt: string,
+    wgt_weaps: string,
 }
 export struct MineDerived {
-    total_wgt: string,
+    wgt_weaps: string,
 }
 export struct ASWDerived {
-    total_wgt: string,
+    wgt_weaps: string,
 }
 
 // Weight entry fields {{{1
@@ -123,7 +123,7 @@ export component WeaponsTab inherits ScrollView {
 
             Row {
                 ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.torp-mount-labels; current-index <=> torp.kind; selected => { root.field-edited(); } }
-                Entry { text: torp-derived[i].wgt; enabled: false; }
+                Entry { text: torp-derived[i].wgt_weaps; enabled: false; }
             }
 
             // TODO: Make this a custom widget and set color based on system theme
@@ -158,7 +158,7 @@ export component WeaponsTab inherits ScrollView {
 
             Row {
                 ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.mine-type-labels; current-index <=> mines.kind; selected => { root.field-edited(); } }
-                Entry { text: mine-derived[i].total_wgt; enabled: false; }
+                Entry { text: mine-derived[i].wgt_weaps; enabled: false; }
             }
 
             // TODO: Make this a custom widget and set color based on system theme
@@ -186,7 +186,7 @@ export component WeaponsTab inherits ScrollView {
 
             Row {
                 ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.asw-type-labels; current-index <=> asw.kind; selected => { root.field-edited(); } }
-                Entry { text: asw-derived[i].total_wgt; enabled: false; }
+                Entry { text: asw-derived[i].wgt_weaps; enabled: false; }
             }
 
             // TODO: Make this a custom widget and set color based on system theme
