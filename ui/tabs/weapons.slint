@@ -80,7 +80,7 @@ export component WeaponsTab inherits ScrollView {
     VerticalLayout {
         spacing: Layout.grid-spacing;
 
-        for torp[i] in root.torp-fields: GridBox {
+        for torp[i] in root.torp-fields: GridBox { // {{{2
             Text { height: 0px; width: 100px; }
             Text { height: 0px; width: 50px; }
             Text { height: 0px; width: 50px; }
@@ -90,11 +90,11 @@ export component WeaponsTab inherits ScrollView {
 
             if i == 0: Row {
                 Text { }
-                ColumnLabel { width: 100px; text: "Number:"; }
-                ColumnLabel { width: 100px; text: "Sets:"; }
-                ColumnLabel { width: 100px; text: "Diameter:"; }
+                ColumnLabel { text: "Number:"; }
+                ColumnLabel { text: "Sets:"; }
+                ColumnLabel { text: "Diameter:"; }
                 Text { }
-                ColumnLabel { width: 100px; text: "Length:"; }
+                ColumnLabel { text: "Length:"; }
             }
 
             Row {
@@ -118,7 +118,7 @@ export component WeaponsTab inherits ScrollView {
             Rectangle { colspan: 6; height: 1px; background: white; }
         }
 
-        for mines[i] in root.mine-fields: GridBox {
+        for mines[i] in root.mine-fields: GridBox { // {{{2
             Text { height: 0px; width: 100px; }
             Text { height: 0px; width: 50px; }
             Text { height: 0px; width: 50px; }
@@ -128,9 +128,9 @@ export component WeaponsTab inherits ScrollView {
 
             if i == 0: Row {
                 Text { }
-                ColumnLabel { width: 100px; text: "Number:"; }
-                ColumnLabel { width: 100px; text: "Reloads:"; }
-                ColumnLabel { width: 100px; text: "Weight:"; }
+                ColumnLabel { text: "Number:"; }
+                ColumnLabel { text: "Reloads:"; }
+                ColumnLabel { text: "Weight:"; }
             }
 
             Row {
@@ -153,7 +153,7 @@ export component WeaponsTab inherits ScrollView {
             Rectangle { colspan: 6; height: 1px; background: white; }
         }
 
-        for asw[i] in root.asw-fields: GridBox {
+        for asw[i] in root.asw-fields: GridBox { // {{{2
             Text { height: 0px; width: 100px; }
             Text { height: 0px; width: 50px; }
             Text { height: 0px; width: 50px; }
@@ -181,7 +181,7 @@ export component WeaponsTab inherits ScrollView {
             Rectangle { colspan: 6; height: 1px; background: white; }
         }
 
-        GridBox {
+        GridBox { // Weights {{{2
             // This row exists solely to set the column widths
             Row {
                 Text { height: 0px; width: 100px; }
