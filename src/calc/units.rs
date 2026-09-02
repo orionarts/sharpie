@@ -91,6 +91,10 @@ impl Measurement { // {{{2
     pub fn imp(&self) -> f64 {
         self.imp_v
     }
+
+    pub fn set_units(&mut self, u: Units) {
+        self.units = u;
+    }
 }
 
 // Testing {{{1
