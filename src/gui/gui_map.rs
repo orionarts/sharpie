@@ -409,6 +409,7 @@ pub fn pull_asw(ui: &MainWindow, ship: &mut Ship) {
             if let Some(v) = parse(&row.reload) { t.reload = v as u32; }
             t.units = row.units.max(0).into();
             set_meas(&mut t.wgt, &row.wgt, t.units, Weight);
+            t.kind = ASWType::from_index(row.kind.max(0) as usize);
         }
     }
 }
@@ -422,6 +423,7 @@ pub fn push_asw(ship: &Ship, ui: &MainWindow) {
             reload: t.reload.to_string().into(),
             wgt:   fmt_meas(t.wgt, u, 6).into(),
             units: t.units.into(),
+            kind:  t.kind.index() as i32,
         }
     }).collect();
 
@@ -455,6 +457,7 @@ pub fn pull_mines(ui: &MainWindow, ship: &mut Ship) {
         if let Some(v) = parse(&row.reload) { ship.mines.reload = v as u32; }
         ship.mines.units = row.units.max(0).into();
         set_meas(&mut ship.mines.wgt,  &row.wgt,  ship.mines.units, Weight);
+        ship.mines.kind = MineType::from_index(row.kind.max(0) as usize);
     }
 }
 
@@ -466,6 +469,7 @@ pub fn push_mines(ship: &Ship, ui: &MainWindow) {
             reload: ship.mines.reload.to_string().into(),
             wgt:    fmt_meas(ship.mines.wgt, ship.mines.units, 6).into(),
             units:  ship.mines.units.into(),
+            kind:   ship.mines.kind.index() as i32,
         }
     ].to_vec();
 

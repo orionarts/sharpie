@@ -28,6 +28,7 @@ export struct MineFields {
     reload: string,
     wgt: string,
     units: int,
+    kind: int,
 }
 
 // ASW entry fields {{{1
@@ -37,6 +38,7 @@ export struct ASWFields {
     reload: string,
     wgt: string,
     units: int,
+    kind: int,
 }
 
 // Derived (read-only) weight fields {{{1
@@ -155,7 +157,7 @@ export component WeaponsTab inherits ScrollView {
             }
 
             Row {
-                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.mine-type-labels; current-index <=> mines.units; selected => { root.field-edited(); } }
+                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.mine-type-labels; current-index <=> mines.kind; selected => { root.field-edited(); } }
                 Entry { text: mine-derived[i].total_wgt; enabled: false; }
             }
 
@@ -183,7 +185,7 @@ export component WeaponsTab inherits ScrollView {
             }
 
             Row {
-                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.asw-type-labels; current-index <=> asw.units; selected => { root.field-edited(); } }
+                ComboBox { col: 2; colspan: 3; height: Layout.edit-height; model: root.asw-type-labels; current-index <=> asw.kind; selected => { root.field-edited(); } }
                 Entry { text: asw-derived[i].total_wgt; enabled: false; }
             }
 
