@@ -56,22 +56,28 @@ impl UnitType { // {{{2
 //
 #[derive(PartialEq, Serialize, Deserialize, Clone, Copy, Debug, Default)]
 pub struct Measurement {
-    pub v: f64,
+    pub imp_v: f64,
+    pub metric_v: f64,
     units: Units,
     factor: f64,
 }
 
 impl Measurement { // {{{2
     pub const fn new(v: f64, unit_type: UnitType, units: Units) -> Self {
-        Self { v, units, factor: unit_type.imperial_to_metric() }
+        let factor = unit_type.imperial_to_metric();
+        let (imp_v, metric_v) = match units {
+            Units::Imperial => (v, v * factor),
+            Units::Metric   => (v / factor, v)
+        };
+        Self {imp_v, metric_v, units, factor}
     }
 
     pub fn metric(&self) -> f64 {
-        if self.units == Units::Imperial { self.v * self.factor } else { self.v }
+        self.metric_v
     }
 
     pub fn imp(&self) -> f64 {
-        if self.units == Units::Metric { self.v / self.factor } else { self.v }
+        self.imp_v
     }
 }
 
