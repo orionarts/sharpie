@@ -410,6 +410,8 @@ pub fn pull_asw(ui: &MainWindow, ship: &mut Ship) {
             t.units = row.units.max(0).into();
             set_meas(&mut t.wgt, &row.wgt, t.units, Weight);
             t.kind = ASWType::from_index(row.kind.max(0) as usize);
+            // TODO: FEATURE
+            t.year = ship.year;
         }
     }
 }
@@ -458,6 +460,8 @@ pub fn pull_mines(ui: &MainWindow, ship: &mut Ship) {
         ship.mines.units = row.units.max(0).into();
         set_meas(&mut ship.mines.wgt,  &row.wgt,  ship.mines.units, Weight);
         ship.mines.kind = MineType::from_index(row.kind.max(0) as usize);
+        // TODO: FEATURE
+        ship.mines.year = ship.year;
     }
 }
 
@@ -502,6 +506,8 @@ pub fn pull_torpedoes(ui: &MainWindow, ship: &mut Ship) {
             set_meas(&mut t.diam, &row.diam, t.units, LengthSmall);
             set_meas(&mut t.len,  &row.len,  t.units, LengthLong);
             t.kind = TorpedoMountType::from_index(row.kind.max(0) as usize);
+            // TODO: FEATURE
+            t.year = ship.year;
         }
     }
 }
