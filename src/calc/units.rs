@@ -24,6 +24,21 @@ impl From<&str> for Units {
     }
 }
 
+impl From<i32> for Units {
+    fn from(index: i32) -> Self {
+        Self::from(index.to_string())
+    }
+}
+
+impl From<Units> for i32 {
+    fn from(u: Units) -> i32 {
+        match u {
+            Units::Imperial => 0,
+            Units::Metric   => 1,
+        }
+    }
+}
+
 // UnitType {{{1
 #[derive(PartialEq, Clone, Copy, Default, Debug)]
 pub enum UnitType {
