@@ -602,8 +602,8 @@ pub fn push_weights(ship: &Ship, ui: &MainWindow) {
         on:         ship.wgts.on.to_string().into(),
         above:      ship.wgts.above.to_string().into(),
         void:       ship.wgts.void.to_string().into(),
-        hull_space: num!(ship.hull_space(), 2).into(),
-        deck_space: num!(ship.deck_space(), 2).into(),
+        hull_space: num!(ship.hull_space(), 4).into(),
+        deck_space: num!(ship.deck_space(), 4).into(),
     });
 }
 
