@@ -1,3 +1,4 @@
+use crate::labels_enum;
 use serde::{Deserialize, Serialize};
 
 // Units {{{1
@@ -24,7 +25,9 @@ impl From<&str> for Units {
 }
 
 // UnitType {{{1
+#[derive(PartialEq, Clone, Copy, Default, Debug)]
 pub enum UnitType {
+    #[default]
     LengthSmall,
     LengthLong,
     Area,
@@ -32,6 +35,15 @@ pub enum UnitType {
     Power,
     WeightPerArea,
 }
+
+labels_enum!(UnitType {
+    LengthSmall   => ("in",        "mm"),
+    LengthLong    => ("ft",        "m"),
+    Area          => ("sq ft",     "sq m"),
+    Weight        => ("lbs",       "kg"),
+    Power         => ("hp",        "kW"),
+    WeightPerArea => ("lbs/sq ft", "kg/sq m"),
+});
 
 impl UnitType { // {{{2
     const INCH2MM: f64         = 25.4; // exact
@@ -181,5 +193,42 @@ mod tests {
         imp_weight_i:    (1.0, 1.0, UnitType::Weight, Units::Imperial),
         imp_power_i:     (1.0, 1.0, UnitType::Power, Units::Imperial),
         imp_wgt_area_i:  (1.0, 1.0, UnitType::WeightPerArea, Units::Imperial),
+    }
+
+    // Test labels and ALL {{{2
+    #[test]
+    fn labels_match_expected() {
+        assert_eq!(UnitType::LengthSmall.labels(),   &["in", "mm"]);
+        assert_eq!(UnitType::LengthLong.labels(),    &["ft", "m"]);
+        assert_eq!(UnitType::Area.labels(),          &["sq ft", "sq m"]);
+        assert_eq!(UnitType::Weight.labels(),        &["lbs", "kg"]);
+        assert_eq!(UnitType::Power.labels(),         &["hp", "kW"]);
+        assert_eq!(UnitType::WeightPerArea.labels(), &["lbs/sq ft", "kg/sq m"]);
+
+        assert_eq!(UnitType::LengthSmall.ALL(),   &["in", "mm"]);
+        assert_eq!(UnitType::LengthLong.ALL(),    &["ft", "m"]);
+        assert_eq!(UnitType::Area.ALL(),          &["sq ft", "sq m"]);
+        assert_eq!(UnitType::Weight.ALL(),        &["lbs", "kg"]);
+        assert_eq!(UnitType::Power.ALL(),         &["hp", "kW"]);
+        assert_eq!(UnitType::WeightPerArea.ALL(), &["lbs/sq ft", "kg/sq m"]);
+    }
+
+    // Test from_index {{{2
+    #[test]
+    fn from_index_label() {
+        assert_eq!(UnitType::LengthSmall.from_index(0),   "in");
+        assert_eq!(UnitType::LengthSmall.from_index(1),   "mm");
+        assert_eq!(UnitType::LengthLong.from_index(0),    "ft");
+        assert_eq!(UnitType::Area.from_index(1),          "sq m");
+        assert_eq!(UnitType::Weight.from_index(0),        "lbs");
+        assert_eq!(UnitType::Power.from_index(1),         "kW");
+        assert_eq!(UnitType::WeightPerArea.from_index(0), "lbs/sq ft");
+    }
+
+    // Test from_index out of range falls back to first label {{{2
+    #[test]
+    fn from_index_out_of_range_falls_back_to_first() {
+        assert_eq!(UnitType::LengthSmall.from_index(5), "in");
+        assert_eq!(UnitType::Weight.from_index(2),      "lbs");
     }
 }
