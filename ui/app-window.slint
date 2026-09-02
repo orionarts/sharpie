@@ -59,6 +59,8 @@ export component MainWindow inherits Window {
 
     in-out property <[string]> length-small-labels: [];
 
+    in-out property <[string]> weights-labels: [];
+
     in-out property <string> report-str: "Load or create a ship";
     in-out property <bool> report-visible: false;
 
@@ -78,6 +80,8 @@ export component MainWindow inherits Window {
     callback freeboards-est(which: int);
     callback save-picture();
     callback torp-units-edited(row: int);
+    callback mine-units-edited();
+    callback asw-units-edited(row: int);
 
     // Menu bar {{{2
     //
@@ -151,8 +155,11 @@ export component MainWindow inherits Window {
                         mine-type-labels <=> root.mine-type-labels;
                         torp-mount-labels <=> root.torp-mount-labels;
                         length-small-labels <=> root.length-small-labels;
+                        weights-labels <=> root.weights-labels;
                         field-edited => { root.field-edited(); }
                         torp-units-edited(row) => { root.torp-units-edited(row); }
+                        mine-units-edited => { root.mine-units-edited(); }
+                        asw-units-edited(row) => { root.asw-units-edited(row); }
                     }
                 }
                 Tab {

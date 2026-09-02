@@ -58,6 +58,7 @@ pub fn set_enum_models(ui: &MainWindow) {
     ui.set_torp_mount_labels(label_model(TorpedoMountType::ALL.iter().map(|v| v.label())));
 
     ui.set_length_small_labels(label_model(UnitType::LengthSmall.ALL().iter().copied()));
+    ui.set_weights_labels(label_model(UnitType::Weight.ALL().iter().copied()));
 }
 
 // label_model {{{2
@@ -513,6 +514,29 @@ pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: usize) {
     t.diam.set_units(t.units);
     t.len.set_units(t.units);
     push_torpedoes(ship, ui);
+}
+
+// convert_mines_units {{{2
+/// Convert the mines' weight to a new unit system when its units combobox
+/// changes, mirroring convert_torp_units.
+///
+pub fn convert_mines_units(ship: &mut Ship, ui: &MainWindow) {
+    let Some(fields) = ui.get_mine_fields().row_data(0) else { return };
+    ship.mines.units = fields.units.max(0).into();
+    ship.mines.wgt.set_units(ship.mines.units);
+    push_mines(ship, ui);
+}
+
+// convert_asw_units {{{2
+/// Convert one ASW set's weight to a new unit system when its units combobox
+/// changes, mirroring convert_torp_units.
+///
+pub fn convert_asw_units(ship: &mut Ship, ui: &MainWindow, row: usize) {
+    let Some(t) = ship.asw.get_mut(row) else { return };
+    let Some(fields) = ui.get_asw_fields().row_data(row) else { return };
+    t.units = fields.units.max(0).into();
+    t.wgt.set_units(t.units);
+    push_asw(ship, ui);
 }
 
 // push_torpedoes {{{2

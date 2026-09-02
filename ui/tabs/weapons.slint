@@ -79,10 +79,13 @@ export component WeaponsTab inherits ScrollView {
     in-out property <[string]> torp-mount-labels: [];
 
     in-out property <[string]> length-small-labels: [];
+    in-out property <[string]> weights-labels: [];
 
     callback field-edited();
 
     callback torp-units-edited(int);
+    callback mine-units-edited();
+    callback asw-units-edited(int);
 
     VerticalLayout {
         spacing: Layout.grid-spacing;
@@ -148,7 +151,7 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text <=> mines.num;    edited => root.field-edited(); }
                 Entry { text <=> mines.reload; edited => root.field-edited(); }
                 Entry { text <=> mines.wgt;   edited => root.field-edited(); }
-                ComboBox { width: 75px; model: root.length-small-labels; current-index <=> mines.units; selected =>{ root.field-edited(); } }
+                ComboBox { width: 75px; model: root.weights-labels; current-index <=> mines.units; selected =>{ root.mine-units-edited(); } }
             }
 
             Row {
@@ -176,7 +179,7 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text <=> asw.num;    edited => root.field-edited(); }
                 Entry { text <=> asw.reload; edited => root.field-edited(); }
                 Entry { text <=> asw.wgt;   edited => root.field-edited(); }
-                ComboBox { width: 75px; model: root.length-small-labels; current-index <=> asw.units; selected =>{ root.field-edited(); } }
+                ComboBox { width: 75px; model: root.weights-labels; current-index <=> asw.units; selected =>{ root.asw-units-edited(i); } }
             }
 
             Row {

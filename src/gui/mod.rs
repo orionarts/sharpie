@@ -132,6 +132,20 @@ fn torp_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: usize) {
     gui_map::convert_torp_units(&mut ship.borrow_mut(), ui, row);
 }
 
+// mine_units_edited {{{2
+/// Convert the mines' units when its units combobox changes.
+///
+fn mine_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    gui_map::convert_mines_units(&mut ship.borrow_mut(), ui);
+}
+
+// asw_units_edited {{{2
+/// Convert an ASW set's units when its units combobox changes.
+///
+fn asw_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: usize) {
+    gui_map::convert_asw_units(&mut ship.borrow_mut(), ui, row);
+}
+
 // draft_edited {{{2
 fn draft_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     let mut s = ship.borrow_mut();
@@ -231,6 +245,8 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_show_about         ({ let h = ui.as_weak();                       move ||      { show_about         (&h.unwrap()); }});
     ui.on_toggle_report      ({ let h = ui.as_weak();                       move ||      { toggle_report      (&h.unwrap()); }});
     ui.on_torp_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { torp_units_edited  (&h.unwrap(), &s, row as usize); }});
+    ui.on_mine_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { mine_units_edited  (&h.unwrap(), &s); }});
+    ui.on_asw_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { asw_units_edited   (&h.unwrap(), &s, row as usize); }});
 
     match ui.run() {
         Ok(_)    => Ok(()),
