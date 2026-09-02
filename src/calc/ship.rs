@@ -491,7 +491,7 @@ impl Ship { // {{{2
         let mut s: Vec<String> = Vec::new();
 
         if self.is_steady() {
-            s.push("Ship has slow easy roll, a good steady, gun platform".into());
+            s.push("Ship has slow, easy roll, a good, steady gun platform".into());
         } else if self.is_unsteady() {
             s.push("Ship has quick, lively roll, not a steady gun platform".into());
         }
