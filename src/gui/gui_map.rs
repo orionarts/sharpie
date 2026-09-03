@@ -228,7 +228,28 @@ pub fn push_armor_derived(ship: &Ship, ui: &MainWindow) {
     c.ct_wgt    = num!(s.ct_wgt()).into();
     c.total_wgt = num!(s.wgt_armor()).into();
 
+    c.coverage = armor_coverage(s);
+
     ui.set_armor_computed(c);
+}
+
+// armor_coverage {{{2
+/// Text under the "Default" belt button describing the minimum belt length.
+///
+/// Mirrors the armour portion of SpringSharp's `changeStatus()`. When the ship
+/// is incomplete (composite strength < 0.5) a generic reminder is shown;
+/// otherwise the minimum belt length needed to cover machinery and magazines
+/// is reported in the armour's unit system.
+///
+fn armor_coverage(s: &Ship) -> SharedString {
+    if s.str_comp() < 0.5 {
+        "Default length = distance between forecastle and quarterdeck from Freeboard page".into()
+    } else {
+        let u = s.armor.units;
+        let mut m = Measurement::new(s.vitalspace_length(), LengthLong, Units::Imperial);
+        m.set_units(u);
+        format!("Minimum main belt length to cover machinery and magazines = {}", fmt_meas(m, u, 2)).into()
+    }
 }
 
 // push_armor_default {{{2
@@ -345,6 +366,24 @@ pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
     }
 }
 
+// vital_msg {{{2
+/// Text on the Freeboard page describing the vitalspace percentage needed to
+/// contain engine and magazine spaces.
+///
+/// Mirrors the freeboard portion of SpringSharp's `changeStatus()`. When the
+/// ship is incomplete (composite strength < 0.5) a generic reminder with the
+/// 17.5% average is shown; otherwise the computed vitalspace percentage that
+/// sets the belt default to the minimum engine and magazine length is shown.
+///
+fn vital_msg(s: &Ship) -> SharedString {
+    if s.str_comp() < 0.5 {
+        "Enter in QD and FC % of Lwl 17.5% for average belt length".into()
+    } else {
+        let v = s.vitalspace();
+        format!("Enter in QD and FC % of Lwl boxes 17.5% for average belt length or {:.2}% to set armour default length to minimum engine and magazine length", v).into()
+    }
+}
+
 // push_hull {{{2
 /// Push editable hull fields into the UI.
 ///
@@ -417,6 +456,7 @@ pub fn push_hull(ship: &Ship, ui: &MainWindow) {
         depth_qd_aft: 0.0,
 
         engine_year: ship.engine.year.to_string().into(),
+        vital_msg: vital_msg(ship),
     });
 
     ui.set_hull_computed(HullComputed {

@@ -61,6 +61,8 @@ export struct ArmorComputed {
     ct-wgt: string,
 
     total-wgt: string,
+
+    coverage: string,
 }
 
 // Armor tab {{{1
@@ -101,11 +103,7 @@ export component ArmorTab inherits ScrollView {
             Text { text: "Belts &\nBulkheads:"; font-weight: 700; vertical-alignment: bottom; }
             Button { col: 2; text: "Default"; height: Layout.edit-height; }
             Button { col: 2; text: "Default"; height: Layout.edit-height; clicked => { root.armor-default(); } }
-            // TODO: This is a dynamic string
-            // if strengthComp < 0.5
-            Text { colspan: 3; text: "Default length = distance between forecastle\nand quarterdeck from Freeboard page"; }
-            // else
-            // "Minimum main belt length to cover machinery and magazines = " + lengthVitalSpace
+            Text { colspan: 3; wrap: word-wrap; text: root.armor-computed.coverage; }
         }
 
         Row {

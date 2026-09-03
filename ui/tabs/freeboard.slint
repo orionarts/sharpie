@@ -119,7 +119,8 @@ export component FreeboardTab inherits ScrollView {
                 Text { height: 0px; width: Layout.edit-width; }
             }
             Row {
-                ColumnLabel { col: 4; text: "Average\nfreeboard:"; }
+                Text { col: 1; colspan: 3; wrap: word-wrap; text: root.hull-fields.vital-msg; }
+                ColumnLabel { text: "Average\nfreeboard:"; }
             }
             Row {
                 freeboard := Entry { col: 4; text: root.hull-fields.freeboard; }
