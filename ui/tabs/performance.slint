@@ -1,11 +1,147 @@
-import { VerticalBox } from "std-widgets.slint";
+import {
+    GridBox,
+    ScrollView,
+    Slider,
+} from "std-widgets.slint";
+
+import { Entry }       from "../widgets/entry.slint";
+import { RowLabel }    from "../widgets/row-label.slint";
+import { ColumnLabel } from "../widgets/column-label.slint";
+import { Layout }      from "../layout.slint";
 
 // Performance tab {{{1
 //
-export component PerformanceTab inherits VerticalBox {
+export component PerformanceTab inherits ScrollView {
     callback field-edited();
 
-    Text {
-        text: "Performance (TODO)";
+    GridBox {
+        spacing: Layout.grid-spacing;
+
+        Row {
+            // These blank widgets are solely so we can set column widths in the
+            // first row
+            Text { height: 0px; width: Layout.label-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Stability & Seakeeping:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            RowLabel { text: "Set Trim:"; }
+            Entry { text: "X"; }
+            Slider {
+                colspan: 4;
+                minimum: 0;
+                maximum: 100;
+                step: 1;
+            }
+        }
+
+        Row {
+            Text {
+                col: 2;
+                colspan: 2;
+                text: "0 Improve stability, flotation, recoil";
+            }
+            Text {
+                col: 4;
+                colspan: 2;
+                text: "Improve steadiness, seakeeping 100";
+                horizontal-alignment: right;
+            }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            RowLabel { text: ":Stability"; horizontal-alignment: left; }
+            RowLabel { col: 4; text: "Steadiness:"; }
+            Entry { text: "X"; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            RowLabel { text: ":Recoil"; horizontal-alignment: left; }
+            RowLabel { col: 4; text: "Metacentric height:"; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            RowLabel { text: ":Flotation"; horizontal-alignment: left; }
+            RowLabel { col: 4; text: "Seakeeping:"; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Damage sustainability:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            RowLabel { col: 1; text: "Max XXX shell hits:"; }
+            Entry { text: "X"; enabled: false; }
+            RowLabel { text: "Max XXX torpedo hits:"; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Hull & deck Room:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            RowLabel { colspan: 4; text: "DESCRIPTION"; horizontal-alignment: left; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            RowLabel { colspan: 4; text: "DESCRIPTION"; horizontal-alignment: left; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Displacement:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Maximum (t):"; }
+            ColumnLabel { text: "Normal (t):"; }
+            ColumnLabel { text: "Standard (t):"; }
+            ColumnLabel { text: "Light (t):"; }
+            ColumnLabel { text: "Weight/sq foot\nhull:"; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Cost & Strength:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Cost\n(£ million):"; }
+            ColumnLabel { text: "Cost\n($ million):"; }
+            ColumnLabel { text: "Cross\nsectional:"; }
+            ColumnLabel { text: "Longtiudinal\nstrength:"; }
+            ColumnLabel { text: "Composite\nstrength:"; font-weight: 700; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+        }
+
     }
 }
