@@ -36,31 +36,31 @@ export struct ArmorFields {
     bulge: BeltFields,
     bh: BeltFields,
     bh-kind: int,
-    bh_beam: string,
+    bh-beam: string,
 
     deck: DeckFields,
-    ct_fwd: string,
-    ct_aft: string,
+    ct-fwd: string,
+    ct-aft: string,
 }
 
 // Computed armor values {{{1
 //
 export struct ArmorComputed {
-    main_wgt: string,
-    end_wgt: string,
-    upper_wgt: string,
-    belt_wgt: string,
+    main-wgt: string,
+    end-wgt: string,
+    upper-wgt: string,
+    belt-wgt: string,
 
-    bulge_wgt: string,
-    bh_wgt: string,
+    bulge-wgt: string,
+    bh-wgt: string,
 
-    gun_wgt: string,
+    gun-wgt: string,
 
-    deck_wgt: string,
+    deck-wgt: string,
 
-    ct_wgt: string,
+    ct-wgt: string,
 
-    total_wgt: string,
+    total-wgt: string,
 }
 
 // Armor tab {{{1
@@ -114,7 +114,7 @@ export component ArmorTab inherits ScrollView {
             Entry { text <=> root.armor-fields.main.thick; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.main.len; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.main.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.main_wgt; enabled: false; }
+            Entry { text: root.armor-computed.main-wgt; enabled: false; }
         }
 
         Row {
@@ -122,7 +122,7 @@ export component ArmorTab inherits ScrollView {
             Entry { text <=> root.armor-fields.end.thick; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.end.len; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.end.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.end_wgt; enabled: false; }
+            Entry { text: root.armor-computed.end-wgt; enabled: false; }
         }
 
         Row {
@@ -130,8 +130,8 @@ export component ArmorTab inherits ScrollView {
             Entry { text <=> root.armor-fields.upper.thick; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.upper.len; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.upper.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.upper_wgt; enabled: false; }
-            Entry { text: root.armor-computed.belt_wgt; enabled: false; }
+            Entry { text: root.armor-computed.upper-wgt; enabled: false; }
+            Entry { text: root.armor-computed.belt-wgt; enabled: false; }
         }
 
         Row {
@@ -144,7 +144,7 @@ export component ArmorTab inherits ScrollView {
             Entry { text <=> root.armor-fields.bulge.thick; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.bulge.len; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.bulge.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.bulge_wgt; enabled: false; }
+            Entry { text: root.armor-computed.bulge-wgt; enabled: false; }
         }
 
         Row {
@@ -152,7 +152,7 @@ export component ArmorTab inherits ScrollView {
             Entry { text <=> root.armor-fields.bh.thick; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.bh.len; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.bh.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.bh_wgt; enabled: false; }
+            Entry { text: root.armor-computed.bh-wgt; enabled: false; }
         }
 
         Row {
@@ -161,13 +161,13 @@ export component ArmorTab inherits ScrollView {
         }
         Row {
             RowLabel { colspan: 2; text: "Beam between bulkheads:"; }
-            Entry { text <=> root.armor-fields.bh_beam; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.bh-beam; edited => { root.field-edited(); } }
         }
 
         Row {
             Text { text: "Guns:"; font-weight: 700; vertical-alignment: bottom; }
             Text { text: "(see Guns page)"; vertical-alignment: bottom; }
-            Entry { col: 4; text: root.armor-computed.gun_wgt; enabled: false; }
+            Entry { col: 4; text: root.armor-computed.gun-wgt; enabled: false; }
         }
 
         Row {
@@ -184,7 +184,7 @@ export component ArmorTab inherits ScrollView {
             Entry { col: 1; text <=> root.armor-fields.deck.fc; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.deck.md; edited => { root.field-edited(); } }
             Entry { text <=> root.armor-fields.deck.qd; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.deck_wgt; enabled: false; }
+            Entry { text: root.armor-computed.deck-wgt; enabled: false; }
         }
 
         Row {
@@ -203,10 +203,10 @@ export component ArmorTab inherits ScrollView {
         }
 
         Row {
-            Entry { col: 2; text <=> root.armor-fields.ct_fwd; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.ct_aft; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.ct_wgt; enabled: false; }
-            Entry { text: root.armor-computed.total_wgt; enabled: false; }
+            Entry { col: 2; text <=> root.armor-fields.ct-fwd; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.ct-aft; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.ct-wgt; enabled: false; }
+            Entry { text: root.armor-computed.total-wgt; enabled: false; }
         }
     }
 }
