@@ -1,13 +1,135 @@
-import { VerticalBox } from "std-widgets.slint";
+import {
+    Button,
+    GridBox,
+    ScrollView,
+} from "std-widgets.slint";
+
+import { Entry }       from "../../widgets/entry.slint";
+import { RowLabel }    from "../../widgets/row-label.slint";
+import { ColumnLabel } from "../../widgets/column-label.slint";
+import { Layout }      from "../../layout.slint";
 
 // Summary tab {{{1
 //
 // Battery summary
 //
-export component SummaryTab inherits VerticalBox {
+export component SummaryTab inherits ScrollView {
     callback field-edited();
 
-    Text {
-        text: "Battery summary (TODO)";
+    GridBox {
+        spacing: Layout.grid-spacing;
+
+        // This row exists solely to set the column widths
+        Row {
+            // These blank widgets are solely so we can set column widths in the
+            // first row
+            Text { height: 0px; width: Layout.label-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+        }
+
+        Row {
+            Text { text: "Batteries:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "main"; }
+            Button { rowspan: 2; text: "Lock all\nshell weights"; }
+        }
+        Row {
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "2nd"; }
+        }
+        Row {
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "3rd"; }
+            Button { rowspan: 2; text: "Unlock all\nshell weights"; }
+        }
+        Row {
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "4th"; }
+        }
+        Row {
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "5th"; }
+        }
+
+        Row {
+            Text { text: "Weights:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Main:"; }
+            ColumnLabel { text: "2nd:"; }
+            ColumnLabel { text: "3rd:"; }
+            ColumnLabel { text: "4th:"; }
+            ColumnLabel { text: "5th:"; }
+            ColumnLabel { text: "Total:"; }
+        }
+
+        Row {
+            RowLabel { text: "Guns:"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+        Row {
+            RowLabel { text: "Mounts:"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+        Row {
+            RowLabel { text: "Armour:"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+        Row {
+            RowLabel { text: "Total (t):"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+        Row {
+            RowLabel { text: "Broadside (lbs):"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+        Row {
+            RowLabel { text: "Broadside (kg):"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+        Row {
+            RowLabel { text: "Magazine (t):"; }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+            Rectangle { border-width: 1px; border-color: white; Text { text: "X"; } }
+        }
+
     }
 }

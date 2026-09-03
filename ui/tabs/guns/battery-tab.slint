@@ -1,13 +1,65 @@
-import { VerticalBox } from "std-widgets.slint";
+import {
+    Button,
+    ComboBox,
+    GridBox,
+    ScrollView,
+} from "std-widgets.slint";
+
+import { Entry }       from "../../widgets/entry.slint";
+import { RowLabel }    from "../../widgets/row-label.slint";
+import { ColumnLabel } from "../../widgets/column-label.slint";
+import { Layout }      from "../../layout.slint";
 
 // Battery tab {{{1
 //
 // Once instance for each battery
 //
-export component BatteryTab inherits VerticalBox {
+export component BatteryTab inherits ScrollView {
     callback field-edited();
 
-    Text {
-        text: "Battery (TODO)";
+    GridBox {
+        spacing: Layout.grid-spacing;
+
+        Row {
+            // These blank widgets are solely so we can set column widths in the
+            // first row
+            Text { height: 0px; width: Layout.label-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+        }
+
+        Row {
+            Text { text: "Guns:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "No. of Barrels:"; }
+            ColumnLabel { colspan: 3; text: "Calibre—Shell diameter / barrel length"; }
+            ColumnLabel { text: "Date:"; }
+        }
+
+        Row {
+            Entry { col: 1; text: "X"; }
+            Entry { text: "X"; }
+            ComboBox { width: 75px; }
+            Entry { text: "X"; }
+            Entry { text: "X"; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; colspan: 2; text: "Type of gun:"; }
+            ColumnLabel { text: "Shells per gun:"; }
+            ColumnLabel { colspan: 2; text: "Shell weight—lbs/kg::"; }
+        }
+
+        Row {
+            ComboBox { col: 1; colspan: 2; }
+            Entry { text: "X"; }
+            Entry { text: "X"; }
+            Entry { text: "X"; }
+        }
     }
 }
