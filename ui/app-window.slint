@@ -25,7 +25,9 @@ import { WeaponsTab }     from "tabs/weapons.slint";
 import { ArmorTab,
          ArmorComputed,
          ArmorFields }    from "tabs/armor.slint";
-import { EnginesTab }     from "tabs/engines.slint";
+import { EnginesTab,
+         EngineFields,
+         EngineComputed }  from "tabs/engines.slint";
 import { PerfTab,
          PerfFields,
          PerfComputed }   from "tabs/performance.slint";
@@ -57,6 +59,9 @@ export component MainWindow inherits Window {
 
     in-out property <ArmorFields>      armor-fields;
     in-out property <ArmorComputed>    armor-computed;
+
+    in-out property <EngineFields>     engine-fields;
+    in-out property <EngineComputed>   engine-computed;
 
     in-out property <PerfFields>       perf-fields;
     in-out property <PerfComputed>     perf-computed;
@@ -90,6 +95,8 @@ export component MainWindow inherits Window {
     callback field-edited();
     callback trim-box-edited();
     callback trim-slider-changed();
+    callback shafts-edited();
+    callback vmax-slider-changed();
     callback draft-edited();
     callback depth-lock-toggled();
     callback freeboards-est(which: int);
@@ -199,7 +206,11 @@ export component MainWindow inherits Window {
                 Tab {
                     title: "Engines";
                     EnginesTab {
+                        engine-fields <=> root.engine-fields;
+                        engine-computed <=> root.engine-computed;
                         field-edited => { root.field-edited(); }
+                        shafts-edited => { root.shafts-edited(); }
+                        vmax-slider-changed => { root.vmax-slider-changed(); }
                     }
                 }
                 Tab {

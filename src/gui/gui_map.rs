@@ -21,6 +21,8 @@ use crate::{
     ASWDerived,
     BeltFields,
     DeckFields,
+    EngineComputed,
+    EngineFields,
     HullComputed,
     HullFields,
     MainWindow,
@@ -34,11 +36,14 @@ use crate::{
 };
 use crate::calc::{
     ASWType,
+    BoilerType,
     BowType,
     BulkheadType,
     DeckType,
     Displacement,
+    DriveType,
     Freeboard,
+    FuelType,
     Length,
     Measurement,
     MineType,
@@ -645,6 +650,134 @@ pub fn push_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
     f.qd_aft = SharedString::from(fmt_meas(est.qd_aft, h.units, 2));
 
     ui.set_hull_fields(f);
+}
+
+// Engines {{{1
+//
+// pull_engine {{{2
+/// Pull editable engine fields from the UI into the ship.
+///
+/// Unparsable input leaves the corresponding domain value untouched. The
+/// number of shafts is applied through [`crate::calc::engine::Engine::set_shafts`]
+/// so hull parameters that depend on it stay in step, mirroring SpringSharp's
+/// `shaftsBoxTextChanged` -> `hull.waterplaneAreaCalc`.
+///
+pub fn pull_engine(ui: &MainWindow, ship: &mut Ship) {
+    let f = ui.get_engine_fields();
+
+    if let Some(v) = parse(&f.vmax) {
+        ship.engine.vmax = v.clamp(0.0, 50.0);
+    }
+    if let Some(v) = parse(&f.vcruise) {
+        ship.engine.vcruise = v.clamp(0.0, 50.0);
+    }
+    if let Some(v) = parse(&f.range) {
+        ship.engine.range = v.clamp(0.0, f64::from(u32::MAX)) as u32;
+    }
+    if let Some(v) = parse(&f.pct_coal) {
+        ship.engine.pct_coal = v.clamp(0.0, 100.0);
+    }
+    if let Some(v) = parse(&f.shafts) {
+        ship.engine.set_shafts(v.clamp(1.0, 8.0) as u32, &mut ship.hull);
+    }
+
+    let mut fuel = FuelType::empty();
+    let mut boiler = BoilerType::empty();
+    let mut drive = DriveType::empty();
+
+    if f.fuel_coal     { fuel.insert(FuelType::Coal); }
+    if f.fuel_oil      { fuel.insert(FuelType::Oil); }
+    if f.fuel_diesel   { fuel.insert(FuelType::Diesel); }
+    if f.fuel_petrol   { fuel.insert(FuelType::Gasoline); }
+    if f.fuel_battery  { fuel.insert(FuelType::Battery); }
+
+    if f.boiler_simple  { boiler.insert(BoilerType::Simple); }
+    if f.boiler_complex { boiler.insert(BoilerType::Complex); }
+    if f.boiler_turbine { boiler.insert(BoilerType::Turbine); }
+
+    if f.drive_direct    { drive.insert(DriveType::Direct); }
+    if f.drive_geared    { drive.insert(DriveType::Geared); }
+    if f.drive_electric  { drive.insert(DriveType::Electric); }
+    if f.drive_hydraulic { drive.insert(DriveType::Hydraulic); }
+
+    ship.engine.fuel = fuel;
+    ship.engine.boiler = boiler;
+    ship.engine.drive = drive;
+}
+
+// push_engine {{{2
+/// Push editable engine fields from the ship into the UI.
+///
+pub fn push_engine(ship: &Ship, ui: &MainWindow) {
+    ui.set_engine_fields(EngineFields {
+        vmax: num!(ship.engine.vmax, 3).into(),
+        vmax_value: ship.engine.vmax as f32,
+        vcruise: num!(ship.engine.vcruise, 3).into(),
+        shafts: ship.engine.shafts().to_string().into(),
+        range: ship.engine.range.to_string().into(),
+        pct_coal: num!(ship.engine.pct_coal).into(),
+
+        fuel_coal:    ship.engine.fuel.contains(FuelType::Coal),
+        fuel_oil:     ship.engine.fuel.contains(FuelType::Oil),
+        fuel_diesel:  ship.engine.fuel.contains(FuelType::Diesel),
+        fuel_petrol:  ship.engine.fuel.contains(FuelType::Gasoline),
+        fuel_battery: ship.engine.fuel.contains(FuelType::Battery),
+
+        boiler_simple:  ship.engine.boiler.contains(BoilerType::Simple),
+        boiler_complex: ship.engine.boiler.contains(BoilerType::Complex),
+        boiler_turbine: ship.engine.boiler.contains(BoilerType::Turbine),
+
+        drive_direct:    ship.engine.drive.contains(DriveType::Direct),
+        drive_geared:    ship.engine.drive.contains(DriveType::Geared),
+        drive_electric:  ship.engine.drive.contains(DriveType::Electric),
+        drive_hydraulic: ship.engine.drive.contains(DriveType::Hydraulic),
+    });
+}
+
+// sync_engine_vmax_from_slider {{{2
+/// Pull the max speed from the slider into the ship and mirror it into the
+/// speed box so both stay in step (mirrors SpringSharp's `speedMaxBarScroll`).
+///
+pub fn sync_engine_vmax_from_slider(ship: &mut Ship, ui: &MainWindow) {
+    ship.engine.vmax = ui.get_engine_fields().vmax_value as f64;
+    let mut f = ui.get_engine_fields();
+    f.vmax = num!(ship.engine.vmax, 3).into();
+    ui.set_engine_fields(f);
+}
+
+// push_engine_derived {{{2
+/// Push the read-only engine outputs (resistance, power, bunker and weight
+/// boxes) from the ship into the UI.
+///
+/// Mirrors SpringSharp's `resistanceCalc`, `engineCalc`, `bunkerCalc` and
+/// `hullWeightCalc` display values. The power-to-wavemaking boxes are stored
+/// without a `%` and the suffix is added in the Slint markup, matching the
+/// perf-tab convention.
+///
+pub fn push_engine_derived(ship: &Ship, ui: &MainWindow) {
+    ui.set_engine_computed(EngineComputed {
+        // Speed & power, max
+        frict_max:    num!(ship.rf_max()).into(),
+        wave_max:     num!(ship.rw_max()).into(),
+        powwave_max:  pct!(ship.pw_max()).into(),
+        hp_max:       num!(ship.hp_max().imp()).into(),
+        kw_max:       num!(ship.hp_max().metric()).into(),
+        // Speed & power, cruise
+        frict_cruise: num!(ship.rf_cruise()).into(),
+        wave_cruise:  num!(ship.rw_cruise()).into(),
+        powwave_cruise: pct!(ship.pw_cruise()).into(),
+        hp_cruise:    num!(ship.hp_cruise()).into(),
+        kw_cruise:    num!(Measurement::new(ship.hp_cruise(), UnitType::Power, Units::Imperial).metric()).into(),
+        // Weights, engine row
+        d_engine:     num!(ship.d_engine()).into(),
+        wgt_engine:   num!(ship.wgt_engine()).into(),
+        bunker_max:   num!(ship.bunker_max()).into(),
+        bunker_normal: num!(ship.wgt_bunker()).into(),
+        // Weights, weight row
+        wgt_load:     num!(ship.wgt_load()).into(),
+        wgt_hull:     num!(ship.wgt_hull()).into(),
+        d_factor:     num!(ship.d_factor(), 2).into(),
+    });
 }
 
 // Performance {{{1

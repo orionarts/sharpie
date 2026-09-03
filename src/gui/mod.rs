@@ -26,6 +26,7 @@ fn pull_all(ui: &MainWindow, ship: &mut Ship) {
     gui_map::pull_asw(ui, ship);
     gui_map::pull_identity(ui, ship);
     gui_map::pull_hull(ui, ship);
+    gui_map::pull_engine(ui, ship);
     gui_map::pull_mines(ui, ship);
     gui_map::pull_torpedoes(ui, ship);
     gui_map::pull_weights(ui, ship);
@@ -48,6 +49,7 @@ fn push_derived(ship: &Ship, ui: &MainWindow) {
     gui_map::push_asw_total_wgt(ship, ui);
     gui_map::push_weight_derived(ship, ui);
     gui_map::push_perf_derived(ship, ui);
+    gui_map::push_engine_derived(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 
@@ -68,10 +70,12 @@ fn push_all(ship: &Ship, ui: &MainWindow) {
     gui_map::push_identity(ship, ui);
     gui_map::push_hull(ship, ui);
     gui_map::push_hull_image(ship, ui);
+    gui_map::push_engine(ship, ui);
     gui_map::push_mines(ship, ui);
     gui_map::push_torpedoes(ship, ui);
     gui_map::push_weights(ship, ui);
     gui_map::push_perf(ship, ui);
+    gui_map::push_engine_derived(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 
@@ -140,6 +144,25 @@ fn trim_box_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 ///
 fn trim_slider_changed(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     gui_map::sync_trim_from_slider(&mut ship.borrow_mut(), ui);
+}
+
+// shafts_edited {{{2
+/// Pull the shafts entry, which also updates dependent hull parameters, then
+/// refresh the derived UI.
+///
+fn shafts_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let mut s = ship.borrow_mut();
+    gui_map::pull_engine(ui, &mut s);
+    push_derived(&s, ui);
+}
+
+// vmax_slider_changed {{{2
+/// Copy the max speed from the slider into the ship and into the speed box.
+///
+fn vmax_slider_changed(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let mut s = ship.borrow_mut();
+    gui_map::sync_engine_vmax_from_slider(&mut s, ui);
+    push_derived(&s, ui);
 }
 
 // torp_units_edited {{{2
@@ -288,6 +311,8 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_field_edited       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { field_edited       (&h.unwrap(), &s); }});
     ui.on_trim_box_edited    ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { trim_box_edited    (&h.unwrap(), &s); }});
     ui.on_trim_slider_changed({ let h = ui.as_weak(); let s = ship.clone(); move ||      { trim_slider_changed(&h.unwrap(), &s); }});
+    ui.on_shafts_edited      ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { shafts_edited      (&h.unwrap(), &s); }});
+    ui.on_vmax_slider_changed({ let h = ui.as_weak(); let s = ship.clone(); move ||      { vmax_slider_changed(&h.unwrap(), &s); }});
     ui.on_freeboards_est     ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_freeboards     (&h.unwrap(), &s, which); }});
     ui.on_load_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { load_ship          (&h.unwrap(), &s); }});
     ui.on_save_picture       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_picture       (&h.unwrap(), &s); }});

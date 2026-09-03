@@ -13,8 +13,60 @@ import { Layout }      from "../layout.slint";
 
 // Engines tab {{{1
 //
+export struct EngineFields {
+    vmax: string,
+    vmax-value: float,
+    vcruise: string,
+    shafts: string,
+    range: string,
+    pct-coal: string,
+
+    fuel-coal: bool,
+    fuel-oil: bool,
+    fuel-diesel: bool,
+    fuel-petrol: bool,
+    fuel-battery: bool,
+
+    boiler-simple: bool,
+    boiler-complex: bool,
+    boiler-turbine: bool,
+
+    drive-direct: bool,
+    drive-geared: bool,
+    drive-electric: bool,
+    drive-hydraulic: bool,
+}
+
+export struct EngineComputed {
+    frict-max: string,
+    wave-max: string,
+    powwave-max: string,
+    hp-max: string,
+    kw-max: string,
+
+    frict-cruise: string,
+    wave-cruise: string,
+    powwave-cruise: string,
+    hp-cruise: string,
+    kw-cruise: string,
+
+    d-engine: string,
+    wgt-engine: string,
+    bunker-max: string,
+    bunker-normal: string,
+
+    wgt-load: string,
+    wgt-hull: string,
+    d-factor: string,
+}
+
 export component EnginesTab inherits ScrollView {
     callback field-edited();
+    callback shafts-edited();
+    callback vmax-slider-changed();
+
+    in-out property <EngineFields>   engine-fields;
+    in-out property <EngineComputed> engine-computed;
 
     GridBox {
         spacing: Layout.grid-spacing;
@@ -36,23 +88,25 @@ export component EnginesTab inherits ScrollView {
 
         Row {
             RowLabel { text: "Max speed:"; }
-            Entry { text: "X"; }
+            Entry { text <=> root.engine-fields.vmax; edited => { root.field-edited(); } }
             Slider {
                 colspan: 4;
                 minimum: 0;
                 maximum: 50;
                 step: 1;
+                value <=> root.engine-fields.vmax-value;
+                changed => { root.vmax-slider-changed(); }
             }
         }
 
         Row {
             RowLabel { text: "Cruise speed:"; }
-            Entry { text: "X"; }
+            Entry { text <=> root.engine-fields.vcruise; edited => { root.field-edited(); } }
         }
 
         Row {
             RowLabel { text: "No. of shafts:"; }
-            Entry { text: "X"; }
+            Entry { text <=> root.engine-fields.shafts; edited => { root.shafts-edited(); } }
         }
 
         Row {
@@ -65,20 +119,20 @@ export component EnginesTab inherits ScrollView {
 
         Row {
             RowLabel { text: "Max:"; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
+            Entry { text: root.engine-computed.frict-max; enabled: false; }
+            Entry { text: root.engine-computed.wave-max; enabled: false; }
+            Entry { text: root.engine-computed.powwave-max + " %"; enabled: false; }
+            Entry { text: root.engine-computed.hp-max; enabled: false; }
+            Entry { text: root.engine-computed.kw-max; enabled: false; }
         }
 
         Row {
             RowLabel { text: "Cruise:"; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
+            Entry { text: root.engine-computed.frict-cruise; enabled: false; }
+            Entry { text: root.engine-computed.wave-cruise; enabled: false; }
+            Entry { text: root.engine-computed.powwave-cruise + " %"; enabled: false; }
+            Entry { text: root.engine-computed.hp-cruise; enabled: false; }
+            Entry { text: root.engine-computed.kw-cruise; enabled: false; }
         }
 
         Row {
@@ -97,11 +151,11 @@ export component EnginesTab inherits ScrollView {
                     VerticalLayout {
                         spacing: Layout.grid-spacing;
                         padding: 5px;
-                        CheckBox { text: "Coal fired boilers"; }
-                        CheckBox { text: "Oil fired boilers"; }
-                        CheckBox { text: "Diesel motors"; }
-                        CheckBox { text: "Petrol motors"; }
-                        CheckBox { text: "Batteries"; }
+                        CheckBox { text: "Coal fired boilers"; checked <=> root.engine-fields.fuel-coal; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Oil fired boilers"; checked <=> root.engine-fields.fuel-oil; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Diesel motors"; checked <=> root.engine-fields.fuel-diesel; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Petrol motors"; checked <=> root.engine-fields.fuel-petrol; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Batteries"; checked <=> root.engine-fields.fuel-battery; toggled => { root.field-edited(); } }
                     }
                 }
                 Rectangle {
@@ -110,9 +164,9 @@ export component EnginesTab inherits ScrollView {
                     VerticalLayout {
                         spacing: Layout.grid-spacing;
                         padding: 5px;
-                        CheckBox { text: "Simple reciprocating"; }
-                        CheckBox { text: "Complex reciprocating"; }
-                        CheckBox { text: "Steam turbines"; }
+                        CheckBox { text: "Simple reciprocating"; checked <=> root.engine-fields.boiler-simple; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Complex reciprocating"; checked <=> root.engine-fields.boiler-complex; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Steam turbines"; checked <=> root.engine-fields.boiler-turbine; toggled => { root.field-edited(); } }
                     }
                 }
                 Rectangle {
@@ -121,10 +175,10 @@ export component EnginesTab inherits ScrollView {
                     VerticalLayout {
                         spacing: Layout.grid-spacing;
                         padding: 5px;
-                        CheckBox { text: "Direct"; }
-                        CheckBox { text: "Geared"; }
-                        CheckBox { text: "Electric"; }
-                        CheckBox { text: "Hydraulic"; }
+                        CheckBox { text: "Direct"; checked <=> root.engine-fields.drive-direct; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Geared"; checked <=> root.engine-fields.drive-geared; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Electric"; checked <=> root.engine-fields.drive-electric; toggled => { root.field-edited(); } }
+                        CheckBox { text: "Hydraulic"; checked <=> root.engine-fields.drive-hydraulic; toggled => { root.field-edited(); } }
                     }
                 }
             }
@@ -140,12 +194,12 @@ export component EnginesTab inherits ScrollView {
 
         Row {
             RowLabel { text: "Range:"; }
-            Entry { text: "X"; enabled: false; }
+            Entry { text <=> root.engine-fields.range; edited => { root.field-edited(); } }
         }
 
         Row {
             RowLabel { text: "% Coal:"; }
-            Entry { text: "X"; enabled: false; }
+            Entry { text <=> root.engine-fields.pct-coal; edited => { root.field-edited(); } }
         }
 
         Row {
@@ -157,10 +211,10 @@ export component EnginesTab inherits ScrollView {
 
         Row {
             RowLabel { text: "Engine:"; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
+            Entry { text: root.engine-computed.d-engine; enabled: false; }
+            Entry { text: root.engine-computed.wgt-engine; enabled: false; }
+            Entry { text: root.engine-computed.bunker-max; enabled: false; }
+            Entry { text: root.engine-computed.bunker-normal; enabled: false; }
         }
 
         Row {
@@ -171,10 +225,9 @@ export component EnginesTab inherits ScrollView {
 
         Row {
             RowLabel { text: "Weight:"; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
-            Entry { text: "X"; enabled: false; }
+            Entry { text: root.engine-computed.wgt-load; enabled: false; }
+            Entry { text: root.engine-computed.wgt-hull; enabled: false; }
+            Entry { text: root.engine-computed.d-factor; enabled: false; }
         }
-
     }
 }
