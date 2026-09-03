@@ -1,11 +1,135 @@
-import { VerticalBox } from "std-widgets.slint";
+import {
+    Button,
+    GridBox,
+    ScrollView,
+    Slider,
+} from "std-widgets.slint";
+
+import { Entry }       from "../widgets/entry.slint";
+import { RowLabel }    from "../widgets/row-label.slint";
+import { ColumnLabel } from "../widgets/column-label.slint";
+import { Layout }      from "../layout.slint";
 
 // Engines tab {{{1
 //
-export component EnginesTab inherits VerticalBox {
+export component EnginesTab inherits ScrollView {
     callback field-edited();
 
-    Text {
-        text: "Engines (TODO)";
+    GridBox {
+        spacing: Layout.grid-spacing;
+
+        Row {
+            // These blank widgets are solely so we can set column widths in the
+            // first row
+            Text { height: 0px; width: Layout.label-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Speed & Power"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            RowLabel { text: "Max speed:"; }
+            Entry { text: "X"; }
+            Slider {
+                colspan: 4;
+                minimum: 0;
+                maximum: 50;
+                step: 1;
+            }
+        }
+
+        Row {
+            RowLabel { text: "Cruise speed:"; }
+            Entry { text: "X"; }
+        }
+
+        Row {
+            RowLabel { text: "No. of shafts:"; }
+            Entry { text: "X"; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Friction\nresistance:"; }
+            ColumnLabel { text: "Wave\nresistance:"; }
+            ColumnLabel { text: "Power to\nwavemaking:"; }
+            ColumnLabel { text: "Power (hp):"; }
+            ColumnLabel { text: "Power (Kw):"; }
+        }
+
+        Row {
+            RowLabel { text: "Max:"; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "Cruise:"; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Engines:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Weights:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            RowLabel { text: "Engine factor"; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "Range:"; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "% Coal:"; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Engine disp for\nmachinery:"; }
+            ColumnLabel { text: "Engine:"; }
+            ColumnLabel { text: "Bunker (Max):"; }
+            ColumnLabel { text: "Bunker (Normal):"; }
+        }
+
+        Row {
+            RowLabel { text: "Engine:"; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Load:"; }
+            ColumnLabel { text: "Hull:"; }
+            ColumnLabel { text: "Displacement\nfactor:"; }
+        }
+
+        Row {
+            RowLabel { text: "Weight:"; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+            Entry { text: "X"; enabled: false; }
+        }
+
     }
 }
