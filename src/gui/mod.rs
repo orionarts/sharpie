@@ -22,6 +22,7 @@ pub mod gui_map;
 /// Read all editable fields from the Slint UI back into the Ship
 ///
 fn pull_all(ui: &MainWindow, ship: &mut Ship) {
+    gui_map::pull_armor(ui, ship);
     gui_map::pull_asw(ui, ship);
     gui_map::pull_identity(ui, ship);
     gui_map::pull_hull(ui, ship);
@@ -38,6 +39,7 @@ fn pull_all(ui: &MainWindow, ship: &mut Ship) {
 /// resets the depth lock, so only the derived boxes are rewritten.
 ///
 fn push_derived(ship: &Ship, ui: &MainWindow) {
+    gui_map::push_armor_derived(ship, ui);
     gui_map::push_hull_derived(ship, ui);
     gui_map::push_hull_image(ship, ui);
     gui_map::push_torp_wgt(ship, ui);
@@ -59,6 +61,7 @@ fn pull_then_push(ui: &MainWindow, ship: &mut Ship) {
 /// Push Ship fields and report from the Ship into the Slint UI
 ///
 fn push_all(ship: &Ship, ui: &MainWindow) {
+    gui_map::push_armor(ship, ui);
     gui_map::push_asw(ship, ui);
     gui_map::push_identity(ship, ui);
     gui_map::push_hull(ship, ui);

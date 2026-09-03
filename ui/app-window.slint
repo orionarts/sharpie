@@ -22,7 +22,9 @@ import { ASWFields,
 import { WeightFields }   from "tabs/weapons.slint";
 import { GunsTab }        from "tabs/guns/guns.slint";
 import { WeaponsTab }     from "tabs/weapons.slint";
-import { ArmorTab }       from "tabs/armor.slint";
+import { ArmorTab,
+         ArmorComputed,
+         ArmorFields }    from "tabs/armor.slint";
 import { EnginesTab }     from "tabs/engines.slint";
 import { PerformanceTab } from "tabs/performance.slint";
 
@@ -50,6 +52,9 @@ export component MainWindow inherits Window {
     in-out property <[ASWFields]>      asw-fields;
     in-out property <[ASWDerived]>     asw-derived;
     in-out property <WeightFields>     weight-fields;
+
+    in-out property <ArmorFields>      armor-fields;
+    in-out property <ArmorComputed>    armor-computed;
 
     in-out property <[string]> asw-type-labels: [];
     in-out property <[string]> bow-labels: [];
@@ -170,6 +175,8 @@ export component MainWindow inherits Window {
                 Tab {
                     title: "Armor";
                     ArmorTab {
+                        armor-fields <=> root.armor-fields;
+                        armor-computed <=> root.armor-computed;
                         field-edited => { root.field-edited(); }
                     }
                 }

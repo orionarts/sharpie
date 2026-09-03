@@ -16,8 +16,11 @@ use crate::editor::{depth_lock, freeboard_est};
 use crate::calc::hull_draw;
 
 use crate::{
+    ArmorFields,
     ASWFields,
     ASWDerived,
+    BeltFields,
+    DeckFields,
     HullComputed,
     HullFields,
     MainWindow,
@@ -103,6 +106,125 @@ pub fn push_identity(ship: &Ship, ui: &MainWindow) {
         kind: ship.kind.clone().into(),
         year: ship.year.to_string().into(),
     });
+}
+
+// Armor {{{1
+//
+// pull_armor {{{2
+/// Pull editable armor fields from the UI into the ship.
+///
+/// Only the box flagged by each either/or pair's kind index is parsed; a
+/// failed parse keeps both the prior variant and its value.
+///
+pub fn pull_armor(ui: &MainWindow, ship: &mut Ship) {
+    let f = ui.get_armor_fields();
+    let a = &mut ship.armor;
+
+    a.units = f.units.into();
+
+    set_meas(&mut a.main.thick, &f.main.thick, a.units, LengthSmall);
+    set_meas(&mut a.main.len,   &f.main.len, a.units, LengthLong);
+    set_meas(&mut a.main.hgt,   &f.main.hgt, a.units, LengthLong);
+
+    set_meas(&mut a.end.thick, &f.end.thick, a.units, LengthSmall);
+    set_meas(&mut a.end.len,   &f.end.len, a.units, LengthLong);
+    set_meas(&mut a.end.hgt,   &f.end.hgt, a.units, LengthLong);
+
+    set_meas(&mut a.upper.thick, &f.upper.thick, a.units, LengthSmall);
+    set_meas(&mut a.upper.len,   &f.upper.len, a.units, LengthLong);
+    set_meas(&mut a.upper.hgt,   &f.upper.hgt, a.units, LengthLong);
+
+    if let Some(v) = parse(&f.incline) {
+        a.incline = v;
+    }
+
+    set_meas(&mut a.bulge.thick, &f.bulge.thick, a.units, LengthSmall);
+    set_meas(&mut a.bulge.len,   &f.bulge.len, a.units, LengthLong);
+    set_meas(&mut a.bulge.hgt,   &f.bulge.hgt, a.units, LengthLong);
+
+    set_meas(&mut a.bulkhead.thick, &f.bh.thick, a.units, LengthSmall);
+    set_meas(&mut a.bulkhead.len,   &f.bh.len, a.units, LengthLong);
+    set_meas(&mut a.bulkhead.hgt,   &f.bh.hgt, a.units, LengthLong);
+    // a.bh_kind =
+    set_meas(&mut a.bh_beam, &f.bh_beam, a.units, LengthLong);
+
+    set_meas(&mut a.deck.fc, &f.deck.fc, a.units, LengthSmall);
+    set_meas(&mut a.deck.md, &f.deck.md, a.units, LengthSmall);
+    set_meas(&mut a.deck.qd, &f.deck.qd, a.units, LengthSmall);
+    // a.deck.kind =
+
+    set_meas(&mut a.ct_fwd.thick, &f.ct_fwd, a.units, LengthSmall);
+    set_meas(&mut a.ct_aft.thick, &f.ct_aft, a.units, LengthSmall);
+}
+
+
+// push_armor {{{2
+/// Push editable armor fields into the UI.
+///
+/// For each either/or pair the active box shows the stored value and the
+/// inactive box shows the derived counterpart (e.g., displacement derived
+/// from a given Cb).
+///
+pub fn push_armor(ship: &Ship, ui: &MainWindow) {
+    let a = &ship.armor;
+    let u = a.units;
+
+    ui.set_armor_fields(ArmorFields {
+        units: u.into(),
+
+        main: BeltFields  { thick: fmt_meas(a.main.thick, u, 2).into(), len: fmt_meas(a.main.len, u, 2).into(), hgt: fmt_meas(a.main.hgt, u, 2).into() },
+        end: BeltFields  { thick: fmt_meas(a.end.thick, u, 2).into(), len: fmt_meas(a.end.len, u, 2).into(), hgt: fmt_meas(a.end.hgt, u, 2).into() },
+        upper: BeltFields  { thick: fmt_meas(a.upper.thick, u, 2).into(), len: fmt_meas(a.upper.len, u, 2).into(), hgt: fmt_meas(a.upper.hgt, u, 2).into() },
+        incline: num!(a.incline, 2).into(),
+
+        bulge: BeltFields  { thick: fmt_meas(a.bulge.thick, u, 2).into(), len: fmt_meas(a.bulge.len, u, 2).into(), hgt: fmt_meas(a.bulge.hgt, u, 2).into() },
+        bh: BeltFields  { thick: fmt_meas(a.bulkhead.thick, u, 2).into(), len: fmt_meas(a.bulkhead.len, u, 2).into(), hgt: fmt_meas(a.bulkhead.hgt, u, 2).into() },
+        bh_kind: "XX".into(),
+        bh_beam: fmt_meas(a.bh_beam, u, 2).into(),
+
+        deck: DeckFields {
+            kind: "XX".into(),
+            fc: fmt_meas(a.deck.fc, u, 2).into(),
+            md: fmt_meas(a.deck.md, u, 2).into(),
+            qd: fmt_meas(a.deck.qd, u, 2).into() },
+        ct_fwd: fmt_meas(a.ct_fwd.thick, u, 2).into(),
+        ct_aft: fmt_meas(a.ct_aft.thick, u, 2).into(),
+    });
+
+    push_armor_derived(ship, ui);
+}
+
+// push_armor_derived {{{2
+/// Refresh only the derived, read-only armor boxes in the UI.
+///
+/// Unlike push_armor(), this leaves the box being entered untouched so that
+/// partially-typed input is not reformatted under the caret. Only the
+/// read-only derived boxes are updated (e.g., LOA from a given LWL and the
+/// average freeboard from the deck freeboards).
+///
+pub fn push_armor_derived(ship: &Ship, ui: &MainWindow) {
+    let s     = &ship;
+    let b     = s.hull.b;
+    let lwl   = s.hull.lwl();
+    let cwp   = s.hull.cwp();
+    let mut c = ui.get_armor_computed();
+
+    c.main_wgt  = num!(s.armor.main.wgt(lwl.imp(), cwp, b.imp())).into();
+    c.end_wgt   = num!(s.armor.end.wgt(lwl.imp(), cwp, b.imp())).into();
+    c.upper_wgt = num!(s.armor.upper.wgt(lwl.imp(), cwp, b.imp())).into();
+    c.belt_wgt  = num!(
+        s.armor.main.wgt(lwl.imp(), cwp, b.imp()) +
+        s.armor.end.wgt(lwl.imp(), cwp, b.imp()) +
+        s.armor.upper.wgt(lwl.imp(), cwp, b.imp())).into();
+
+    c.bulge_wgt = num!(s.armor.bulge.wgt(lwl.imp(), cwp, b.imp())).into();
+    c.bh_wgt    = num!(s.armor.bulkhead.wgt(lwl.imp(), cwp, b.imp())).into();
+    c.gun_wgt   = num!(s.wgt_gun_armor()).into();
+    c.deck_wgt  = num!(s.deck_wgt()).into();
+    c.ct_wgt    = num!(s.ct_wgt()).into();
+    c.total_wgt = num!(s.wgt_armor()).into();
+
+    ui.set_armor_computed(c);
 }
 
 // Hull {{{1

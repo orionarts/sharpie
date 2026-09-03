@@ -1,11 +1,206 @@
-import { VerticalBox } from "std-widgets.slint";
+import {
+    Button,
+    ComboBox,
+    GridBox,
+    ScrollView,
+} from "std-widgets.slint";
+
+import { Entry }       from "../widgets/entry.slint";
+import { RowLabel }    from "../widgets/row-label.slint";
+import { ColumnLabel } from "../widgets/column-label.slint";
+import { Layout }      from "../layout.slint";
+
+// Armor entry fields {{{1
+//
+export struct BeltFields {
+    thick: string,
+    len: string,
+    hgt: string,
+}
+
+export struct DeckFields {
+    fc: string,
+    md: string,
+    qd: string,
+    kind: string,
+}
+
+export struct ArmorFields {
+    units: int,
+
+    main: BeltFields,
+    end: BeltFields,
+    upper: BeltFields,
+    incline: string,
+
+    bulge: BeltFields,
+    bh: BeltFields,
+    bh_kind: string,
+    bh_beam: string,
+
+    deck: DeckFields,
+    ct_fwd: string,
+    ct_aft: string,
+}
+
+// Computed armor values {{{1
+//
+export struct ArmorComputed {
+    main_wgt: string,
+    end_wgt: string,
+    upper_wgt: string,
+    belt_wgt: string,
+
+    bulge_wgt: string,
+    bh_wgt: string,
+
+    gun_wgt: string,
+
+    deck_wgt: string,
+
+    ct_wgt: string,
+
+    total_wgt: string,
+}
 
 // Armor tab {{{1
 //
-export component ArmorTab inherits VerticalBox {
+export component ArmorTab inherits ScrollView {
     callback field-edited();
 
-    Text {
-        text: "Armor (TODO)";
+    in-out property <ArmorFields> armor-fields;
+    in-out property <ArmorComputed> armor-computed;
+
+    GridBox {
+        spacing: Layout.grid-spacing;
+
+        Row {
+            // These blank widgets are solely so we can set column widths in the
+            // first row
+            Text { height: 0px; width: Layout.label-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+            Text { height: 0px; width: Layout.edit-width; }
+        }
+
+        Row {
+            Text { text: "Armour:"; font-weight: 700; vertical-alignment: bottom; }
+            ComboBox { colspan: 2; height: Layout.edit-height; }
+        }
+
+        Row {
+            Text { text: "Belts &\nBulkheads:"; font-weight: 700; vertical-alignment: bottom; }
+            Button { col: 2; text: "Default"; height: Layout.edit-height; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Max Thickness:"; }
+            ColumnLabel { text: "Length (X):"; }
+            ColumnLabel { text: "Height (X):"; }
+            ColumnLabel { text: "Weight (tons):"; }
+            ColumnLabel { text: "Total weight\n(tons):"; }
+        }
+
+        Row {
+            RowLabel { text: "Main:"; }
+            Entry { text <=> root.armor-fields.main.thick; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.main.len; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.main.hgt; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.main_wgt; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "Ends:"; }
+            Entry { text <=> root.armor-fields.end.thick; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.end.len; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.end.hgt; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.end_wgt; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "Upper:"; }
+            Entry { text <=> root.armor-fields.upper.thick; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.upper.len; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.upper.hgt; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.upper_wgt; enabled: false; }
+            Entry { text: root.armor-computed.belt_wgt; enabled: false; }
+        }
+
+        Row {
+            RowLabel { col: 1; text: "Main belt incline:"; }
+            Entry { text <=> root.armor-fields.incline; edited => { root.field-edited(); } }
+        }
+
+        Row {
+            RowLabel { text: "Bulge:"; }
+            Entry { text <=> root.armor-fields.bulge.thick; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.bulge.len; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.bulge.hgt; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.bulge_wgt; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "Torpedo\nbulkhead:"; }
+            Entry { text <=> root.armor-fields.bh.thick; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.bh.len; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.bh.hgt; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.bh_wgt; enabled: false; }
+        }
+
+        Row {
+            RowLabel { text: "Type:"; }
+            ComboBox { colspan: 2; }
+        }
+        Row {
+            RowLabel { colspan: 2; text: "Beam between bulkheads:"; }
+            Entry { text <=> root.armor-fields.bh_beam; edited => { root.field-edited(); } }
+        }
+
+        Row {
+            Text { text: "Guns:"; font-weight: 700; vertical-alignment: bottom; }
+            Text { text: "(see Guns page)"; vertical-alignment: bottom; }
+            Entry { col: 4; text: root.armor-computed.gun_wgt; enabled: false; }
+        }
+
+        Row {
+            Text { text: "Armour\ndeck:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            ColumnLabel { col: 1; text: "Forecastle:"; }
+            ColumnLabel { text: "Fore & aft decks:"; }
+            ColumnLabel { text: "Quarter deck:"; }
+        }
+
+        Row {
+            Entry { col: 1; text <=> root.armor-fields.deck.fc; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.deck.md; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.deck.qd; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.deck_wgt; enabled: false; }
+        }
+
+        Row {
+            RowLabel { colspan: 2; text: "Armour deck coverage:"; }
+            ComboBox { colspan: 2; }
+        }
+
+        Row {
+            Text { text: "Conning\ntowers:"; font-weight: 700; vertical-alignment: bottom; }
+        }
+
+        Row {
+            ColumnLabel { col: 2; text: "Forward:"; }
+            ColumnLabel { text: "Aft:"; }
+            ColumnLabel { col: 5; text: "Total:"; font-weight: 700; }
+        }
+
+        Row {
+            Entry { col: 2; text <=> root.armor-fields.ct_fwd; edited => { root.field-edited(); } }
+            Entry { text <=> root.armor-fields.ct_aft; edited => { root.field-edited(); } }
+            Entry { text: root.armor-computed.ct_wgt; enabled: false; }
+            Entry { text: root.armor-computed.total_wgt; enabled: false; }
+        }
     }
 }
