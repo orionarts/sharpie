@@ -154,9 +154,9 @@ export component HullTab inherits ScrollView {
             Text { text: "Dimension:"; colspan: 5; font-weight: 700; height: Layout.edit-height; vertical-alignment: bottom; }
         }
         Row {
-            ComboBox { col: 1; model: root.length-long-labels; current-index <=> root.hull-fields.units; selected => { root.hull-units-edited(); } }
-            Button { text: "All imperial"; clicked => { root.set-all-units(0); } }
-            Button { text: "All metric"; clicked => { root.set-all-units(1); } }
+            ComboBox { col: 1; width: 75px; model: root.length-long-labels; current-index <=> root.hull-fields.units; selected => { root.hull-units-edited(); } }
+            Button { text: "All imperial"; clicked => { root.set-all-units(0); }; height: Layout.edit-height; }
+            Button { text: "All metric"; clicked => { root.set-all-units(1); }; height: Layout.edit-height; }
         }
 
         Row {
