@@ -140,7 +140,7 @@ export component HullTab inherits ScrollView {
             RowLabel { text: "Country:"; }
             Entry { colspan: 2; horizontal-alignment: left; text <=> root.identity.country; edited => { root.field-edited(); } }
             RowLabel { text: "Ship laid down:"; }
-            Entry { text <=> root.identity.year; edited => { root.field-edited(); } }
+            Entry { text <=> root.identity.year; edited => { root.hull-fields.engine-year = root.identity.year; root.field-edited(); } }
         }
         Row {
             RowLabel { text: "Type:"; }
