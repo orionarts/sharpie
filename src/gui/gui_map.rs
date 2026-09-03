@@ -58,6 +58,7 @@ pub fn set_enum_models(ui: &MainWindow) {
     ui.set_torp_mount_labels(label_model(TorpedoMountType::ALL.iter().map(|v| v.label())));
 
     ui.set_length_small_labels(label_model(UnitType::LengthSmall.ALL().iter().copied()));
+    ui.set_length_long_labels(label_model(UnitType::LengthLong.ALL().iter().copied()));
     ui.set_weights_labels(label_model(UnitType::Weight.ALL().iter().copied()));
 }
 
@@ -114,6 +115,8 @@ pub fn push_identity(ship: &Ship, ui: &MainWindow) {
 pub fn pull_hull(ui: &MainWindow, ship: &mut Ship) {
     let f = ui.get_hull_fields();
     let h = &mut ship.hull;
+
+    h.units = f.units.into();
 
     match f.disp_kind {
         0 => {
@@ -209,6 +212,8 @@ pub fn push_hull(ship: &Ship, ui: &MainWindow) {
     };
 
     ui.set_hull_fields(HullFields {
+        units:     h.units.into(),
+
         disp_kind,
         disp_cb: disp_cb.into(),
         disp_d:  disp_d.into(),
@@ -302,6 +307,23 @@ pub fn push_hull_derived(ship: &Ship, ui: &MainWindow) {
     let mut c = ui.get_hull_computed();
     c.cb = h.cb() as f32;
     ui.set_hull_computed(c);
+}
+
+// convert_hull_units {{{2
+/// Re-express the hull's stored length in a new unit system when its units
+/// combobox changes, mirroring convert_mines_units. Only the stored length
+/// is converted; the derived counterpart (LOA from LWL or vice-versa) is
+/// recomputed by push_hull. The other hull dimensions will follow once their
+/// units handling is wired in.
+///
+pub fn convert_hull_units(ship: &mut Ship, ui: &MainWindow) {
+    let f = ui.get_hull_fields();
+    let h = &mut ship.hull;
+    let new_units: Units = f.units.max(0).into();
+    if h.units != new_units {
+        h.units = new_units;
+    }
+    push_hull(ship, ui);
 }
 
 // stash_depth_lock {{{2

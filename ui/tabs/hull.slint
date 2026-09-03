@@ -1,4 +1,10 @@
-import { GridBox, ScrollView, Slider } from "std-widgets.slint";
+import {
+    Button,
+    ComboBox,
+    GridBox,
+    ScrollView,
+    Slider
+} from "std-widgets.slint";
 
 import { Entry }       from "../widgets/entry.slint";
 import { EitherEntry } from "../widgets/either-entry.slint";
@@ -18,6 +24,8 @@ export struct ShipIdentity {
 // Hull entry fields {{{1
 //
 export struct HullFields {
+    units: int,
+
     // Either/or pairs: *-kind records which LineEdit is being entered
     // (0 = first, 1 = second); the other is read-only and shows the derived
     // counterpart. Clicking a read-only box makes it the one being entered.
@@ -96,8 +104,12 @@ export component HullTab inherits ScrollView {
 
     in-out property <HullComputed> hull-computed;
 
+    in-out property <[string]> length-long-labels: [];
+
     callback field-edited();
     callback draft-edited();
+    callback hull-units-edited();
+    callback set-all-units(which: int);
 
     GridBox { // {{{2
         spacing: Layout.grid-spacing;
@@ -139,6 +151,12 @@ export component HullTab inherits ScrollView {
         Row {
             Text { text: "Dimension:"; colspan: 5; font-weight: 700; height: Layout.edit-height; vertical-alignment: bottom; }
         }
+        Row {
+            ComboBox { col: 1; model: root.length-long-labels; current-index <=> root.hull-fields.units; selected => { root.hull-units-edited(); } }
+            Button { text: "All imperial"; clicked => { root.set-all-units(0); } }
+            Button { text: "All metric"; clicked => { root.set-all-units(1); } }
+        }
+
         Row {
             ColumnLabel { text: "Length:"; col: 1; }
             GridLayout {

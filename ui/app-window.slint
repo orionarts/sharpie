@@ -58,6 +58,7 @@ export component MainWindow inherits Window {
     in-out property <[string]> torp-mount-labels: [];
 
     in-out property <[string]> length-small-labels: [];
+    in-out property <[string]> length-long-labels: [];
 
     in-out property <[string]> weights-labels: [];
 
@@ -82,6 +83,8 @@ export component MainWindow inherits Window {
     callback torp-units-edited(row: int);
     callback mine-units-edited();
     callback asw-units-edited(row: int);
+    callback hull-units-edited();
+    callback set-all-units(which: int);
 
     // Menu bar {{{2
     //
@@ -120,6 +123,8 @@ export component MainWindow inherits Window {
                         hull-computed <=> root.hull-computed;
                         field-edited => { root.field-edited(); }
                         draft-edited => { root.draft-edited(); }
+                        hull-units-edited => { root.hull-units-edited(); }
+                        length-long-labels <=> root.length-long-labels;
                     }
                 }
                 Tab {

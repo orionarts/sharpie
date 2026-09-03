@@ -146,6 +146,20 @@ fn asw_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: usize) {
     gui_map::convert_asw_units(&mut ship.borrow_mut(), ui, row);
 }
 
+// set_all_units {{{2
+/// Set all entry fields to imperial or metric.
+///
+fn set_all_units(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, which: i32) {
+
+}
+
+// hull_units_edited {{{2
+/// Convert the hull's units when its units combobox changes.
+///
+fn hull_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    gui_map::convert_hull_units(&mut ship.borrow_mut(), ui);
+}
+
 // draft_edited {{{2
 fn draft_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     let mut s = ship.borrow_mut();
@@ -247,6 +261,8 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_torp_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { torp_units_edited  (&h.unwrap(), &s, row as usize); }});
     ui.on_mine_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { mine_units_edited  (&h.unwrap(), &s); }});
     ui.on_asw_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { asw_units_edited   (&h.unwrap(), &s, row as usize); }});
+    ui.on_hull_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { hull_units_edited  (&h.unwrap(), &s); }});
+    ui.on_set_all_units      ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_all_units      (&h.unwrap(), &s, which); }});
 
     match ui.run() {
         Ok(_)    => Ok(()),
