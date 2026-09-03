@@ -12,7 +12,7 @@ use slint::{
     VecModel,
 };
 
-use crate::editor::{depth_lock, freeboard_est};
+use crate::editor::{armor_default, depth_lock, freeboard_est};
 use crate::calc::hull_draw;
 
 use crate::{
@@ -229,6 +229,35 @@ pub fn push_armor_derived(ship: &Ship, ui: &MainWindow) {
     c.total_wgt = num!(s.wgt_armor()).into();
 
     ui.set_armor_computed(c);
+}
+
+// push_armor_default {{{2
+/// Apply the armor "Default" button's estimated belt dimensions to the ship
+/// and refresh the UI.
+///
+/// Mirrors SpringSharp's `beltButtonClick`, writing the main/end/upper belt
+/// and bulkhead lengths and heights. The estimates are expressed in the
+/// armor's current unit system so the stored measurements stay consistent.
+///
+pub fn push_armor_default(ship: &mut Ship, ui: &MainWindow) {
+    let est = armor_default::default_belts(ship);
+    let u = ship.armor.units;
+    let m = |v: f64| {
+        let mut x = Measurement::new(v, LengthLong, Units::Imperial);
+        x.set_units(u);
+        x
+    };
+
+    ship.armor.main.len     = m(est.main_len);
+    ship.armor.main.hgt     = m(est.main_hgt);
+    ship.armor.end.len      = m(est.end_len);
+    ship.armor.end.hgt      = m(est.end_hgt);
+    ship.armor.upper.len    = m(est.upper_len);
+    ship.armor.upper.hgt    = m(est.upper_hgt);
+    ship.armor.bulkhead.len = m(est.bulkhead_len);
+    ship.armor.bulkhead.hgt = m(est.bulkhead_hgt);
+
+    push_armor(ship, ui);
 }
 
 // Hull {{{1

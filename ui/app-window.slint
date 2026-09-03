@@ -92,6 +92,7 @@ export component MainWindow inherits Window {
     callback asw-units-edited(row: int);
     callback hull-units-edited();
     callback armor-units-edited();
+    callback armor-default();
     callback set-all-units(which: int);
 
     // Menu bar {{{2
@@ -183,6 +184,7 @@ export component MainWindow inherits Window {
                         length-small-labels <=> root.length-small-labels;
                         field-edited => { root.field-edited(); }
                         armor-units-edited => { root.armor-units-edited(); }
+                        armor-default => { root.armor-default(); }
                         bh-kind-labels <=> root.bh-kind-labels;
                         deck-kind-labels <=> root.deck-kind-labels;
                     }

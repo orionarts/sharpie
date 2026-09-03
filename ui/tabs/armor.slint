@@ -68,6 +68,7 @@ export struct ArmorComputed {
 export component ArmorTab inherits ScrollView {
     callback field-edited();
     callback armor-units-edited();
+    callback armor-default();
 
     in-out property <ArmorFields> armor-fields;
     in-out property <ArmorComputed> armor-computed;
@@ -99,6 +100,12 @@ export component ArmorTab inherits ScrollView {
         Row {
             Text { text: "Belts &\nBulkheads:"; font-weight: 700; vertical-alignment: bottom; }
             Button { col: 2; text: "Default"; height: Layout.edit-height; }
+            Button { col: 2; text: "Default"; height: Layout.edit-height; clicked => { root.armor-default(); } }
+            // TODO: This is a dynamic string
+            // if strengthComp < 0.5
+            Text { colspan: 3; text: "Default length = distance between forecastle\nand quarterdeck from Freeboard page"; }
+            // else
+            // "Minimum main belt length to cover machinery and magazines = " + lengthVitalSpace
         }
 
         Row {
