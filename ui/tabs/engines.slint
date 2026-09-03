@@ -1,5 +1,6 @@
 import {
     Button,
+    CheckBox,
     GridBox,
     ScrollView,
     Slider,
@@ -85,12 +86,56 @@ export component EnginesTab inherits ScrollView {
         }
 
         Row {
-            Text { colspan: 3; text: "Weights:"; font-weight: 700; vertical-alignment: bottom; }
+            GridLayout {
+                col: 1;
+                spacing: Layout.grid-spacing;
+                colspan: 4;
+
+                Rectangle {
+                    border-width: 1px;
+                    border-color: white;
+                    VerticalLayout {
+                        spacing: Layout.grid-spacing;
+                        padding: 5px;
+                        CheckBox { text: "Coal fired boilers"; }
+                        CheckBox { text: "Oil fired boilers"; }
+                        CheckBox { text: "Diesel motors"; }
+                        CheckBox { text: "Petrol motors"; }
+                        CheckBox { text: "Batteries"; }
+                    }
+                }
+                Rectangle {
+                    border-width: 1px;
+                    border-color: white;
+                    VerticalLayout {
+                        spacing: Layout.grid-spacing;
+                        padding: 5px;
+                        CheckBox { text: "Simple reciprocating"; }
+                        CheckBox { text: "Complex reciprocating"; }
+                        CheckBox { text: "Steam turbines"; }
+                    }
+                }
+                Rectangle {
+                    border-width: 1px;
+                    border-color: white;
+                    VerticalLayout {
+                        spacing: Layout.grid-spacing;
+                        padding: 5px;
+                        CheckBox { text: "Direct"; }
+                        CheckBox { text: "Geared"; }
+                        CheckBox { text: "Electric"; }
+                        CheckBox { text: "Hydraulic"; }
+                    }
+                }
+            }
         }
 
         Row {
-            RowLabel { text: "Engine factor"; }
-            Entry { text: "X"; enabled: false; }
+            Text { col: 1; text: "DESCRIPTION"; }
+        }
+
+        Row {
+            Text { colspan: 3; text: "Weights:"; font-weight: 700; vertical-alignment: bottom; }
         }
 
         Row {
