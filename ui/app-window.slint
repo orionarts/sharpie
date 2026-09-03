@@ -26,7 +26,9 @@ import { ArmorTab,
          ArmorComputed,
          ArmorFields }    from "tabs/armor.slint";
 import { EnginesTab }     from "tabs/engines.slint";
-import { PerformanceTab } from "tabs/performance.slint";
+import { PerfTab,
+         PerfFields,
+         PerfComputed }   from "tabs/performance.slint";
 
 import { Layout         } from "layout.slint";
 
@@ -56,6 +58,9 @@ export component MainWindow inherits Window {
     in-out property <ArmorFields>      armor-fields;
     in-out property <ArmorComputed>    armor-computed;
 
+    in-out property <PerfFields>       perf-fields;
+    in-out property <PerfComputed>     perf-computed;
+
     in-out property <[string]> asw-type-labels: [];
     in-out property <[string]> bow-labels: [];
     in-out property <[string]> mine-type-labels: [];
@@ -83,6 +88,8 @@ export component MainWindow inherits Window {
 
     // Other callbacks
     callback field-edited();
+    callback trim-box-edited();
+    callback trim-slider-changed();
     callback draft-edited();
     callback depth-lock-toggled();
     callback freeboards-est(which: int);
@@ -197,8 +204,12 @@ export component MainWindow inherits Window {
                 }
                 Tab {
                     title: "Performance";
-                    PerformanceTab {
+                    PerfTab {
+                        perf-fields <=> root.perf-fields;
+                        perf-computed <=> root.perf-computed;
                         field-edited => { root.field-edited(); }
+                        trim-box-edited => { root.trim-box-edited(); }
+                        trim-slider-changed => { root.trim-slider-changed(); }
                     }
                 }
             }

@@ -29,6 +29,7 @@ fn pull_all(ui: &MainWindow, ship: &mut Ship) {
     gui_map::pull_mines(ui, ship);
     gui_map::pull_torpedoes(ui, ship);
     gui_map::pull_weights(ui, ship);
+    gui_map::pull_perf(ui, ship);
 }
 
 // push_derived {{{2
@@ -46,6 +47,7 @@ fn push_derived(ship: &Ship, ui: &MainWindow) {
     gui_map::push_mine_total_wgt(ship, ui);
     gui_map::push_asw_total_wgt(ship, ui);
     gui_map::push_weight_derived(ship, ui);
+    gui_map::push_perf_derived(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 
@@ -69,6 +71,7 @@ fn push_all(ship: &Ship, ui: &MainWindow) {
     gui_map::push_mines(ship, ui);
     gui_map::push_torpedoes(ship, ui);
     gui_map::push_weights(ship, ui);
+    gui_map::push_perf(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 
@@ -123,6 +126,20 @@ fn exit_app(ui: &MainWindow) {
 // field_edited {{{2
 fn field_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     pull_then_push(ui, &mut ship.borrow_mut());
+}
+
+// trim_box_edited {{{2
+/// Copy trim from the text box into the ship and onto the slider.
+///
+fn trim_box_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    gui_map::sync_trim_from_box(&mut ship.borrow_mut(), ui);
+}
+
+// trim_slider_changed {{{2
+/// Copy trim from the slider into the ship and into the text box.
+///
+fn trim_slider_changed(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    gui_map::sync_trim_from_slider(&mut ship.borrow_mut(), ui);
 }
 
 // torp_units_edited {{{2
@@ -269,6 +286,8 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_draft_edited       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { draft_edited       (&h.unwrap(), &s); }});
     ui.on_exit_app           ({ let h = ui.as_weak();                       move ||      { exit_app           (&h.unwrap()); }});
     ui.on_field_edited       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { field_edited       (&h.unwrap(), &s); }});
+    ui.on_trim_box_edited    ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { trim_box_edited    (&h.unwrap(), &s); }});
+    ui.on_trim_slider_changed({ let h = ui.as_weak(); let s = ship.clone(); move ||      { trim_slider_changed(&h.unwrap(), &s); }});
     ui.on_freeboards_est     ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_freeboards     (&h.unwrap(), &s, which); }});
     ui.on_load_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { load_ship          (&h.unwrap(), &s); }});
     ui.on_save_picture       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_picture       (&h.unwrap(), &s); }});

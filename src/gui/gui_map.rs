@@ -26,6 +26,7 @@ use crate::{
     MainWindow,
     MineFields,
     MineDerived,
+    PerfFields,
     TorpedoFields,
     TorpedoDerived,
     ShipIdentity,
@@ -645,6 +646,113 @@ pub fn push_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
 
     ui.set_hull_fields(f);
 }
+
+// Performance {{{1
+//
+// pull_perf {{{2
+/// Pull editable armor fields from the UI into the ship.
+///
+/// Only the box flagged by each either/or pair's kind index is parsed; a
+/// failed parse keeps both the prior variant and its value.
+///
+pub fn pull_perf(ui: &MainWindow, ship: &mut Ship) {
+    let f = ui.get_perf_fields();
+
+    if let Some(v) = parse(&f.trim) {
+        ship.trim = v.clamp(0.0, 100.0) as u8;
+    }
+}
+
+// sync_trim_from_slider {{{2
+/// Pull trim from the slider value into the ship, then mirror it into the
+/// text box so both stay in step (mirrors SpringSharp's `trimBarScroll`).
+///
+pub fn sync_trim_from_slider(ship: &mut Ship, ui: &MainWindow) {
+    let f = ui.get_perf_fields();
+    ship.trim = f.trim_value.round().clamp(0.0, 100.0) as u8;
+    let mut f = ui.get_perf_fields();
+    f.trim = num!(ship.trim).into();
+    ui.set_perf_fields(f);
+    push_perf_derived(ship, ui);
+}
+
+// sync_trim_from_box {{{2
+/// Pull trim from the text box into the ship, then mirror it onto the slider
+/// value so both stay in step (mirrors SpringSharp's `trimBoxTextChanged`).
+///
+pub fn sync_trim_from_box(ship: &mut Ship, ui: &MainWindow) {
+    let f = ui.get_perf_fields();
+    if let Some(v) = parse(&f.trim) {
+        ship.trim = v.clamp(0.0, 100.0) as u8;
+    }
+    let mut f = ui.get_perf_fields();
+    f.trim_value = ship.trim as f32;
+    ui.set_perf_fields(f);
+    push_perf_derived(ship, ui);
+}
+
+
+// push_perf {{{2
+/// Push editable perf fields into the UI.
+///
+/// For each either/or pair the active box shows the stored value and the
+/// inactive box shows the derived counterpart (e.g., displacement derived
+/// from a given Cb).
+///
+pub fn push_perf(ship: &Ship, ui: &MainWindow) {
+    ui.set_perf_fields(PerfFields {
+        trim: num!(ship.trim).into(),
+        trim_value: ship.trim as f32,
+    });
+
+    push_perf_derived(ship, ui);
+}
+
+// push_perf_derived {{{2
+/// Refresh only the derived, read-only perf boxes in the UI.
+///
+/// Unlike push_perf(), this leaves the box being entered untouched so that
+/// partially-typed input is not reformatted under the caret. Only the
+/// read-only derived boxes are updated (e.g., LOA from a given LWL and the
+/// average freeboard from the deck freeboards).
+///
+pub fn push_perf_derived(ship: &Ship, ui: &MainWindow) {
+    let mut c = ui.get_perf_computed();
+
+    c.stability                = num!(ship.stability_adj(), 2).into();
+    c.recoil                   = num!(ship.recoil(), 2).into();
+    c.flotation                = fmt_meas(ship.flotation(), Units::Imperial, 0).into();
+    c.steadiness               = num!(ship.steadiness()).into();
+    c.metacenter               = fmt_meas(ship.metacenter(), Units::Imperial, 2).into();
+    c.seakeeping               = num!(ship.seakeeping(), 2).into();
+    c.damage_shell_size_metric = fmt_meas(ship.damage_shell_size(), Units::Metric, 2).into();
+    c.damage_shell_size_imp    = fmt_meas(ship.damage_shell_size(), Units::Imperial, 2).into();
+    c.damage_shell_num         = num!(ship.damage_shell_num(), 1).into();
+    c.damage_torp_num          = num!(ship.damage_torp_num(), 1).into();
+    c.hull_room                = pct!(ship.hull_room(), 1).into();
+    c.hull_room_quality        = ship.hull_room_quality().into();
+    c.deck_room                = pct!(ship.deck_room(), 1).into();
+    c.deck_room_quality        = ship.deck_room_quality().into();
+    c.d_max                    = num!(ship.d_max()).into();
+    c.d_norm                   = num!(ship.hull.d()).into();
+    c.d_std                    = num!(ship.d_std()).into();
+    c.d_lite                   = num!(ship.d_lite()).into();
+    c.wgt_struct               = fmt_meas(ship.wgt_struct(), Units::Imperial, 0).into();
+    c.cost_lb                  = num!(ship.cost_lb(), 3).into();
+    c.cost_dollar              = num!(ship.cost_dollar(), 3).into();
+    c.str_cross                = num!(ship.str_cross(), 2).into();
+    c.str_long                 = num!(ship.str_long(), 2).into();
+    c.str_comp                 = num!(ship.str_comp(), 2).into();
+
+    c.seakeeping_desc = "".into();
+    for s in ship.seakeeping_desc() {
+        c.seakeeping_desc.push_str(&s);
+        c.seakeeping_desc.push_str("\n");
+    }
+
+    ui.set_perf_computed(c);
+}
+
 
 // Weapons {{{1
 //
