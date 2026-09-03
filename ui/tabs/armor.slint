@@ -67,9 +67,12 @@ export struct ArmorComputed {
 //
 export component ArmorTab inherits ScrollView {
     callback field-edited();
+    callback armor-units-edited();
 
     in-out property <ArmorFields> armor-fields;
     in-out property <ArmorComputed> armor-computed;
+
+    in-out property <[string]> length-small-labels: [];
 
     GridBox {
         spacing: Layout.grid-spacing;
@@ -87,7 +90,8 @@ export component ArmorTab inherits ScrollView {
 
         Row {
             Text { text: "Armour:"; font-weight: 700; vertical-alignment: bottom; }
-            ComboBox { colspan: 2; height: Layout.edit-height; }
+            RowLabel { text: "Maximum thickness in:"; }
+            ComboBox { model: root.length-small-labels; current-index <=> root.armor-fields.units; selected => { root.armor-units-edited(); } }
         }
 
         Row {

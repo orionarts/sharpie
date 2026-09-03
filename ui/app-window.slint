@@ -89,6 +89,7 @@ export component MainWindow inherits Window {
     callback mine-units-edited();
     callback asw-units-edited(row: int);
     callback hull-units-edited();
+    callback armor-units-edited();
     callback set-all-units(which: int);
 
     // Menu bar {{{2
@@ -177,7 +178,9 @@ export component MainWindow inherits Window {
                     ArmorTab {
                         armor-fields <=> root.armor-fields;
                         armor-computed <=> root.armor-computed;
+                        length-small-labels <=> root.length-small-labels;
                         field-edited => { root.field-edited(); }
+                        armor-units-edited => { root.armor-units-edited(); }
                     }
                 }
                 Tab {

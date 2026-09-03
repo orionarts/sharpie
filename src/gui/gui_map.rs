@@ -448,6 +448,37 @@ pub fn convert_hull_units(ship: &mut Ship, ui: &MainWindow) {
     push_hull(ship, ui);
 }
 
+// convert_armor_units {{{2
+/// Set all armor Measurements to a new unit system when its units combobox
+/// changes, mirroring convert_torp_units.
+///
+/// The combobox presents LengthSmall options, but the Armor struct holds both
+/// LengthSmall (thicknesses) and LengthLong (lengths/heights) Measurements,
+/// so every one is re-expressed in the selected unit system.
+///
+pub fn convert_armor_units(ship: &mut Ship, ui: &MainWindow) {
+    let f = ui.get_armor_fields();
+    let a = &mut ship.armor;
+    let new_units: Units = f.units.max(0).into();
+    if a.units != new_units {
+        a.units = new_units;
+        let u = a.units;
+        for belt in [&mut a.main, &mut a.end, &mut a.upper,
+                     &mut a.bulge, &mut a.bulkhead] {
+            belt.thick.set_units(u);
+            belt.len.set_units(u);
+            belt.hgt.set_units(u);
+        }
+        a.bh_beam.set_units(u);
+        a.deck.fc.set_units(u);
+        a.deck.md.set_units(u);
+        a.deck.qd.set_units(u);
+        a.ct_fwd.thick.set_units(u);
+        a.ct_aft.thick.set_units(u);
+    }
+    push_armor(ship, ui);
+}
+
 // stash_depth_lock {{{2
 /// Capture the depth stashes when the hull depth is locked.
 ///
