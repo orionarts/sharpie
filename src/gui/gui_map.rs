@@ -34,6 +34,8 @@ use crate::{
 use crate::calc::{
     ASWType,
     BowType,
+    BulkheadType,
+    DeckType,
     Displacement,
     Freeboard,
     Length,
@@ -59,6 +61,8 @@ pub fn set_enum_models(ui: &MainWindow) {
     ui.set_mine_type_labels(label_model(MineType::ALL.iter().map(|v| v.label())));
     ui.set_stern_labels(label_model(SternType::ALL.iter().map(|v| v.label())));
     ui.set_torp_mount_labels(label_model(TorpedoMountType::ALL.iter().map(|v| v.label())));
+    ui.set_bh_kind_labels(label_model(BulkheadType::ALL.iter().map(|v| v.label())));
+    ui.set_deck_kind_labels(label_model(DeckType::ALL.iter().map(|v| v.label())));
 
     ui.set_length_small_labels(label_model(UnitType::LengthSmall.ALL().iter().copied()));
     ui.set_length_long_labels(label_model(UnitType::LengthLong.ALL().iter().copied()));
@@ -145,13 +149,13 @@ pub fn pull_armor(ui: &MainWindow, ship: &mut Ship) {
     set_meas(&mut a.bulkhead.thick, &f.bh.thick, a.units, LengthSmall);
     set_meas(&mut a.bulkhead.len,   &f.bh.len, a.units, LengthLong);
     set_meas(&mut a.bulkhead.hgt,   &f.bh.hgt, a.units, LengthLong);
-    // a.bh_kind =
+    a.bh_kind = BulkheadType::from_index(f.bh_kind.max(0) as usize);
     set_meas(&mut a.bh_beam, &f.bh_beam, a.units, LengthLong);
 
     set_meas(&mut a.deck.fc, &f.deck.fc, a.units, LengthSmall);
     set_meas(&mut a.deck.md, &f.deck.md, a.units, LengthSmall);
     set_meas(&mut a.deck.qd, &f.deck.qd, a.units, LengthSmall);
-    // a.deck.kind =
+    a.deck.kind = DeckType::from_index(f.deck.kind.max(0) as usize);
 
     set_meas(&mut a.ct_fwd.thick, &f.ct_fwd, a.units, LengthSmall);
     set_meas(&mut a.ct_aft.thick, &f.ct_aft, a.units, LengthSmall);
@@ -179,11 +183,11 @@ pub fn push_armor(ship: &Ship, ui: &MainWindow) {
 
         bulge: BeltFields  { thick: fmt_meas(a.bulge.thick, u, 2).into(), len: fmt_meas(a.bulge.len, u, 2).into(), hgt: fmt_meas(a.bulge.hgt, u, 2).into() },
         bh: BeltFields  { thick: fmt_meas(a.bulkhead.thick, u, 2).into(), len: fmt_meas(a.bulkhead.len, u, 2).into(), hgt: fmt_meas(a.bulkhead.hgt, u, 2).into() },
-        bh_kind: "XX".into(),
+        bh_kind: a.bh_kind.index() as i32,
         bh_beam: fmt_meas(a.bh_beam, u, 2).into(),
 
         deck: DeckFields {
-            kind: "XX".into(),
+            kind: a.deck.kind.index() as i32,
             fc: fmt_meas(a.deck.fc, u, 2).into(),
             md: fmt_meas(a.deck.md, u, 2).into(),
             qd: fmt_meas(a.deck.qd, u, 2).into() },

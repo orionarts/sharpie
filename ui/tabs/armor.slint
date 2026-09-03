@@ -22,7 +22,7 @@ export struct DeckFields {
     fc: string,
     md: string,
     qd: string,
-    kind: string,
+    kind: int,
 }
 
 export struct ArmorFields {
@@ -35,7 +35,7 @@ export struct ArmorFields {
 
     bulge: BeltFields,
     bh: BeltFields,
-    bh_kind: string,
+    bh-kind: int,
     bh_beam: string,
 
     deck: DeckFields,
@@ -73,6 +73,8 @@ export component ArmorTab inherits ScrollView {
     in-out property <ArmorComputed> armor-computed;
 
     in-out property <[string]> length-small-labels: [];
+    in-out property <[string]> bh-kind-labels: [];
+    in-out property <[string]> deck-kind-labels: [];
 
     GridBox {
         spacing: Layout.grid-spacing;
@@ -155,7 +157,7 @@ export component ArmorTab inherits ScrollView {
 
         Row {
             RowLabel { text: "Type:"; }
-            ComboBox { colspan: 2; }
+            ComboBox { colspan: 2; model: root.bh-kind-labels; current-index <=> root.armor-fields.bh-kind; selected => { root.field-edited(); } }
         }
         Row {
             RowLabel { colspan: 2; text: "Beam between bulkheads:"; }
@@ -187,7 +189,7 @@ export component ArmorTab inherits ScrollView {
 
         Row {
             RowLabel { colspan: 2; text: "Armour deck coverage:"; }
-            ComboBox { colspan: 2; }
+            ComboBox { colspan: 2; model: root.deck-kind-labels; current-index <=> root.armor-fields.deck.kind; selected => { root.field-edited(); } }
         }
 
         Row {

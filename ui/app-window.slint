@@ -61,6 +61,8 @@ export component MainWindow inherits Window {
     in-out property <[string]> mine-type-labels: [];
     in-out property <[string]> stern-labels: [];
     in-out property <[string]> torp-mount-labels: [];
+    in-out property <[string]> bh-kind-labels: [];
+    in-out property <[string]> deck-kind-labels: [];
 
     in-out property <[string]> length-small-labels: [];
     in-out property <[string]> length-long-labels: [];
@@ -181,6 +183,8 @@ export component MainWindow inherits Window {
                         length-small-labels <=> root.length-small-labels;
                         field-edited => { root.field-edited(); }
                         armor-units-edited => { root.armor-units-edited(); }
+                        bh-kind-labels <=> root.bh-kind-labels;
+                        deck-kind-labels <=> root.deck-kind-labels;
                     }
                 }
                 Tab {
