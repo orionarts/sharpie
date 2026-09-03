@@ -15,33 +15,42 @@
 ///
 #[macro_export]
 macro_rules! choice_enum {
-    ($name:ident { $( $variant:ident $( ( $init:expr ) )? => ( $label:expr, $display:expr ) ),+ $(,)? }) => {
-        choice_enum!(@impl $name {
-            $( $variant $( ( $init ) )? => ( $label, $display ) ),+
-        });
-    };
-
-    ($name:ident { $( $variant:ident $( ( $init:expr ) )? => ( $label:expr ) ),+ $(,)? }) => {
-        choice_enum!(@impl $name {
-            $( $variant $( ( $init ) )? => ( $label, $label ) ),+
-        });
-    };
-
-    (@impl $name:ident { $( $variant:ident $( ( $init:expr ) )? => ( $label:expr, $display:expr ) ),+ $(,)? }) => {
+    ($name:ident { $( $variant:ident $( ( $init:expr ) )? => ( $label:expr $(, $display:expr)? ) ),+ $(,)? }) => {
+        #[allow(dead_code)]
         impl $name {
-            /// Every variant, in .sship index order.
+            /// All variants of this enum, in declaration order.
+            ///
+            /// The position of a variant in this slice is its stable index,
+            /// used by [`Self::index`] and [`Self::from_index`] to convert
+            /// between a variant and a `usize` (e.g. for UI selection state
+            /// or serialized indices).
             pub const ALL: &'static [$name] = &[ $( $name::$variant $( ( $init ) )? ),+ ];
 
-            /// Convert variant into "menu" label.
-            #[allow(dead_code)]
+            /// Returns the menu label for every variant, in [`Self::ALL`] order.
+            ///
+            /// Use this to populate UI elements (e.g. dropdowns) with the
+            /// full set of choices for this enum.
+            pub fn all_labels() -> Vec<&'static str> {
+                Self::ALL.iter().map(|v| v.label()).collect()
+            }
+
+            /// Returns the short "menu" label for this variant.
+            ///
+            /// This is the text shown in choice lists (e.g. dropdown
+            /// options); see [`Self::all_labels`] to get every variant's
+            /// label at once. Use [`fmt::Display`] instead for the longer
+            /// form shown in reports.
             pub fn label(&self) -> &'static str {
                 match self {
                     $( $name::$variant { .. } => $label ),+
                 }
             }
 
-            /// Get index into choice_enum!::ALL.
-            #[allow(dead_code)]
+            /// Returns this variant's position in [`Self::ALL`].
+            ///
+            /// Returns `0` if the variant is somehow not found (should not
+            /// happen in practice, since `ALL` is generated from the same
+            /// variant list as `Self`).
             pub fn index(&self) -> usize {
                 Self::ALL
                     .iter()
@@ -49,8 +58,10 @@ macro_rules! choice_enum {
                     .unwrap_or(0)
             }
 
-            /// Convert index into variant.
-            #[allow(dead_code)]
+            /// Returns the variant at `index` in [`Self::ALL`], falling back
+            /// to the default variant if `index` is out of range.
+            ///
+            /// Inverse of [`Self::index`].
             pub fn from_index(index: usize) -> Self {
                 Self::ALL.get(index).cloned().unwrap_or_default()
             }
@@ -67,6 +78,7 @@ macro_rules! choice_enum {
         }
 
         /// Convert from string index in SpringSharp files.
+        ///
         impl From<String> for $name {
             fn from(index: String) -> Self {
                 index.as_str().into()
@@ -74,15 +86,20 @@ macro_rules! choice_enum {
         }
 
         /// Convert to string used in reports.
+        ///
         impl fmt::Display for $name {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 write!(f, "{}",
                     match self {
-                        $( $name::$variant { .. } => $display ),+
+                        $( $name::$variant { .. } =>
+                            choice_enum!(@label_or_display $label $(, $display)?) ),+
                     })
             }
         }
     };
+
+    (@label_or_display $label:expr) => { $label };
+    (@label_or_display $label:expr, $display:expr) => { $display };
 }
 
 // labels_enum! {{{1
@@ -100,23 +117,33 @@ macro_rules! choice_enum {
 #[macro_export]
 macro_rules! labels_enum {
     ($name:ident { $( $variant:ident => ( $( $label:expr ),+ ) ),+ $(,)? }) => {
+        #[allow(dead_code)]
         impl $name {
-            /// Convert variant into its menu labels.
-            #[allow(dead_code)]
-            pub fn labels(&self) -> &'static [&'static str] {
+            /// Returns the label options associated with this variant.
+            ///
+            /// Each variant defines its own fixed set of labels (e.g. unit
+            /// abbreviations); this is the internal accessor used by
+            /// [`Self::all_labels`] and [`Self::from_index`].
+            fn labels(&self) -> &'static [&'static str] {
                 match self {
                     $( $name::$variant => &[ $( $label ),+ ] ),+
                 }
             }
 
-            /// Menu labels for this variant (synonym for labels()).
-            #[allow(dead_code, non_snake_case, clippy::upper_case_acronyms)]
-            pub fn ALL(&self) -> &'static [&'static str] {
-                self.labels()
+            /// Returns all label options for this variant as an owned `Vec`.
+            ///
+            /// Use this to populate UI elements (e.g. dropdowns) with the
+            /// choices available for the currently selected variant.
+            pub fn all_labels(&self) -> Vec<&'static str> {
+                self.labels().to_vec()
             }
 
-            /// Convert a menu index into a label for this variant.
-            #[allow(dead_code, clippy::wrong_self_convention)]
+            /// Returns the label at `index` for this variant, falling back
+            /// to the first label if `index` is out of range.
+            ///
+            /// `index` typically corresponds to a UI selection (e.g. the
+            /// index chosen in a dropdown populated by [`Self::all_labels`]).
+            #[allow(clippy::wrong_self_convention)]
             pub fn from_index(&self, index: usize) -> &'static str {
                 self.labels().get(index).copied().unwrap_or(self.labels()[0])
             }
