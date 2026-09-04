@@ -266,9 +266,8 @@ fn save_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 /// Export the hull side-profile SVG to a file chosen by the user.
 ///
 fn save_picture(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
-    let mut s = ship.borrow_mut();
+    let s = ship.borrow_mut();
 
-    pull_then_push(ui, &mut s);
     let default = if s.name.is_empty() {
         "hull.svg".to_owned()
     } else {
