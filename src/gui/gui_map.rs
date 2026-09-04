@@ -189,7 +189,7 @@ pub fn push_armor(ship: &Ship, ui: &MainWindow) {
 /// average freeboard from the deck freeboards).
 ///
 pub fn push_armor_derived(ship: &Ship, ui: &MainWindow) {
-    let s     = &ship;
+    let s     = ship;
     let b     = s.hull.b;
     let lwl   = s.hull.lwl();
     let cwp   = s.hull.cwp();
