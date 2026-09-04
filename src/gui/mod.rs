@@ -4,9 +4,29 @@
 //! binary crate, where the `slint::include_modules!()` types are available.
 
 use rfd::FileDialog;
-use crate::calc::{SHIP_FILE_EXT, SS_SHIP_FILE_EXT, Ship};
-use crate::calc::hull_draw;
-use slint::ComponentHandle;
+
+use crate::calc::{
+    ASWType,
+    BowType,
+    BulkheadType,
+    DeckType,
+    MineType,
+    Ship,
+    SternType,
+    TorpedoMountType,
+    UnitType,
+
+    SHIP_FILE_EXT,
+    SS_SHIP_FILE_EXT,
+    hull_draw,
+};
+
+use slint::{
+    ComponentHandle,
+    ModelRc,
+    SharedString,
+    VecModel,
+};
 
 use std::cell::RefCell;
 use std::error::Error;
@@ -18,6 +38,29 @@ pub mod gui_map;
 
 // GUI helpers {{{1
 //
+// set_enum_models {{{2
+/// Fill dropdown label models from each enum's `.sship` order.
+///
+pub fn set_enum_models(ui: &MainWindow) {
+    ui.set_asw_type_labels    (label_model(ASWType::all_labels()));
+    ui.set_bow_labels         (label_model(BowType::all_labels()));
+    ui.set_bh_kind_labels     (label_model(BulkheadType::all_labels()));
+    ui.set_deck_kind_labels   (label_model(DeckType::all_labels()));
+    ui.set_mine_type_labels   (label_model(MineType::all_labels()));
+    ui.set_stern_labels       (label_model(SternType::all_labels()));
+    ui.set_torp_mount_labels  (label_model(TorpedoMountType::all_labels()));
+    ui.set_length_small_labels(label_model(UnitType::LengthSmall.all_labels()));
+    ui.set_length_long_labels (label_model(UnitType::LengthLong.all_labels()));
+    ui.set_weights_labels     (label_model(UnitType::Weight.all_labels()));
+}
+
+// label_model {{{3
+/// Wrap a list of labels into a Slint string model.
+///
+fn label_model(labels: impl IntoIterator<Item = &'static str>) -> ModelRc<SharedString> {
+    ModelRc::new(labels.into_iter().map(SharedString::from).collect::<VecModel<_>>())
+}
+
 // pull_all {{{2
 /// Read all editable fields from the Slint UI back into the Ship
 ///
@@ -298,7 +341,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     let ui   = MainWindow::new().unwrap();
     let ship = Rc::new(RefCell::new(Ship::default()));
 
-    gui_map::set_enum_models(&ui);
+    set_enum_models(&ui);
     push_all(&ship.borrow(), &ui);
 
     // Register callbacks

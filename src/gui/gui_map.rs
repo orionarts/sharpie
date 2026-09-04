@@ -58,29 +58,6 @@ use crate::calc::{
 };
 use crate::{num, pct};
 
-// set_enum_models {{{1
-/// Fill dropdown label models from each enum's `.sship` order.
-///
-pub fn set_enum_models(ui: &MainWindow) {
-    ui.set_asw_type_labels    (label_model(ASWType::all_labels()));
-    ui.set_bow_labels         (label_model(BowType::all_labels()));
-    ui.set_bh_kind_labels     (label_model(BulkheadType::all_labels()));
-    ui.set_deck_kind_labels   (label_model(DeckType::all_labels()));
-    ui.set_mine_type_labels   (label_model(MineType::all_labels()));
-    ui.set_stern_labels       (label_model(SternType::all_labels()));
-    ui.set_torp_mount_labels  (label_model(TorpedoMountType::all_labels()));
-    ui.set_length_small_labels(label_model(UnitType::LengthSmall.all_labels()));
-    ui.set_length_long_labels (label_model(UnitType::LengthLong.all_labels()));
-    ui.set_weights_labels     (label_model(UnitType::Weight.all_labels()));
-}
-
-// label_model {{{2
-/// Wrap a list of labels into a Slint string model.
-///
-fn label_model(labels: impl IntoIterator<Item = &'static str>) -> ModelRc<SharedString> {
-    ModelRc::new(labels.into_iter().map(SharedString::from).collect::<VecModel<_>>())
-}
-
 // Identity {{{1
 // pull_identity {{{2
 /// Pull ship identity fields from the UI into the ship.
