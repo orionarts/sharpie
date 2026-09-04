@@ -8,6 +8,7 @@ import { Entry }       from "../../widgets/entry.slint";
 import { RowLabel }    from "../../widgets/row-label.slint";
 import { ColumnLabel } from "../../widgets/column-label.slint";
 import { Layout }      from "../../layout.slint";
+import { BatteryTabFocus } from "../../layout.slint";
 
 // Summary tab {{{1
 //
@@ -37,21 +38,21 @@ export component SummaryTab inherits ScrollView {
         }
 
         Row {
-            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "main"; }
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "main"; clicked => { BatteryTabFocus.current-index = 1; } }
             Button { rowspan: 2; text: "Lock all\nshell weights"; }
         }
         Row {
-            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "2nd"; }
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "2nd"; clicked => { BatteryTabFocus.current-index = 2; } }
         }
         Row {
-            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "3rd"; }
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "3rd"; clicked => { BatteryTabFocus.current-index = 3; } }
             Button { rowspan: 2; text: "Unlock all\nshell weights"; }
         }
         Row {
-            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "4th"; }
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "4th"; clicked => { BatteryTabFocus.current-index = 4; } }
         }
         Row {
-            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "5th"; }
+            Button { col: 1; colspan: 5; height: Layout.edit-height; text: "5th"; clicked => { BatteryTabFocus.current-index = 5; } }
         }
 
         Row {

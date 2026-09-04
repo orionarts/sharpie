@@ -1,6 +1,7 @@
 import { TabWidget } from "std-widgets.slint";
 import { SummaryTab } from "./summary-tab.slint";
 import { BatteryTab } from "./battery-tab.slint";
+import { BatteryTabFocus } from "../../layout.slint";
 
 // Guns tab {{{1
 //
@@ -8,6 +9,8 @@ import { BatteryTab } from "./battery-tab.slint";
 //
 export component GunsTab inherits TabWidget {
     callback field-edited();
+
+    current-index <=> BatteryTabFocus.current-index;
 
     Tab {
         title: "Summary";
