@@ -995,7 +995,8 @@ pub fn pull_torpedoes(ui: &MainWindow, ship: &mut Ship) {
 /// combobox changes. Re-expresses the stored Measurements in the new units
 /// (so the saved ship stays consistent) and refreshes the UI.
 ///
-pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: usize) {
+pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
+    let row = row as usize;
     let Some(t) = ship.torps.get_mut(row) else { return };
     let Some(fields) = ui.get_torp_fields().row_data(row) else { return };
     t.units = fields.units.max(0).into();
@@ -1019,7 +1020,8 @@ pub fn convert_mines_units(ship: &mut Ship, ui: &MainWindow) {
 /// Convert one ASW set's weight to a new unit system when its units combobox
 /// changes, mirroring convert_torp_units.
 ///
-pub fn convert_asw_units(ship: &mut Ship, ui: &MainWindow, row: usize) {
+pub fn convert_asw_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
+    let row = row as usize;
     let Some(t) = ship.asw.get_mut(row) else { return };
     let Some(fields) = ui.get_asw_fields().row_data(row) else { return };
     t.units = fields.units.max(0).into();

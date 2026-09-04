@@ -171,7 +171,7 @@ fn vmax_slider_changed(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 /// Unlike a text edit, this re-expresses the stored diameters/lengths in the
 /// new unit system rather than re-parsing the displayed text.
 ///
-fn torp_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: usize) {
+fn torp_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
     gui_map::convert_torp_units(&mut ship.borrow_mut(), ui, row);
 }
 
@@ -185,7 +185,7 @@ fn mine_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 // asw_units_edited {{{2
 /// Convert an ASW set's units when its units combobox changes.
 ///
-fn asw_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: usize) {
+fn asw_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
     gui_map::convert_asw_units(&mut ship.borrow_mut(), ui, row);
 }
 
@@ -318,9 +318,9 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_save_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_ship          (&h.unwrap(), &s); }});
     ui.on_show_about         ({ let h = ui.as_weak();                       move ||      { show_about         (&h.unwrap()); }});
     ui.on_toggle_report      ({ let h = ui.as_weak();                       move ||      { toggle_report      (&h.unwrap()); }});
-    ui.on_torp_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { torp_units_edited  (&h.unwrap(), &s, row as usize); }});
+    ui.on_torp_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { torp_units_edited  (&h.unwrap(), &s, row); }});
     ui.on_mine_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { mine_units_edited  (&h.unwrap(), &s); }});
-    ui.on_asw_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { asw_units_edited   (&h.unwrap(), &s, row as usize); }});
+    ui.on_asw_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { asw_units_edited   (&h.unwrap(), &s, row); }});
     ui.on_hull_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { hull_units_edited  (&h.unwrap(), &s); }});
     ui.on_armor_units_edited ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_units_edited (&h.unwrap(), &s); }});
     ui.on_armor_default      ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_default      (&h.unwrap(), &s); }});
