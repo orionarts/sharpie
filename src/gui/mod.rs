@@ -265,7 +265,7 @@ fn save_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 //
 /// Export the hull side-profile SVG to a file chosen by the user.
 ///
-fn save_picture(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+fn save_picture(ship: &Rc<RefCell<Ship>>) {
     let s = ship.borrow_mut();
 
     let default = if s.name.is_empty() {
@@ -314,7 +314,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_vmax_slider_changed({ let h = ui.as_weak(); let s = ship.clone(); move ||      { vmax_slider_changed(&h.unwrap(), &s); }});
     ui.on_freeboards_est     ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_freeboards     (&h.unwrap(), &s, which); }});
     ui.on_load_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { load_ship          (&h.unwrap(), &s); }});
-    ui.on_save_picture       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_picture       (&h.unwrap(), &s); }});
+    ui.on_save_picture       ({                       let s = ship.clone(); move ||      { save_picture       (             &s); }});
     ui.on_save_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_ship          (&h.unwrap(), &s); }});
     ui.on_show_about         ({ let h = ui.as_weak();                       move ||      { show_about         (&h.unwrap()); }});
     ui.on_toggle_report      ({ let h = ui.as_weak();                       move ||      { toggle_report      (&h.unwrap()); }});
