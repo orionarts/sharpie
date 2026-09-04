@@ -272,7 +272,7 @@ fn save_picture(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     let default = if s.name.is_empty() {
         "hull.svg".to_owned()
     } else {
-        format!("{}-hull.svg", s.name)
+        format!("{}.svg", s.name)
     };
 
     if let Some(file) = save_file_dialog("Sharpie picture", "svg", &default) {
