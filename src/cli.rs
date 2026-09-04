@@ -71,14 +71,13 @@ enum Commands {
 //
 /// Derive the hull image filename from an input filename.
 ///
-/// An explicit output name wins; otherwise use the input file's stem plus
-/// "-hull.svg".
+/// An explicit output name wins; otherwise use the input file's stem.
 ///
 fn image_path(file: &str, out: Option<String>) -> String {
     out.unwrap_or_else(|| {
         let path = std::path::Path::new(file);
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("hull");
-        format!("{stem}-hull.svg")
+        format!("{stem}.svg")
     })
 }
 
