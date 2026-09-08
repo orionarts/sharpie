@@ -195,7 +195,8 @@ export component WeaponsTab inherits ScrollView {
         GridBox { // Weights {{{2
             // This row exists solely to set the column widths
             Row {
-                Text { height: 0px; width: 100px; }
+                Text { height: 0px; width: 15px; }
+                Text { height: 0px; width: 50px; }
                 Text { height: 0px; width: 50px; }
                 Text { height: 0px; width: 50px; }
                 Text { height: 0px; width: 50px; }
@@ -203,11 +204,11 @@ export component WeaponsTab inherits ScrollView {
             }
 
             Row {
-                RowLabel { text: "Misc weight:"; horizontal-alignment: left; font-weight: 700; }
+                RowLabel { colspan: 2; text: "Misc weight:"; horizontal-alignment: left; font-weight: 700; }
             }
 
             Row {
-                ColumnLabel { text: "Hull —\nBelow water:"; }
+                ColumnLabel { col: 1; text: "Hull —\nBelow water:"; }
                 ColumnLabel { text: "Hull —\nAbove water:"; }
                 ColumnLabel { text: "On deck:"; }
                 ColumnLabel { text: "Above Deck:"; }
@@ -215,7 +216,7 @@ export component WeaponsTab inherits ScrollView {
             }
 
             Row {
-                Entry { text <=> root.weight-fields.vital; }
+                Entry { col: 1; text <=> root.weight-fields.vital; }
                 Entry { text <=> root.weight-fields.hull; }
                 Entry { text <=> root.weight-fields.on; }
                 Entry { text <=> root.weight-fields.above; }
@@ -223,7 +224,7 @@ export component WeaponsTab inherits ScrollView {
             }
 
             Row {
-                RowLabel { text: "Hull space:"; }
+                RowLabel { col: 1; text: "Hull space:"; }
                 Entry    { text: root.weight-fields.hull-space; enabled: false; }
                 RowLabel { text: "Deck space:"; }
                 Entry    { text: root.weight-fields.deck-space; enabled: false; }
