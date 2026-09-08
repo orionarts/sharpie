@@ -96,13 +96,13 @@ export component ArmorTab inherits ScrollView {
             }
 
             Row {
-                Text { text: "Armour:"; font-weight: 700; vertical-alignment: bottom; }
+                Text { text: "Armour:"; font-weight: 700; vertical-alignment: center; }
                 RowLabel { text: "Maximum thickness in:"; }
                 ComboBox { model: root.length-small-labels; current-index <=> root.armor-fields.units; selected => { root.armor-units-edited(); } }
             }
 
             Row {
-                Text { text: "Belts &\nBulkheads:"; font-weight: 700; vertical-alignment: bottom; }
+                Text { colspan: 2; text: "Belts & Bulkheads:"; font-weight: 700; vertical-alignment: center; }
                 Button { col: 2; text: "Default"; height: Layout.edit-height; }
                 Button { col: 2; text: "Default"; height: Layout.edit-height; clicked => { root.armor-default(); } }
                 Text { colspan: 3; wrap: word-wrap; text: root.armor-computed.coverage; }
@@ -171,18 +171,19 @@ export component ArmorTab inherits ScrollView {
                 Entry { text <=> root.armor-fields.bh-beam; edited => { root.field-edited(); } }
             }
 
+            Row { Text { } }
+
             Row {
                 Text { text: "Guns:"; font-weight: 700; vertical-alignment: bottom; }
                 Text { text: "(see Guns page)"; vertical-alignment: bottom; }
                 Entry { col: 4; text: root.armor-computed.gun-wgt; enabled: false; }
             }
 
-            Row {
-                Text { text: "Armour\ndeck:"; font-weight: 700; vertical-alignment: bottom; }
-            }
+            Row { Text { } }
 
             Row {
-                ColumnLabel { col: 1; text: "Forecastle:"; }
+                Text { text: "Armour\ndeck:"; font-weight: 700; vertical-alignment: bottom; }
+                ColumnLabel { text: "Forecastle:"; }
                 ColumnLabel { text: "Fore & aft decks:"; }
                 ColumnLabel { text: "Quarter deck:"; }
             }
@@ -201,9 +202,6 @@ export component ArmorTab inherits ScrollView {
 
             Row {
                 Text { text: "Conning\ntowers:"; font-weight: 700; vertical-alignment: bottom; }
-            }
-
-            Row {
                 ColumnLabel { col: 2; text: "Forward:"; }
                 ColumnLabel { text: "Aft:"; }
                 ColumnLabel { col: 5; text: "Total:"; font-weight: 700; }
