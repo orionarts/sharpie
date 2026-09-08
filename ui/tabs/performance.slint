@@ -93,6 +93,8 @@ export component PerfTab inherits ScrollView {
                 }
             }
 
+            // Spacer
+            Row { Text { height: Layout.edit-height; } }
 
             Row {
                 Entry { col: 1; text: root.perf-computed.stability; enabled: false; }
