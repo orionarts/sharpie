@@ -8,6 +8,7 @@ import {
 import { Entry }       from "../widgets/entry.slint";
 import { RowLabel }    from "../widgets/row-label.slint";
 import { ColumnLabel } from "../widgets/column-label.slint";
+import { TickSlider }  from "../widgets/tick-slider.slint";
 import { Layout }      from "../layout.slint";
 
 // Performance entry fields {{{1
@@ -77,29 +78,21 @@ export component PerfTab inherits ScrollView {
             Row {
                 RowLabel { text: "Set Trim:"; }
                 Entry { text <=> root.perf-fields.trim; edited => { root.trim-box-edited(); } }
-                Slider {
+                TickSlider {
                     colspan: 4;
                     minimum: 0;
                     maximum: 100;
                     step: 1;
+                    tick-step: 5;
+                    label-step: 50;
+                    precision: 0;
+                    start-extra: "Improve stability, flotation, recoil";
+                    end-extra: "Improve steadiness, seakeeping";
                     value <=> root.perf-fields.trim-value;
                     changed => { root.trim-slider-changed(); }
                 }
             }
 
-        Row {
-            Text {
-                col: 2;
-                colspan: 2;
-                text: "0 Improve stability, flotation, recoil";
-            }
-            Text {
-                col: 4;
-                colspan: 2;
-                text: "Improve steadiness, seakeeping 100";
-                horizontal-alignment: right;
-            }
-        }
 
             Row {
                 Entry { col: 1; text: root.perf-computed.stability; enabled: false; }

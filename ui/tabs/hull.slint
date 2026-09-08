@@ -10,6 +10,7 @@ import { Entry }       from "../widgets/entry.slint";
 import { EitherEntry } from "../widgets/either-entry.slint";
 import { RowLabel }    from "../widgets/row-label.slint";
 import { ColumnLabel } from "../widgets/column-label.slint";
+import { TickSlider }  from "../widgets/tick-slider.slint";
 import { Layout }      from "../layout.slint";
 
 // Ship entry fields {{{1
@@ -213,12 +214,16 @@ export component HullTab inherits ScrollView {
                 }
             }
             Row {
-                Slider {
+                TickSlider {
                     col: 1;
                     colspan: 4;
                     minimum: 0.3;
                     maximum: 1.0;
                     step: 0.001;
+                    tick-step: 0.05;
+                    label-step: 0.10;
+                    precision: 2;
+                    end-extra: "Solid";
                     value <=> root.hull-computed.cb;
                     changed(v) => {
                         root.hull-fields.disp-kind = 0;

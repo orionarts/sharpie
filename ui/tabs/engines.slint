@@ -9,6 +9,7 @@ import {
 import { Entry }       from "../widgets/entry.slint";
 import { RowLabel }    from "../widgets/row-label.slint";
 import { ColumnLabel } from "../widgets/column-label.slint";
+import { TickSlider }  from "../widgets/tick-slider.slint";
 import { Layout }      from "../layout.slint";
 
 // Engines tab {{{1
@@ -91,11 +92,15 @@ export component EnginesTab inherits ScrollView {
             Row {
                 RowLabel { text: "Max speed:"; }
                 Entry { text <=> root.engine-fields.vmax; edited => { root.field-edited(); } }
-                Slider {
+                TickSlider {
                     colspan: 4;
                     minimum: 0;
                     maximum: 50;
                     step: 1;
+                    tick-step: 5;
+                    label-step: 10;
+                    precision: 0;
+                    start-extra: "Max knots";
                     value <=> root.engine-fields.vmax-value;
                     changed => { root.vmax-slider-changed(); }
                 }

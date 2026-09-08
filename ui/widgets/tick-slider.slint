@@ -1,0 +1,82 @@
+import { Slider } from "std-widgets.slint";
+
+/// A horizontal Slider with tick marks and numeric labels beneath the track.
+///
+/// `tick-step` draws a small mark below the track every that many units and a
+/// numeric label every `label-step`, formatted with `precision` decimal
+/// places. The default "fluent" style thumb is 20px wide, so its track is
+/// inset 10px (thumb.width/2) on each side and the marks are aligned to it.
+export component TickSlider {
+    in property <float> minimum: 0;
+    in property <float> maximum: 100;
+    in property <float> step: 1;
+    in property <float> tick-step: 1;
+    in property <float> label-step: 1;
+    in property <int> precision: 0;
+    in property <string> start-extra: "";
+    in property <string> end-extra: "";
+    in-out property <float> value: 0;
+
+    callback changed(value: float);
+
+    private property <length> inset: 10px;
+    private property <int> tick-count: max(1, round((root.maximum - root.minimum) / root.tick-step));
+    private property <int> ticks-per-label: max(1, round(root.label-step / root.tick-step));
+
+    horizontal-stretch: 1;
+
+    VerticalLayout {
+        spacing: 0;
+
+        Slider {
+            minimum: root.minimum;
+            maximum: root.maximum;
+            step: root.step;
+            value <=> root.value;
+            changed(v) => { root.changed(v); }
+        }
+
+        tick-strip := Rectangle {
+            height: 26px;
+            horizontal-stretch: 1;
+
+            for _[i] in root.tick-count + 1 : Rectangle {
+                width: 2px;
+                height: 5px;
+                x: root.inset + (i * root.tick-step / (root.maximum - root.minimum)) * (tick-strip.width - 2 * root.inset);
+                y: 1px;
+                background: #888888;
+                border-radius: 1px;
+
+                Text {
+                    visible: Math.mod(i, root.ticks-per-label) == 0;
+                    text: (root.minimum + i * root.tick-step).to-fixed(root.precision);
+                    font-size: 10px;
+                    color: #888888;
+                    width: 40px;
+                    horizontal-alignment: center;
+                    x: -20px;
+                    y: 7px;
+                }
+
+                Text {
+                    visible: i == 0 && root.start-extra != "";
+                    text: root.start-extra;
+                    font-size: 10px;
+                    color: #888888;
+                    x: 22px;
+                    y: 7px;
+                }
+
+                Text {
+                    visible: i == root.tick-count && root.end-extra != "";
+                    text: root.end-extra;
+                    font-size: 10px;
+                    color: #888888;
+                    x: -22px - self.width;
+                    y: 7px;
+                }
+            }
+        }
+    }
+}
