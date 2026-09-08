@@ -838,6 +838,8 @@ pub fn push_perf_derived(ship: &Ship, ui: &MainWindow) {
     c.damage_shell_size_imp    = fmt_meas(ship.damage_shell_size(), Units::Imperial, 2).into();
     c.damage_shell_num         = num!(ship.damage_shell_num(), 1).into();
     c.damage_torp_num          = num!(ship.damage_torp_num(), 1).into();
+    c.damage_torp_size_metric  = fmt_meas(ship.damage_torp_size(), Units::Metric, 0).into();
+    c.damage_torp_size_imp     = fmt_meas(ship.damage_torp_size(), Units::Imperial, 2).into();
     c.hull_room                = pct!(ship.hull_room(), 1).into();
     c.hull_room_quality        = ship.hull_room_quality().into();
     c.deck_room                = pct!(ship.deck_room(), 1).into();

@@ -30,6 +30,8 @@ export struct PerfComputed {
     damage-shell-size-imp: string,
     damage-shell-size-metric: string,
     damage-shell-num: string,
+    damage-torp-size-imp: string,
+    damage-torp-size-metric: string,
     damage-torp-num: string,
     hull-room: string,
     hull-room-quality: string,
@@ -130,7 +132,13 @@ export component PerfTab inherits ScrollView {
                         " mm\n shell hits:";
                 }
                 Entry { text: root.perf-computed.damage-shell-num; enabled: false; }
-                RowLabel { col: 4; text: "Max 21.00 \" / 533 mm\ntorpedo hits:"; }
+                RowLabel {
+                    text: "Max " +
+                        root.perf-computed.damage-torp-size-imp +
+                        " \" / " +
+                        root.perf-computed.damage-torp-size-metric +
+                        " mm\n torpedo hits:";
+                }
                 Entry { text: root.perf-computed.damage-torp-num; enabled: false; }
             }
 
