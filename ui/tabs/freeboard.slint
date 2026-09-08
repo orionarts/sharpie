@@ -29,8 +29,8 @@ export component FreeboardTab inherits ScrollView {
     callback depth-lock-toggled();
     callback set-freeboards(which: int);
 
-    VerticalLayout {
-        spacing: Layout.grid-spacing;
+    VerticalBox {
+        alignment: start;
         GridBox { // {{{2
             Row {
                 Button {

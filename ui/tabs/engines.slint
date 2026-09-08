@@ -3,7 +3,7 @@ import {
     CheckBox,
     GridBox,
     ScrollView,
-    Slider,
+    VerticalBox,
 } from "std-widgets.slint";
 
 import { Entry }       from "../widgets/entry.slint";
@@ -68,166 +68,169 @@ export component EnginesTab inherits ScrollView {
     in-out property <EngineFields>   engine-fields;
     in-out property <EngineComputed> engine-computed;
 
-    GridBox {
-        spacing: Layout.grid-spacing;
+    VerticalBox {
+        alignment: start;
+        GridBox {
+            spacing: Layout.grid-spacing;
 
-        Row {
-            // These blank widgets are solely so we can set column widths in the
-            // first row
-            Text { height: 0px; width: Layout.label-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-        }
-
-        Row {
-            Text { colspan: 3; text: "Speed & Power"; font-weight: 700; vertical-alignment: bottom; }
-        }
-
-        Row {
-            RowLabel { text: "Max speed:"; }
-            Entry { text <=> root.engine-fields.vmax; edited => { root.field-edited(); } }
-            Slider {
-                colspan: 4;
-                minimum: 0;
-                maximum: 50;
-                step: 1;
-                value <=> root.engine-fields.vmax-value;
-                changed => { root.vmax-slider-changed(); }
+            Row {
+                // These blank widgets are solely so we can set column widths in the
+                // first row
+                Text { height: 0px; width: Layout.label-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
             }
-        }
 
-        Row {
-            RowLabel { text: "Cruise speed:"; }
-            Entry { text <=> root.engine-fields.vcruise; edited => { root.field-edited(); } }
-        }
+            Row {
+                Text { colspan: 3; text: "Speed & Power:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            RowLabel { text: "No. of shafts:"; }
-            Entry { text <=> root.engine-fields.shafts; edited => { root.shafts-edited(); } }
-        }
-
-        Row {
-            ColumnLabel { col: 1; text: "Friction\nresistance:"; }
-            ColumnLabel { text: "Wave\nresistance:"; }
-            ColumnLabel { text: "Power to\nwavemaking:"; }
-            ColumnLabel { text: "Power (hp):"; }
-            ColumnLabel { text: "Power (Kw):"; }
-        }
-
-        Row {
-            RowLabel { text: "Max:"; }
-            Entry { text: root.engine-computed.frict-max; enabled: false; }
-            Entry { text: root.engine-computed.wave-max; enabled: false; }
-            Entry { text: root.engine-computed.powwave-max + " %"; enabled: false; }
-            Entry { text: root.engine-computed.hp-max; enabled: false; }
-            Entry { text: root.engine-computed.kw-max; enabled: false; }
-        }
-
-        Row {
-            RowLabel { text: "Cruise:"; }
-            Entry { text: root.engine-computed.frict-cruise; enabled: false; }
-            Entry { text: root.engine-computed.wave-cruise; enabled: false; }
-            Entry { text: root.engine-computed.powwave-cruise + " %"; enabled: false; }
-            Entry { text: root.engine-computed.hp-cruise; enabled: false; }
-            Entry { text: root.engine-computed.kw-cruise; enabled: false; }
-        }
-
-        Row {
-            Text { colspan: 3; text: "Engines:"; font-weight: 700; vertical-alignment: bottom; }
-        }
-
-        Row {
-            GridLayout {
-                col: 1;
-                spacing: Layout.grid-spacing;
-                colspan: 4;
-
-                Rectangle {
-                    border-width: 1px;
-                    border-color: white;
-                    VerticalLayout {
-                        spacing: Layout.grid-spacing;
-                        padding: 5px;
-                        CheckBox { text: "Coal fired boilers"; checked <=> root.engine-fields.fuel-coal; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Oil fired boilers"; checked <=> root.engine-fields.fuel-oil; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Diesel motors"; checked <=> root.engine-fields.fuel-diesel; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Petrol motors"; checked <=> root.engine-fields.fuel-petrol; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Batteries"; checked <=> root.engine-fields.fuel-battery; toggled => { root.field-edited(); } }
-                    }
-                }
-                Rectangle {
-                    border-width: 1px;
-                    border-color: white;
-                    VerticalLayout {
-                        spacing: Layout.grid-spacing;
-                        padding: 5px;
-                        CheckBox { text: "Simple reciprocating"; checked <=> root.engine-fields.boiler-simple; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Complex reciprocating"; checked <=> root.engine-fields.boiler-complex; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Steam turbines"; checked <=> root.engine-fields.boiler-turbine; toggled => { root.field-edited(); } }
-                    }
-                }
-                Rectangle {
-                    border-width: 1px;
-                    border-color: white;
-                    VerticalLayout {
-                        spacing: Layout.grid-spacing;
-                        padding: 5px;
-                        CheckBox { text: "Direct"; checked <=> root.engine-fields.drive-direct; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Geared"; checked <=> root.engine-fields.drive-geared; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Electric"; checked <=> root.engine-fields.drive-electric; toggled => { root.field-edited(); } }
-                        CheckBox { text: "Hydraulic"; checked <=> root.engine-fields.drive-hydraulic; toggled => { root.field-edited(); } }
-                    }
+            Row {
+                RowLabel { text: "Max speed:"; }
+                Entry { text <=> root.engine-fields.vmax; edited => { root.field-edited(); } }
+                Slider {
+                    colspan: 4;
+                    minimum: 0;
+                    maximum: 50;
+                    step: 1;
+                    value <=> root.engine-fields.vmax-value;
+                    changed => { root.vmax-slider-changed(); }
                 }
             }
-        }
 
-        Row {
-            Text { col: 1; text: "DESCRIPTION"; }
-        }
+            Row {
+                RowLabel { text: "Cruise speed:"; }
+                Entry { text <=> root.engine-fields.vcruise; edited => { root.field-edited(); } }
+            }
 
-        Row {
-            Text { colspan: 3; text: "Weights:"; font-weight: 700; vertical-alignment: bottom; }
-        }
+            Row {
+                RowLabel { text: "No. of shafts:"; }
+                Entry { text <=> root.engine-fields.shafts; edited => { root.shafts-edited(); } }
+            }
 
-        Row {
-            RowLabel { text: "Range:"; }
-            Entry { text <=> root.engine-fields.range; edited => { root.field-edited(); } }
-        }
+            Row {
+                ColumnLabel { col: 1; text: "Friction\nresistance:"; }
+                ColumnLabel { text: "Wave\nresistance:"; }
+                ColumnLabel { text: "Power to\nwavemaking:"; }
+                ColumnLabel { text: "Power (hp):"; }
+                ColumnLabel { text: "Power (Kw):"; }
+            }
 
-        Row {
-            RowLabel { text: "% Coal:"; }
-            Entry { text <=> root.engine-fields.pct-coal; edited => { root.field-edited(); } }
-        }
+            Row {
+                RowLabel { text: "Max:"; }
+                Entry { text: root.engine-computed.frict-max; enabled: false; }
+                Entry { text: root.engine-computed.wave-max; enabled: false; }
+                Entry { text: root.engine-computed.powwave-max + " %"; enabled: false; }
+                Entry { text: root.engine-computed.hp-max; enabled: false; }
+                Entry { text: root.engine-computed.kw-max; enabled: false; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "Engine disp for\nmachinery:"; }
-            ColumnLabel { text: "Engine:"; }
-            ColumnLabel { text: "Bunker (Max):"; }
-            ColumnLabel { text: "Bunker (Normal):"; }
-        }
+            Row {
+                RowLabel { text: "Cruise:"; }
+                Entry { text: root.engine-computed.frict-cruise; enabled: false; }
+                Entry { text: root.engine-computed.wave-cruise; enabled: false; }
+                Entry { text: root.engine-computed.powwave-cruise + " %"; enabled: false; }
+                Entry { text: root.engine-computed.hp-cruise; enabled: false; }
+                Entry { text: root.engine-computed.kw-cruise; enabled: false; }
+            }
 
-        Row {
-            RowLabel { text: "Engine:"; }
-            Entry { text: root.engine-computed.d-engine; enabled: false; }
-            Entry { text: root.engine-computed.wgt-engine; enabled: false; }
-            Entry { text: root.engine-computed.bunker-max; enabled: false; }
-            Entry { text: root.engine-computed.bunker-normal; enabled: false; }
-        }
+            Row {
+                Text { colspan: 3; text: "Engines:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "Load:"; }
-            ColumnLabel { text: "Hull:"; }
-            ColumnLabel { text: "Displacement\nfactor:"; }
-        }
+            Row {
+                GridLayout {
+                    col: 1;
+                    spacing: Layout.grid-spacing;
+                    colspan: 4;
 
-        Row {
-            RowLabel { text: "Weight:"; }
-            Entry { text: root.engine-computed.wgt-load; enabled: false; }
-            Entry { text: root.engine-computed.wgt-hull; enabled: false; }
-            Entry { text: root.engine-computed.d-factor; enabled: false; }
+                    Rectangle {
+                        border-width: 1px;
+                        border-color: white;
+                        VerticalLayout {
+                            spacing: Layout.grid-spacing;
+                            padding: 5px;
+                            CheckBox { text: "Coal fired boilers"; checked <=> root.engine-fields.fuel-coal; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Oil fired boilers"; checked <=> root.engine-fields.fuel-oil; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Diesel motors"; checked <=> root.engine-fields.fuel-diesel; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Petrol motors"; checked <=> root.engine-fields.fuel-petrol; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Batteries"; checked <=> root.engine-fields.fuel-battery; toggled => { root.field-edited(); } }
+                        }
+                    }
+                    Rectangle {
+                        border-width: 1px;
+                        border-color: white;
+                        VerticalLayout {
+                            spacing: Layout.grid-spacing;
+                            padding: 5px;
+                            CheckBox { text: "Simple reciprocating"; checked <=> root.engine-fields.boiler-simple; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Complex reciprocating"; checked <=> root.engine-fields.boiler-complex; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Steam turbines"; checked <=> root.engine-fields.boiler-turbine; toggled => { root.field-edited(); } }
+                        }
+                    }
+                    Rectangle {
+                        border-width: 1px;
+                        border-color: white;
+                        VerticalLayout {
+                            spacing: Layout.grid-spacing;
+                            padding: 5px;
+                            CheckBox { text: "Direct"; checked <=> root.engine-fields.drive-direct; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Geared"; checked <=> root.engine-fields.drive-geared; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Electric"; checked <=> root.engine-fields.drive-electric; toggled => { root.field-edited(); } }
+                            CheckBox { text: "Hydraulic"; checked <=> root.engine-fields.drive-hydraulic; toggled => { root.field-edited(); } }
+                        }
+                    }
+                }
+            }
+
+            Row {
+                Text { col: 1; text: "DESCRIPTION"; }
+            }
+
+            Row {
+                Text { colspan: 3; text: "Weights:"; font-weight: 700; vertical-alignment: bottom; }
+            }
+
+            Row {
+                RowLabel { text: "Range:"; }
+                Entry { text <=> root.engine-fields.range; edited => { root.field-edited(); } }
+            }
+
+            Row {
+                RowLabel { text: "% Coal:"; }
+                Entry { text <=> root.engine-fields.pct-coal; edited => { root.field-edited(); } }
+            }
+
+            Row {
+                ColumnLabel { col: 1; text: "Engine disp for\nmachinery:"; }
+                ColumnLabel { text: "Engine:"; }
+                ColumnLabel { text: "Bunker (Max):"; }
+                ColumnLabel { text: "Bunker (Normal):"; }
+            }
+
+            Row {
+                RowLabel { text: "Engine:"; }
+                Entry { text: root.engine-computed.d-engine; enabled: false; }
+                Entry { text: root.engine-computed.wgt-engine; enabled: false; }
+                Entry { text: root.engine-computed.bunker-max; enabled: false; }
+                Entry { text: root.engine-computed.bunker-normal; enabled: false; }
+            }
+
+            Row {
+                ColumnLabel { col: 1; text: "Load:"; }
+                ColumnLabel { text: "Hull:"; }
+                ColumnLabel { text: "Displacement\nfactor:"; }
+            }
+
+            Row {
+                RowLabel { text: "Weight:"; }
+                Entry { text: root.engine-computed.wgt-load; enabled: false; }
+                Entry { text: root.engine-computed.wgt-hull; enabled: false; }
+                Entry { text: root.engine-computed.d-factor; enabled: false; }
+            }
         }
     }
 }

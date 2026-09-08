@@ -2,6 +2,7 @@ import {
     GridBox,
     ScrollView,
     Slider,
+    VerticalBox,
 } from "std-widgets.slint";
 
 import { Entry }       from "../widgets/entry.slint";
@@ -55,36 +56,36 @@ export component PerfTab inherits ScrollView {
     in-out property <PerfFields>   perf-fields;
     in-out property <PerfComputed> perf-computed;
 
-    GridBox {
-        spacing: Layout.grid-spacing;
-
-        Row {
-            // These blank widgets are solely so we can set column widths in the
-            // first row
-            Text { height: 0px; width: Layout.label-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-        }
-
-        Row {
-            Text { colspan: 3; text: "Stability & Seakeeping:"; font-weight: 700; vertical-alignment: bottom; }
-        }
-
-        Row {
-            RowLabel { text: "Set Trim:"; }
-            Entry { text <=> root.perf-fields.trim; edited => { root.trim-box-edited(); } }
-            Slider {
-                colspan: 4;
-                minimum: 0;
-                maximum: 100;
-                step: 1;
-                value <=> root.perf-fields.trim-value;
-                changed => { root.trim-slider-changed(); }
+    VerticalBox {
+        alignment: start;
+        GridBox {
+            Row {
+                // These blank widgets are solely so we can set column widths in the
+                // first row
+                Text { height: 0px; width: Layout.label-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
             }
-        }
+
+            Row {
+                Text { colspan: 3; text: "Stability & Seakeeping:"; font-weight: 700; vertical-alignment: bottom; }
+            }
+
+            Row {
+                RowLabel { text: "Set Trim:"; }
+                Entry { text <=> root.perf-fields.trim; edited => { root.trim-box-edited(); } }
+                Slider {
+                    colspan: 4;
+                    minimum: 0;
+                    maximum: 100;
+                    step: 1;
+                    value <=> root.perf-fields.trim-value;
+                    changed => { root.trim-slider-changed(); }
+                }
+            }
 
         Row {
             Text {
@@ -100,100 +101,101 @@ export component PerfTab inherits ScrollView {
             }
         }
 
-        Row {
-            Entry { col: 1; text: root.perf-computed.stability; enabled: false; }
-            RowLabel { text: ":Stability"; horizontal-alignment: left; }
-            RowLabel { col: 4; text: "Steadiness:"; }
-            Entry { text: root.perf-computed.steadiness; enabled: false; }
-        }
-
-        Row {
-            Entry { col: 1; text: root.perf-computed.recoil; enabled: false; }
-            RowLabel { text: ":Recoil"; horizontal-alignment: left; }
-            RowLabel { col: 4; text: "Metacentric height:"; }
-            Entry { text: root.perf-computed.metacenter; enabled: false; }
-        }
-
-        Row {
-            Entry { col: 1; text: root.perf-computed.flotation; enabled: false; }
-            RowLabel { text: ":Flotation"; horizontal-alignment: left; }
-            RowLabel { col: 4; text: "Seakeeping:"; }
-            Entry { text: root.perf-computed.seakeeping; enabled: false; }
-        }
-
-        Row {
-            Text { colspan: 3; text: "Damage sustainability:"; font-weight: 700; vertical-alignment: bottom; }
-        }
-
-        Row {
-            RowLabel { col: 1;
-                text: "Max " +
-                      root.perf-computed.damage-shell-size-imp +
-                      " \" / " +
-                      root.perf-computed.damage-shell-size-metric +
-                      " mm\n shell hits:";
+            Row {
+                Entry { col: 1; text: root.perf-computed.stability; enabled: false; }
+                RowLabel { text: ":Stability"; horizontal-alignment: left; }
+                RowLabel { col: 4; text: "Steadiness:"; }
+                Entry { text: root.perf-computed.steadiness; enabled: false; }
             }
-            Entry { text: root.perf-computed.damage-shell-num; enabled: false; }
-            RowLabel { text: "Max 21.00 \" / 533 mm\ntorpedo hits:"; }
-            Entry { text: root.perf-computed.damage-torp-num; enabled: false; }
-        }
 
-        Row {
-            Text { colspan: 3; text: "Hull & deck Room:"; font-weight: 700; vertical-alignment: bottom; }
-        }
+            Row {
+                Entry { col: 1; text: root.perf-computed.recoil; enabled: false; }
+                RowLabel { text: ":Recoil"; horizontal-alignment: left; }
+                RowLabel { col: 4; text: "Metacentric height:"; }
+                Entry { text: root.perf-computed.metacenter; enabled: false; }
+            }
 
-        Row {
-            Entry { col: 1; text: root.perf-computed.hull-room + " %"; enabled: false; }
-            RowLabel { colspan: 4; text: root.perf-computed.hull-room-quality + " machinery, storage, compartmentation space"; horizontal-alignment: left; }
-        }
+            Row {
+                Entry { col: 1; text: root.perf-computed.flotation; enabled: false; }
+                RowLabel { text: ":Flotation"; horizontal-alignment: left; }
+                RowLabel { col: 4; text: "Seakeeping:"; }
+                Entry { text: root.perf-computed.seakeeping; enabled: false; }
+            }
 
-        Row {
-            Entry { col: 1; text: root.perf-computed.deck-room + " %"; enabled: false; }
-            RowLabel { colspan: 4; text: root.perf-computed.deck-room-quality + " accomodation and workspace room"; horizontal-alignment: left; }
-        }
+            Row {
+                Text { colspan: 3; text: "Damage sustainability:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            Text { colspan: 3; text: "Displacement:"; font-weight: 700; vertical-alignment: bottom; }
-        }
+            Row {
+                RowLabel { col: 1;
+                    text: "Max " +
+                        root.perf-computed.damage-shell-size-imp +
+                        " \" / " +
+                        root.perf-computed.damage-shell-size-metric +
+                        " mm\n shell hits:";
+                }
+                Entry { text: root.perf-computed.damage-shell-num; enabled: false; }
+                RowLabel { text: "Max 21.00 \" / 533 mm\ntorpedo hits:"; }
+                Entry { text: root.perf-computed.damage-torp-num; enabled: false; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "Maximum (t):"; }
-            ColumnLabel { text: "Normal (t):"; }
-            ColumnLabel { text: "Standard (t):"; }
-            ColumnLabel { text: "Light (t):"; }
-            ColumnLabel { text: "Weight/sq foot\nhull:"; }
-        }
+            Row {
+                Text { colspan: 3; text: "Hull & deck Room:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            Entry { col: 1; text: root.perf-computed.d-max; enabled: false; }
-            Entry { text: root.perf-computed.d-norm; enabled: false; }
-            Entry { text: root.perf-computed.d-std; enabled: false; }
-            Entry { text: root.perf-computed.d-lite; enabled: false; }
-            Entry { text: root.perf-computed.wgt-struct + " lbs"; enabled: false; }
-        }
+            Row {
+                Entry { col: 1; text: root.perf-computed.hull-room + " %"; enabled: false; }
+                RowLabel { colspan: 4; text: root.perf-computed.hull-room-quality + " machinery, storage, compartmentation space"; horizontal-alignment: left; }
+            }
 
-        Row {
-            Text { colspan: 3; text: "Cost & Strength:"; font-weight: 700; vertical-alignment: bottom; }
-        }
+            Row {
+                Entry { col: 1; text: root.perf-computed.deck-room + " %"; enabled: false; }
+                RowLabel { colspan: 4; text: root.perf-computed.deck-room-quality + " accomodation and workspace room"; horizontal-alignment: left; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "Cost\n(£ million):"; }
-            ColumnLabel { text: "Cost\n($ million):"; }
-            ColumnLabel { text: "Cross\nsectional:"; }
-            ColumnLabel { text: "Longtiudinal\nstrength:"; }
-            ColumnLabel { text: "Composite\nstrength:"; font-weight: 700; }
-        }
+            Row {
+                Text { colspan: 3; text: "Displacement:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            Entry { col: 1; text: root.perf-computed.cost-lb; enabled: false; }
-            Entry { text: root.perf-computed.cost-dollar; enabled: false; }
-            Entry { text: root.perf-computed.str-cross; enabled: false; }
-            Entry { text: root.perf-computed.str-long; enabled: false; }
-            Entry { text: root.perf-computed.str-comp; enabled: false; }
-        }
+            Row {
+                ColumnLabel { col: 1; text: "Maximum (t):"; }
+                ColumnLabel { text: "Normal (t):"; }
+                ColumnLabel { text: "Standard (t):"; }
+                ColumnLabel { text: "Light (t):"; }
+                ColumnLabel { text: "Weight/sq foot\nhull:"; }
+            }
 
-        Row {
-            Text { col: 1; colspan: 5; text: root.perf-computed.seakeeping-desc; }
+            Row {
+                Entry { col: 1; text: root.perf-computed.d-max; enabled: false; }
+                Entry { text: root.perf-computed.d-norm; enabled: false; }
+                Entry { text: root.perf-computed.d-std; enabled: false; }
+                Entry { text: root.perf-computed.d-lite; enabled: false; }
+                Entry { text: root.perf-computed.wgt-struct + " lbs"; enabled: false; }
+            }
+
+            Row {
+                Text { colspan: 3; text: "Cost & Strength:"; font-weight: 700; vertical-alignment: bottom; }
+            }
+
+            Row {
+                ColumnLabel { col: 1; text: "Cost\n(£ million):"; }
+                ColumnLabel { text: "Cost\n($ million):"; }
+                ColumnLabel { text: "Cross\nsectional:"; }
+                ColumnLabel { text: "Longtiudinal\nstrength:"; }
+                ColumnLabel { text: "Composite\nstrength:"; font-weight: 700; }
+            }
+
+            Row {
+                Entry { col: 1; text: root.perf-computed.cost-lb; enabled: false; }
+                Entry { text: root.perf-computed.cost-dollar; enabled: false; }
+                Entry { text: root.perf-computed.str-cross; enabled: false; }
+                Entry { text: root.perf-computed.str-long; enabled: false; }
+                Entry { text: root.perf-computed.str-comp; enabled: false; }
+            }
+
+            Row {
+                Text { col: 1; colspan: 5; text: root.perf-computed.seakeeping-desc; }
+            }
         }
     }
 }

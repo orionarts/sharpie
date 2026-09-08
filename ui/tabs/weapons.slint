@@ -2,6 +2,7 @@ import {
     ComboBox,
     GridBox,
     ScrollView,
+    VerticalBox,
 } from "std-widgets.slint";
 
 import { Entry }       from "../widgets/entry.slint";
@@ -88,9 +89,8 @@ export component WeaponsTab inherits ScrollView {
     callback mine-units-edited();
     callback asw-units-edited(int);
 
-    VerticalLayout {
-        spacing: Layout.grid-spacing;
-
+    VerticalBox {
+        alignment: start;
         for torp[i] in root.torp-fields: GridBox { // {{{2
             Text { height: 0px; width: 100px; }
             Text { height: 0px; width: 50px; }

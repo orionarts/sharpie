@@ -3,6 +3,7 @@ import {
     ComboBox,
     GridBox,
     ScrollView,
+    VerticalBox,
 } from "std-widgets.slint";
 
 import { Entry }       from "../widgets/entry.slint";
@@ -80,139 +81,140 @@ export component ArmorTab inherits ScrollView {
     in-out property <[string]> bh-kind-labels: [];
     in-out property <[string]> deck-kind-labels: [];
 
-    GridBox {
-        spacing: Layout.grid-spacing;
+    VerticalBox {
+        alignment: start;
+        GridBox {
+            Row {
+                // These blank widgets are solely so we can set column widths in the
+                // first row
+                Text { height: 0px; width: Layout.label-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+            }
 
-        Row {
-            // These blank widgets are solely so we can set column widths in the
-            // first row
-            Text { height: 0px; width: Layout.label-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-        }
+            Row {
+                Text { text: "Armour:"; font-weight: 700; vertical-alignment: bottom; }
+                RowLabel { text: "Maximum thickness in:"; }
+                ComboBox { model: root.length-small-labels; current-index <=> root.armor-fields.units; selected => { root.armor-units-edited(); } }
+            }
 
-        Row {
-            Text { text: "Armour:"; font-weight: 700; vertical-alignment: bottom; }
-            RowLabel { text: "Maximum thickness in:"; }
-            ComboBox { model: root.length-small-labels; current-index <=> root.armor-fields.units; selected => { root.armor-units-edited(); } }
-        }
+            Row {
+                Text { text: "Belts &\nBulkheads:"; font-weight: 700; vertical-alignment: bottom; }
+                Button { col: 2; text: "Default"; height: Layout.edit-height; }
+                Button { col: 2; text: "Default"; height: Layout.edit-height; clicked => { root.armor-default(); } }
+                Text { colspan: 3; wrap: word-wrap; text: root.armor-computed.coverage; }
+            }
 
-        Row {
-            Text { text: "Belts &\nBulkheads:"; font-weight: 700; vertical-alignment: bottom; }
-            Button { col: 2; text: "Default"; height: Layout.edit-height; }
-            Button { col: 2; text: "Default"; height: Layout.edit-height; clicked => { root.armor-default(); } }
-            Text { colspan: 3; wrap: word-wrap; text: root.armor-computed.coverage; }
-        }
+            Row {
+                ColumnLabel { col: 1; text: "Max Thickness:"; }
+                ColumnLabel { text: "Length (" + root.length-long-labels[root.armor-fields.units] + "):"; }
+                ColumnLabel { text: "Height (" + root.length-long-labels[root.armor-fields.units] + "):"; }
+                ColumnLabel { text: "Weight (tons):"; }
+                ColumnLabel { text: "Total weight\n(tons):"; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "Max Thickness:"; }
-            ColumnLabel { text: "Length (" + root.length-long-labels[root.armor-fields.units] + "):"; }
-            ColumnLabel { text: "Height (" + root.length-long-labels[root.armor-fields.units] + "):"; }
-            ColumnLabel { text: "Weight (tons):"; }
-            ColumnLabel { text: "Total weight\n(tons):"; }
-        }
+            Row {
+                RowLabel { text: "Main:"; }
+                Entry { text <=> root.armor-fields.main.thick; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.main.len; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.main.hgt; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.main-wgt; enabled: false; }
+            }
 
-        Row {
-            RowLabel { text: "Main:"; }
-            Entry { text <=> root.armor-fields.main.thick; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.main.len; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.main.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.main-wgt; enabled: false; }
-        }
+            Row {
+                RowLabel { text: "Ends:"; }
+                Entry { text <=> root.armor-fields.end.thick; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.end.len; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.end.hgt; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.end-wgt; enabled: false; }
+            }
 
-        Row {
-            RowLabel { text: "Ends:"; }
-            Entry { text <=> root.armor-fields.end.thick; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.end.len; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.end.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.end-wgt; enabled: false; }
-        }
+            Row {
+                RowLabel { text: "Upper:"; }
+                Entry { text <=> root.armor-fields.upper.thick; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.upper.len; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.upper.hgt; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.upper-wgt; enabled: false; }
+                Entry { text: root.armor-computed.belt-wgt; enabled: false; }
+            }
 
-        Row {
-            RowLabel { text: "Upper:"; }
-            Entry { text <=> root.armor-fields.upper.thick; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.upper.len; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.upper.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.upper-wgt; enabled: false; }
-            Entry { text: root.armor-computed.belt-wgt; enabled: false; }
-        }
+            Row {
+                RowLabel { col: 1; text: "Main belt incline:"; }
+                Entry { text <=> root.armor-fields.incline; edited => { root.field-edited(); } }
+            }
 
-        Row {
-            RowLabel { col: 1; text: "Main belt incline:"; }
-            Entry { text <=> root.armor-fields.incline; edited => { root.field-edited(); } }
-        }
+            Row {
+                RowLabel { text: "Bulge:"; }
+                Entry { text <=> root.armor-fields.bulge.thick; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.bulge.len; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.bulge.hgt; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.bulge-wgt; enabled: false; }
+            }
 
-        Row {
-            RowLabel { text: "Bulge:"; }
-            Entry { text <=> root.armor-fields.bulge.thick; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.bulge.len; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.bulge.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.bulge-wgt; enabled: false; }
-        }
+            Row {
+                RowLabel { text: "Torpedo\nbulkhead:"; }
+                Entry { text <=> root.armor-fields.bh.thick; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.bh.len; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.bh.hgt; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.bh-wgt; enabled: false; }
+            }
 
-        Row {
-            RowLabel { text: "Torpedo\nbulkhead:"; }
-            Entry { text <=> root.armor-fields.bh.thick; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.bh.len; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.bh.hgt; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.bh-wgt; enabled: false; }
-        }
+            Row {
+                RowLabel { text: "Type:"; }
+                ComboBox { colspan: 2; model: root.bh-kind-labels; current-index <=> root.armor-fields.bh-kind; selected => { root.field-edited(); } }
+            }
+            Row {
+                RowLabel { colspan: 2; text: "Beam between bulkheads:"; }
+                Entry { text <=> root.armor-fields.bh-beam; edited => { root.field-edited(); } }
+            }
 
-        Row {
-            RowLabel { text: "Type:"; }
-            ComboBox { colspan: 2; model: root.bh-kind-labels; current-index <=> root.armor-fields.bh-kind; selected => { root.field-edited(); } }
-        }
-        Row {
-            RowLabel { colspan: 2; text: "Beam between bulkheads:"; }
-            Entry { text <=> root.armor-fields.bh-beam; edited => { root.field-edited(); } }
-        }
+            Row {
+                Text { text: "Guns:"; font-weight: 700; vertical-alignment: bottom; }
+                Text { text: "(see Guns page)"; vertical-alignment: bottom; }
+                Entry { col: 4; text: root.armor-computed.gun-wgt; enabled: false; }
+            }
 
-        Row {
-            Text { text: "Guns:"; font-weight: 700; vertical-alignment: bottom; }
-            Text { text: "(see Guns page)"; vertical-alignment: bottom; }
-            Entry { col: 4; text: root.armor-computed.gun-wgt; enabled: false; }
-        }
+            Row {
+                Text { text: "Armour\ndeck:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            Text { text: "Armour\ndeck:"; font-weight: 700; vertical-alignment: bottom; }
-        }
+            Row {
+                ColumnLabel { col: 1; text: "Forecastle:"; }
+                ColumnLabel { text: "Fore & aft decks:"; }
+                ColumnLabel { text: "Quarter deck:"; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "Forecastle:"; }
-            ColumnLabel { text: "Fore & aft decks:"; }
-            ColumnLabel { text: "Quarter deck:"; }
-        }
+            Row {
+                Entry { col: 1; text <=> root.armor-fields.deck.fc; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.deck.md; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.deck.qd; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.deck-wgt; enabled: false; }
+            }
 
-        Row {
-            Entry { col: 1; text <=> root.armor-fields.deck.fc; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.deck.md; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.deck.qd; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.deck-wgt; enabled: false; }
-        }
+            Row {
+                RowLabel { colspan: 2; text: "Armour deck coverage:"; }
+                ComboBox { colspan: 2; model: root.deck-kind-labels; current-index <=> root.armor-fields.deck.kind; selected => { root.field-edited(); } }
+            }
 
-        Row {
-            RowLabel { colspan: 2; text: "Armour deck coverage:"; }
-            ComboBox { colspan: 2; model: root.deck-kind-labels; current-index <=> root.armor-fields.deck.kind; selected => { root.field-edited(); } }
-        }
+            Row {
+                Text { text: "Conning\ntowers:"; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            Text { text: "Conning\ntowers:"; font-weight: 700; vertical-alignment: bottom; }
-        }
+            Row {
+                ColumnLabel { col: 2; text: "Forward:"; }
+                ColumnLabel { text: "Aft:"; }
+                ColumnLabel { col: 5; text: "Total:"; font-weight: 700; }
+            }
 
-        Row {
-            ColumnLabel { col: 2; text: "Forward:"; }
-            ColumnLabel { text: "Aft:"; }
-            ColumnLabel { col: 5; text: "Total:"; font-weight: 700; }
-        }
-
-        Row {
-            Entry { col: 2; text <=> root.armor-fields.ct-fwd; edited => { root.field-edited(); } }
-            Entry { text <=> root.armor-fields.ct-aft; edited => { root.field-edited(); } }
-            Entry { text: root.armor-computed.ct-wgt; enabled: false; }
-            Entry { text: root.armor-computed.total-wgt; enabled: false; }
+            Row {
+                Entry { col: 2; text <=> root.armor-fields.ct-fwd; edited => { root.field-edited(); } }
+                Entry { text <=> root.armor-fields.ct-aft; edited => { root.field-edited(); } }
+                Entry { text: root.armor-computed.ct-wgt; enabled: false; }
+                Entry { text: root.armor-computed.total-wgt; enabled: false; }
+            }
         }
     }
 }
