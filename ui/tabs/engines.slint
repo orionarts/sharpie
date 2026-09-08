@@ -2,6 +2,7 @@ import {
     Button,
     CheckBox,
     GridBox,
+    HorizontalBox,
     ScrollView,
     VerticalBox,
 } from "std-widgets.slint";
@@ -148,17 +149,17 @@ export component EnginesTab inherits ScrollView {
             }
 
             Row {
-                GridLayout {
+                HorizontalBox {
                     col: 1;
-                    spacing: Layout.grid-spacing;
-                    colspan: 4;
+                    colspan: 5;
 
                     Rectangle {
                         border-width: 1px;
                         border-color: white;
-                        VerticalLayout {
-                            spacing: Layout.grid-spacing;
-                            padding: 5px;
+                        horizontal-stretch: 1;
+                        preferred-width: 0;
+                        min-width: 0;
+                        VerticalBox {
                             CheckBox { text: "Coal fired boilers"; checked <=> root.engine-fields.fuel-coal; toggled => { root.field-edited(); } }
                             CheckBox { text: "Oil fired boilers"; checked <=> root.engine-fields.fuel-oil; toggled => { root.field-edited(); } }
                             CheckBox { text: "Diesel motors"; checked <=> root.engine-fields.fuel-diesel; toggled => { root.field-edited(); } }
@@ -169,9 +170,10 @@ export component EnginesTab inherits ScrollView {
                     Rectangle {
                         border-width: 1px;
                         border-color: white;
-                        VerticalLayout {
-                            spacing: Layout.grid-spacing;
-                            padding: 5px;
+                        horizontal-stretch: 1;
+                        preferred-width: 0;
+                        min-width: 0;
+                        VerticalBox {
                             CheckBox { text: "Simple reciprocating"; checked <=> root.engine-fields.boiler-simple; toggled => { root.field-edited(); } }
                             CheckBox { text: "Complex reciprocating"; checked <=> root.engine-fields.boiler-complex; toggled => { root.field-edited(); } }
                             CheckBox { text: "Steam turbines"; checked <=> root.engine-fields.boiler-turbine; toggled => { root.field-edited(); } }
@@ -180,9 +182,10 @@ export component EnginesTab inherits ScrollView {
                     Rectangle {
                         border-width: 1px;
                         border-color: white;
-                        VerticalLayout {
-                            spacing: Layout.grid-spacing;
-                            padding: 5px;
+                        horizontal-stretch: 1;
+                        preferred-width: 0;
+                        min-width: 0;
+                        VerticalBox {
                             CheckBox { text: "Direct"; checked <=> root.engine-fields.drive-direct; toggled => { root.field-edited(); } }
                             CheckBox { text: "Geared"; checked <=> root.engine-fields.drive-geared; toggled => { root.field-edited(); } }
                             CheckBox { text: "Electric"; checked <=> root.engine-fields.drive-electric; toggled => { root.field-edited(); } }
