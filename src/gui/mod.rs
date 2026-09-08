@@ -10,7 +10,11 @@ use crate::calc::{
     BowType,
     BulkheadType,
     DeckType,
+    GunDistributionType,
+    GunLayoutType,
+    GunType,
     MineType,
+    MountType,
     Ship,
     SternType,
     TorpedoMountType,
@@ -46,7 +50,11 @@ pub fn set_enum_models(ui: &MainWindow) {
     ui.set_bow_labels         (label_model(BowType::all_labels()));
     ui.set_bh_kind_labels     (label_model(BulkheadType::all_labels()));
     ui.set_deck_kind_labels   (label_model(DeckType::all_labels()));
+    ui.set_gun_distribution_labels(label_model(GunDistributionType::all_labels()));
+    ui.set_gun_layout_labels  (label_model(GunLayoutType::all_labels()));
+    ui.set_gun_type_labels    (label_model(GunType::all_labels()));
     ui.set_mine_type_labels   (label_model(MineType::all_labels()));
+    ui.set_mount_type_labels  (label_model(MountType::all_labels()));
     ui.set_stern_labels       (label_model(SternType::all_labels()));
     ui.set_torp_mount_labels  (label_model(TorpedoMountType::all_labels()));
     ui.set_length_small_labels(label_model(UnitType::LengthSmall.all_labels()));
@@ -74,6 +82,7 @@ fn pull_all(ui: &MainWindow, ship: &mut Ship) {
     gui_map::pull_torpedoes(ui, ship);
     gui_map::pull_weights(ui, ship);
     gui_map::pull_perf(ui, ship);
+    gui_map::pull_guns(ui, ship);
 }
 
 // push_derived {{{2
@@ -93,6 +102,8 @@ fn push_derived(ship: &Ship, ui: &MainWindow) {
     gui_map::push_weight_derived(ship, ui);
     gui_map::push_perf_derived(ship, ui);
     gui_map::push_engine_derived(ship, ui);
+    gui_map::push_guns_derived(ship, ui);
+    gui_map::push_shell_wgt(ship, ui);
     ui.set_report_str(ship.report().into());
 }
 
@@ -113,6 +124,7 @@ fn push_all(ship: &Ship, ui: &MainWindow) {
     gui_map::push_identity(ship, ui);
     gui_map::push_hull(ship, ui);
     gui_map::push_hull_image(ship, ui);
+    gui_map::push_guns(ship, ui);
     gui_map::push_engine(ship, ui);
     gui_map::push_mines(ship, ui);
     gui_map::push_torpedoes(ship, ui);
@@ -230,6 +242,13 @@ fn mine_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 ///
 fn asw_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
     gui_map::convert_asw_units(&mut ship.borrow_mut(), ui, row);
+}
+
+// gun_units_edited {{{2
+/// Convert a battery's units when its units combobox changes.
+///
+fn gun_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
+    gui_map::convert_guns_units(&mut ship.borrow_mut(), ui, row);
 }
 
 // set_all_units {{{2
@@ -364,6 +383,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_torp_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { torp_units_edited  (&h.unwrap(), &s, row); }});
     ui.on_mine_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { mine_units_edited  (&h.unwrap(), &s); }});
     ui.on_asw_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { asw_units_edited   (&h.unwrap(), &s, row); }});
+    ui.on_gun_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { gun_units_edited   (&h.unwrap(), &s, row); }});
     ui.on_hull_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { hull_units_edited  (&h.unwrap(), &s); }});
     ui.on_armor_units_edited ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_units_edited (&h.unwrap(), &s); }});
     ui.on_armor_default      ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_default      (&h.unwrap(), &s); }});

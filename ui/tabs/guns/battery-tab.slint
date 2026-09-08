@@ -1,14 +1,18 @@
 import {
     Button,
+    CheckBox,
     ComboBox,
     GridBox,
+    HorizontalBox,
     ScrollView,
+    VerticalBox,
 } from "std-widgets.slint";
 
-import { Entry }       from "../../widgets/entry.slint";
-import { RowLabel }    from "../../widgets/row-label.slint";
-import { ColumnLabel } from "../../widgets/column-label.slint";
-import { Layout }      from "../../layout.slint";
+import { Entry }            from "../../widgets/entry.slint";
+import { RowLabel }         from "../../widgets/row-label.slint";
+import { ColumnLabel }      from "../../widgets/column-label.slint";
+import { Layout }           from "../../layout.slint";
+import { BatteryFields, BatteryComputed } from "./battery-structs.slint";
 
 // Battery tab {{{1
 //
@@ -16,50 +20,181 @@ import { Layout }      from "../../layout.slint";
 //
 export component BatteryTab inherits ScrollView {
     callback field-edited();
+    callback units-edited();
 
-    GridBox {
-        spacing: Layout.grid-spacing;
+    in-out property <BatteryFields> fields;
+    in-out property <BatteryComputed> computed;
 
-        Row {
-            // These blank widgets are solely so we can set column widths in the
-            // first row
-            Text { height: 0px; width: Layout.label-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-            Text { height: 0px; width: Layout.edit-width; }
-        }
+    in-out property <[string]> gun-type-labels: [];
+    in-out property <[string]> mount-type-labels: [];
+    in-out property <[string]> gun-layout-labels: [];
+    in-out property <[string]> gun-distribution-labels: [];
+    in-out property <[string]> length-small-labels: [];
 
-        Row {
-            Text { text: "Guns:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
-        }
+    VerticalBox {
+        alignment: start;
+        GridBox {
+            Row {
+                // These blank widgets are solely so we can set column widths in the
+                // first row
+                Text { height: 0px; width: Layout.label-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+                Text { height: 0px; width: Layout.edit-width; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; text: "No. of Barrels:"; }
-            ColumnLabel { colspan: 3; text: "Calibre—Shell diameter / barrel length"; }
-            ColumnLabel { text: "Date:"; }
-        }
+            Row {
+                Text { text: "Guns:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+            }
 
-        Row {
-            Entry { col: 1; text: "X"; }
-            Entry { text: "X"; }
-            ComboBox { width: 75px; }
-            Entry { text: "X"; }
-            Entry { text: "X"; }
-        }
+            Row {
+                ColumnLabel { col: 1; text: "No. of Barrels:"; }
+                ColumnLabel { text: "Shell diameter"; }
+                ColumnLabel { col: 4; text: "Barrel length"; }
+                ColumnLabel { text: "Date:"; }
+            }
 
-        Row {
-            ColumnLabel { col: 1; colspan: 2; text: "Type of gun:"; }
-            ColumnLabel { text: "Shells per gun:"; }
-            ColumnLabel { colspan: 2; text: "Shell weight—lbs/kg::"; }
-        }
+            Row {
+                Entry { col: 1; text <=> root.fields.num; edited => { root.field-edited(); } }
+                Entry { text <=> root.fields.diam; edited => { root.field-edited(); } }
+                ComboBox { width: 75px; model: root.length-small-labels; current-index <=> root.fields.units; selected => { root.units-edited(); } }
+                Entry { text <=> root.fields.len; edited => { root.field-edited(); } }
+                Entry { text <=> root.fields.year; edited => { root.field-edited(); } }
+            }
 
-        Row {
-            ComboBox { col: 1; colspan: 2; }
-            Entry { text: "X"; }
-            Entry { text: "X"; }
-            Entry { text: "X"; }
+            Row {
+                ColumnLabel { col: 1; colspan: 2; text: "Type of gun:"; }
+                ColumnLabel { text: "Shells per gun:"; }
+                ColumnLabel { colspan: 2; text: "Shell weight—lbs/kg:"; }
+            }
+
+            Row {
+                ComboBox { col: 1; colspan: 2; model: root.gun-type-labels; current-index <=> root.fields.kind; selected => root.field-edited(); }
+                Entry { text <=> root.fields.shells; edited => { root.field-edited(); } }
+                Entry { text <=> root.fields.shell-wgt; edited => { root.field-edited(); } enabled: root.fields.units == 0; }
+                Entry { text <=> root.fields.shell-wgt-metric; edited => { root.field-edited(); } enabled: root.fields.units == 1; }
+            }
+
+            Row {
+                Text { text: "Mounts:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+            }
+
+            Row {
+                ColumnLabel { col: 1; text: "No. of Mounts:"; }
+                ColumnLabel { colspan: 2; text: "Type of mounts:"; }
+            }
+
+            Row {
+                Entry { col: 1; text <=> root.fields.mount-num; edited => { root.field-edited(); } }
+                ComboBox { colspan: 2; model: root.mount-type-labels; current-index <=> root.fields.mount-kind; selected => root.field-edited(); }
+            }
+
+            Row {
+                Text { text: "Location:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+            }
+
+            Row {
+                HorizontalBox {
+                    col: 1;
+                    colspan: 5;
+
+                    Rectangle {
+                        border-width: 1px;
+                        border-color: white;
+                        horizontal-stretch: 1;
+                        preferred-width: 0;
+                        min-width: 0;
+
+                        GridBox {
+                            Row {
+                                Text { text: "Group 1: Total Guns"; font-weight: 700; }
+                            }
+
+                            Row {
+                                ComboBox { colspan: 3; model: root.gun-layout-labels; current-index <=> root.fields.group-1.layout; selected => root.field-edited(); }
+                            }
+
+                            Row {
+                                RowLabel { text: "Above deck:"; }
+                                Entry { text: root.computed.group-1.tubes-above; width: 75px; enabled: false; }
+                                Entry { text <=> root.fields.group-1.above; width: 75px; edited => root.field-edited(); }
+                            }
+
+                            Row {
+                                RowLabel { text: "On deck:"; }
+                                Entry { text: root.computed.group-1.tubes-on; width: 75px; enabled: false; }
+                                Entry { text: root.computed.group-1.mounts-on; width: 75px; enabled: false; }
+                            }
+
+                            Row {
+                                RowLabel { text: "Below deck:"; }
+                                Entry { text: root.computed.group-1.tubes-below; width: 75px; enabled: false; }
+                                Entry { text <=> root.fields.group-1.below; width: 75px; edited => root.field-edited(); }
+                            }
+
+                            ComboBox { colspan: 3; model: root.gun-distribution-labels; current-index <=> root.fields.group-1.distribution; selected => root.field-edited(); }
+                        }
+                    }
+
+                    Rectangle {
+                        border-width: 1px;
+                        border-color: white;
+                        horizontal-stretch: 1;
+                        preferred-width: 0;
+                        min-width: 0;
+
+                        GridBox {
+                            Row {
+                                Text { text: "Group 2: Total Guns"; font-weight: 700; }
+                            }
+
+                            Row {
+                                ComboBox { colspan: 3; model: root.gun-layout-labels; current-index <=> root.fields.group-2.layout; selected => root.field-edited(); }
+                            }
+
+                            Row {
+                                CheckBox { text: "2 mounts up"; }
+                                Entry { text: root.computed.group-2.tubes-above; width: 75px; enabled: false; }
+                                Entry { text <=> root.fields.group-2.above; width: 75px; edited => root.field-edited(); }
+                            }
+
+                            Row {
+                                Entry { col: 1; text: root.computed.group-2.tubes-on; width: 75px; enabled: false; }
+                                Entry { text <=> root.fields.group-2.on; width: 75px; edited => root.field-edited(); }
+                            }
+
+                            Row {
+                                CheckBox { text: "Lower deck"; }
+                                Entry { text: root.computed.group-2.tubes-below; width: 75px; enabled: false; }
+                                Entry { text <=> root.fields.group-2.below; width: 75px; edited => root.field-edited(); }
+                            }
+
+                            ComboBox { colspan: 3; model: root.gun-distribution-labels; current-index <=> root.fields.group-2.distribution; selected => root.field-edited(); }
+                        }
+                    }
+                }
+            }
+
+            Row {
+                Text { colspan: 4; font-weight: 700; vertical-alignment: bottom; text: "Armor (" + root.length-small-labels[root.fields.armor_units] + "):"; }
+            }
+
+            Row {
+                ColumnLabel { col: 1; text: "Face / Shield"; }
+                ColumnLabel { text: "Other above deck:"; }
+                ColumnLabel { text: "Barbette / Hoist:"; }
+                ColumnLabel { text: "Weight (t):"; }
+            }
+
+            Row {
+                Entry { col: 1; text <=> root.fields.armor-face; edited => { root.field-edited(); } }
+                Entry { text <=> root.fields.armor-back; edited => { root.field-edited(); } }
+                Entry { text <=> root.fields.armor-barb; edited => { root.field-edited(); } }
+                Entry { text: root.computed.wgt-armor; enabled: false; }
+            }
+
         }
     }
 }

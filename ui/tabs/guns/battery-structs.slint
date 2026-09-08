@@ -1,0 +1,67 @@
+export struct BatteryGroupFields {
+    layout: int,
+    distribution: int,
+    above: string,
+    on: string,
+    below: string,
+    two-mounts-up: bool,
+    lower-deck: bool,
+}
+
+export struct BatteryFields {
+    units: int,
+    armor_units: int,
+
+    num: string,
+    diam: string,
+    len: string,
+    year: string,
+
+    shells: string,
+    shell-wgt: string,
+    shell-wgt-metric: string,
+
+    kind: int,
+
+    mount-num: string,
+    mount-kind: int,
+
+    armor-face: string,
+    armor-back: string,
+    armor-barb: string,
+
+    group-1: BatteryGroupFields,
+    group-2: BatteryGroupFields,
+}
+
+export struct BatteryGroupComputed {
+    tubes_above: string,
+    tubes_on: string,
+    tubes_below: string,
+
+    mounts_on: string,
+}
+
+export struct BatteryComputed {
+    desc: string,
+    wgt-guns: string,
+    wgt-mounts: string,
+    wgt-armor: string,
+    wgt-total: string,
+    broadside-lbs: string,
+    broadside-kg: string,
+    mag-wgt: string,
+
+    group-1: BatteryGroupComputed,
+    group-2: BatteryGroupComputed,
+}
+
+export struct BatteryTotals {
+    wgt-guns: string,
+    wgt-mounts: string,
+    wgt-armor: string,
+    wgt-total: string,
+    broadside-lbs: string,
+    broadside-kg: string,
+    mag-wgt: string,
+}

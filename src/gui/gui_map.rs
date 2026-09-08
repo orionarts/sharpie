@@ -19,6 +19,11 @@ use crate::{
     ArmorFields,
     ASWFields,
     ASWDerived,
+    BatteryComputed,
+    BatteryFields,
+    BatteryGroupComputed,
+    BatteryGroupFields,
+    BatteryTotals,
     BeltFields,
     DeckFields,
     EngineComputed,
@@ -44,11 +49,16 @@ use crate::calc::{
     DriveType,
     Freeboard,
     FuelType,
+    GunDistributionType,
+    GunLayoutType,
+    GunType,
     Length,
     Measurement,
     MineType,
+    MountType,
     Ship,
     SternType,
+    SubBattery,
     TorpedoMountType,
     UnitType,
     UnitType::*,
@@ -178,6 +188,8 @@ pub fn push_armor(ship: &Ship, ui: &MainWindow) {
     });
 
     push_armor_derived(ship, ui);
+    // Gun armor depends on the Units selected in the Armor tab
+    push_guns(ship, ui);
 }
 
 // push_armor_derived {{{2
@@ -1070,6 +1082,288 @@ pub fn push_weight_derived(ship: &Ship, ui: &MainWindow) {
     w.hull_space = num!(ship.hull_space(), 2).into();
     w.deck_space = num!(ship.deck_space(), 2).into();
     ui.set_weight_fields(w);
+}
+
+// Guns {{{1
+//
+// battery_fields {{{2
+/// Read one battery's editable fields from the UI by index.
+///
+/// The tabs expose one `in-out` property per battery (Slint cannot
+/// two-way-bind to an array element), so the index is matched onto the five
+/// generated accessors rather than read from a model row.
+///
+fn battery_fields(ui: &MainWindow, row: usize) -> Option<BatteryFields> {
+    match row {
+        0 => Some(ui.get_battery0_fields()),
+        1 => Some(ui.get_battery1_fields()),
+        2 => Some(ui.get_battery2_fields()),
+        3 => Some(ui.get_battery3_fields()),
+        4 => Some(ui.get_battery4_fields()),
+        _ => None,
+    }
+}
+
+// set_battery_fields {{{2
+/// Write one battery's editable fields into the UI by index.
+///
+fn set_battery_fields(ui: &MainWindow, row: usize, fields: BatteryFields) {
+    match row {
+        0 => ui.set_battery0_fields(fields),
+        1 => ui.set_battery1_fields(fields),
+        2 => ui.set_battery2_fields(fields),
+        3 => ui.set_battery3_fields(fields),
+        4 => ui.set_battery4_fields(fields),
+        _ => unreachable!("battery index out of range: {row}"),
+    }
+}
+
+// pull_guns {{{2
+/// Pull editable gun battery fields from the UI into the ship.
+///
+/// The shell weight box can hold either pounds or kilograms; the box that
+/// parses wins, with the chosen unit system preserved so the other box is
+/// recomputed by push_guns. Anything unparsable leaves the corresponding
+/// domain value untouched.
+///
+pub fn pull_guns(ui: &MainWindow, ship: &mut Ship) {
+    // Gun armor unit system is set by the Armor unit system
+    let armor_units = ship.armor.units;
+
+    for (i, b) in ship.batteries.iter_mut().enumerate() {
+        if let Some(row) = battery_fields(ui, i) {
+            b.units = row.units.max(0).into();
+
+            if let Some(v) = parse(&row.num)      { b.num = v as u32; }
+            if let Some(v) = parse(&row.len)      { b.len = v; }
+            set_meas(&mut b.diam, &row.diam, b.units, LengthSmall);
+
+            if let Some(v) = parse(&row.shells)   { b.shells = v as u32; }
+            if let Some(v) = parse(&row.shell_wgt) {
+                b.set_shell_wgt(v, Units::Imperial);
+            } else if let Some(v) = parse(&row.shell_wgt_metric) {
+                b.set_shell_wgt(v, Units::Metric);
+            }
+
+            let year_str = row.year.to_string();
+            if year_str.len() == 4 {
+                if let Ok(y) = year_str.parse::<u32>() {
+                    if (YEAR_MIN..=YEAR_MAX).contains(&y) {
+                        b.year = y;
+                    }
+                }
+            }
+
+            b.kind = GunType::from_index(row.kind.max(0) as usize);
+            if let Some(v) = parse(&row.mount_num) { b.mount_num = v as u32; }
+            b.mount_kind = MountType::from_index(row.mount_kind.max(0) as usize);
+
+            set_meas(&mut b.armor_face, &row.armor_face, armor_units, LengthSmall);
+            set_meas(&mut b.armor_back, &row.armor_back, armor_units, LengthSmall);
+            set_meas(&mut b.armor_barb, &row.armor_barb, armor_units, LengthSmall);
+
+            for (j, g) in b.groups.iter_mut().enumerate() {
+                let f = if j == 0 { &row.group_1 } else { &row.group_2 };
+                g.layout = GunLayoutType::from_index(f.layout.max(0) as usize);
+                g.distribution = GunDistributionType::from_index(f.distribution.max(0) as usize);
+                if let Some(v) = parse(&f.above) { g.above = v as u32; }
+                if let Some(v) = parse(&f.on)    { g.on    = v as u32; }
+                if let Some(v) = parse(&f.below) { g.below = v as u32; }
+                g.two_mounts_up = f.two_mounts_up;
+                g.lower_deck = f.lower_deck;
+            }
+        }
+    }
+}
+
+// push_guns {{{2
+/// Push editable gun battery fields from the ship into the UI.
+///
+pub fn push_guns(ship: &Ship, ui: &MainWindow) {
+    let armor_units = ship.armor.units;
+
+    let model: Vec<BatteryFields> = ship.batteries.iter().map(|b| {
+        let u = b.units;
+
+        let group = |g: &SubBattery| BatteryGroupFields {
+            layout:       g.layout.index() as i32,
+            distribution: g.distribution.index() as i32,
+            above:        g.above.to_string().into(),
+            on:           g.on.to_string().into(),
+            below:        g.below.to_string().into(),
+            two_mounts_up: g.two_mounts_up,
+            lower_deck:   g.lower_deck,
+        };
+
+        BatteryFields {
+            units: u.into(),
+            armor_units: armor_units.into(),
+            num:   b.num.to_string().into(),
+            diam:  fmt_meas(b.diam, u, 2).into(),
+            len:   num!(b.len, 1).into(),
+            year:  b.year.to_string().into(),
+            shells: b.shells.to_string().into(),
+            shell_wgt:        num!(b.shell_wgt().imp(), 2).into(),
+            shell_wgt_metric: num!(b.shell_wgt().metric(), 2).into(),
+            kind:       b.kind.index() as i32,
+            mount_num:  b.mount_num.to_string().into(),
+            mount_kind: b.mount_kind.index() as i32,
+            armor_face: fmt_meas(b.armor_face, armor_units, 2).into(),
+            armor_back: fmt_meas(b.armor_back, armor_units, 2).into(),
+            armor_barb: fmt_meas(b.armor_barb, armor_units, 2).into(),
+            group_1:    group(&b.groups[0]),
+            group_2:    group(&b.groups[1]),
+        }
+    }).collect();
+
+    for (i, fields) in model.into_iter().enumerate() {
+        set_battery_fields(ui, i, fields);
+    }
+    push_guns_derived(ship, ui);
+}
+
+// push_shell_wgt {{{2
+/// Refresh the read-only shell weight box on each battery tab.
+///
+/// The battery tabs expose two shell weight boxes (lbs and kg); only the box
+/// matching the battery's unit system is editable, the other just mirrors the
+/// conversion drawn from the ship. `push_guns` sets both boxes, but that only
+/// runs on load and unit changes, so refresh the read-only box here on every
+/// field edit. The editable box's member is preserved verbatim, so an active
+/// caret is left untouched; the read-only box is updated from `b.shell_wgt()`.
+///
+pub fn push_shell_wgt(ship: &Ship, ui: &MainWindow) {
+    for (i, b) in ship.batteries.iter().enumerate() {
+        let Some(mut fields) = battery_fields(ui, i) else { continue };
+        if b.units == Units::Imperial {
+            fields.shell_wgt_metric = num!(b.shell_wgt().metric(), 2).into();
+        } else {
+            fields.shell_wgt = num!(b.shell_wgt().imp(), 2).into();
+        }
+        set_battery_fields(ui, i, fields);
+    }
+}
+
+// push_guns_derived {{{2
+/// Refresh only the read-only computed fields on the battery tabs,
+/// leaving the editable fields (and any active caret) untouched.
+///
+pub fn push_guns_derived(ship: &Ship, ui: &MainWindow) {
+    let mut wgt_guns = 0.0;
+    let mut wgt_mounts = 0.0;
+    let mut wgt_armor = 0.0;
+    let mut wgt_total = 0.0;
+    let mut broadside_lbs = 0.0;
+    let mut broadside_kg = 0.0;
+    let mut mag_wgt = 0.0;
+
+    let hull = ship.hull.clone();
+    let model: Vec<BatteryComputed> = ship.batteries.iter().enumerate().map(|(i, b)| {
+        let guns     = b.gun_wgt();
+        let mounts   = b.mount_wgt();
+        let armor    = b.armor_wgt(hull.clone());
+        let total    = guns + mounts + armor;
+        let broad_lb = b.broadside_wgt();
+        let broad_kg = Measurement::new(broad_lb, Weight, Units::Imperial).metric();
+        let mag      = b.mag_wgt();
+
+        wgt_guns      += guns;
+        wgt_mounts    += mounts;
+        wgt_armor     += armor;
+        wgt_total     += total;
+        broadside_lbs += broad_lb;
+        broadside_kg  += broad_kg;
+        mag_wgt       += mag;
+
+        let g1 = &b.groups[0];
+        let g2 = &b.groups[1];
+        let p1 = g1.layout.guns_per() as i32;
+        let p2 = g2.layout.guns_per() as i32;
+
+        let above1 = (g1.above as i32) * p1;
+        let below1 = (g1.below as i32) * p1;
+        let above2 = (g2.above as i32) * p2;
+        let on2    = (g2.on    as i32) * p2;
+        let below2 = (g2.below as i32) * p2;
+
+        let mounts_on = b.mount_num as i32 -
+            g1.above as i32                - g1.below as i32 -
+            g2.above as i32 - g2.on as i32 - g2.below as i32;
+        let on1 = mounts_on * p1;
+
+        let group_1 = BatteryGroupComputed {
+            tubes_above: format!("{}", above1).into(),
+            tubes_on:    format!("{}", on1).into(),
+            tubes_below: format!("{}", below1).into(),
+            mounts_on:   format!("{}", mounts_on).into(),
+        };
+        let group_2 = BatteryGroupComputed {
+            tubes_above: format!("{}", above2).into(),
+            tubes_on:    format!("{}", on2).into(),
+            tubes_below: format!("{}", below2).into(),
+            mounts_on:   format!("{}", g2.on).into(),
+        };
+
+        BatteryComputed {
+            desc:          if guns > 0.0 {
+                               b.desc()
+                           } else {
+                               format!("No {} battery",
+                                   match i {
+                                       0 => "Main",
+                                       1 => "2nd",
+                                       2 => "3rd",
+                                       3 => "4th",
+                                       4 => "5th",
+                                       _ => "???th",
+                                   }
+                               ).to_string()
+                           }.into(),
+            wgt_guns:      num!(guns, 2).into(),
+            wgt_mounts:    num!(mounts, 2).into(),
+            wgt_armor:     num!(armor, 2).into(),
+            wgt_total:     num!(total, 2).into(),
+            broadside_lbs: num!(broad_lb, 2).into(),
+            broadside_kg:  num!(broad_kg, 2).into(),
+            mag_wgt:       num!(mag, 2).into(),
+
+            group_1,
+            group_2,
+        }
+    }).collect();
+
+    let totals = BatteryTotals {
+        wgt_guns:      num!(wgt_guns).into(),
+        wgt_mounts:    num!(wgt_mounts).into(),
+        wgt_armor:     num!(wgt_armor).into(),
+        wgt_total:     num!(wgt_total).into(),
+        broadside_lbs: num!(broadside_lbs).into(),
+        broadside_kg:  num!(broadside_kg).into(),
+        mag_wgt:       num!(mag_wgt).into(),
+    };
+
+    ui.set_battery_computed(ModelRc::new(VecModel::from(model)));
+    ui.set_battery_totals(totals);
+}
+
+// convert_guns_units {{{2
+/// Convert a battery's calibre and armor measurements to a new unit system
+/// when its units combobox changes, mirroring convert_torp_units.
+///
+pub fn convert_guns_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
+    let row = row as usize;
+    let Some(b) = ship.batteries.get_mut(row) else { return };
+    let Some(fields) = battery_fields(ui, row) else { return };
+    let new_units = fields.units.max(0);
+    if b.units == new_units.into() {
+        return;
+    }
+    b.units = new_units.into();
+    b.diam.set_units(b.units);
+    b.armor_face.set_units(b.units);
+    b.armor_back.set_units(b.units);
+    b.armor_barb.set_units(b.units);
+    push_guns(ship, ui);
 }
 
 // Other {{{1

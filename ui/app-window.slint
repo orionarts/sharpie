@@ -21,6 +21,9 @@ import { ASWFields,
          ASWDerived }     from "tabs/weapons.slint";
 import { WeightFields }   from "tabs/weapons.slint";
 import { GunsTab }        from "tabs/guns/guns.slint";
+import { BatteryComputed,
+         BatteryFields,
+         BatteryTotals }  from "tabs/guns/battery-structs.slint";
 import { WeaponsTab }     from "tabs/weapons.slint";
 import { ArmorTab,
          ArmorComputed,
@@ -66,6 +69,14 @@ export component MainWindow inherits Window {
     in-out property <PerfFields>       perf-fields;
     in-out property <PerfComputed>     perf-computed;
 
+    in-out property <BatteryFields>     battery0-fields;
+    in-out property <BatteryFields>     battery1-fields;
+    in-out property <BatteryFields>     battery2-fields;
+    in-out property <BatteryFields>     battery3-fields;
+    in-out property <BatteryFields>     battery4-fields;
+    in-out property <[BatteryComputed]> battery-computed;
+    in-out property <BatteryTotals>     battery-totals;
+
     in-out property <[string]> asw-type-labels: [];
     in-out property <[string]> bow-labels: [];
     in-out property <[string]> mine-type-labels: [];
@@ -73,6 +84,11 @@ export component MainWindow inherits Window {
     in-out property <[string]> torp-mount-labels: [];
     in-out property <[string]> bh-kind-labels: [];
     in-out property <[string]> deck-kind-labels: [];
+
+    in-out property <[string]> gun-type-labels: [];
+    in-out property <[string]> mount-type-labels: [];
+    in-out property <[string]> gun-layout-labels: [];
+    in-out property <[string]> gun-distribution-labels: [];
 
     in-out property <[string]> length-small-labels: [];
     in-out property <[string]> length-long-labels: [];
@@ -108,6 +124,7 @@ export component MainWindow inherits Window {
     callback armor-units-edited();
     callback armor-default();
     callback set-all-units(which: int);
+    callback gun-units-edited(row: int);
 
     // Menu bar {{{2
     //
@@ -166,7 +183,20 @@ export component MainWindow inherits Window {
                 Tab {
                     title: "Guns";
                     GunsTab {
+                        battery0-fields <=> root.battery0-fields;
+                        battery1-fields <=> root.battery1-fields;
+                        battery2-fields <=> root.battery2-fields;
+                        battery3-fields <=> root.battery3-fields;
+                        battery4-fields <=> root.battery4-fields;
+                        battery-computed <=> root.battery-computed;
+                        battery-totals <=> root.battery-totals;
+                        gun-type-labels <=> root.gun-type-labels;
+                        mount-type-labels <=> root.mount-type-labels;
+                        gun-layout-labels <=> root.gun-layout-labels;
+                        gun-distribution-labels <=> root.gun-distribution-labels;
+                        length-small-labels <=> root.length-small-labels;
                         field-edited => { root.field-edited(); }
+                        gun-units-edited(row) => { root.gun-units-edited(row); }
                     }
                 }
                 Tab {

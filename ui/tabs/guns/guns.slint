@@ -2,6 +2,7 @@ import { TabWidget } from "std-widgets.slint";
 import { SummaryTab } from "./summary-tab.slint";
 import { BatteryTab } from "./battery-tab.slint";
 import { BatteryTabFocus } from "../../layout.slint";
+import { BatteryFields, BatteryComputed, BatteryTotals } from "./battery-structs.slint";
 
 // Guns tab {{{1
 //
@@ -9,43 +10,100 @@ import { BatteryTabFocus } from "../../layout.slint";
 //
 export component GunsTab inherits TabWidget {
     callback field-edited();
+    callback gun-units-edited(row: int);
+
+    in-out property <BatteryFields>    battery0-fields;
+    in-out property <BatteryFields>    battery1-fields;
+    in-out property <BatteryFields>    battery2-fields;
+    in-out property <BatteryFields>    battery3-fields;
+    in-out property <BatteryFields>    battery4-fields;
+    in-out property <[BatteryComputed]> battery-computed: [];
+    in-out property <BatteryTotals>   battery-totals;
+
+    in-out property <[string]> gun-type-labels: [];
+    in-out property <[string]> mount-type-labels: [];
+    in-out property <[string]> gun-layout-labels: [];
+    in-out property <[string]> gun-distribution-labels: [];
+    in-out property <[string]> length-small-labels: [];
 
     current-index <=> BatteryTabFocus.current-index;
 
     Tab {
         title: "Summary";
         SummaryTab {
-            field-edited => { root.field-edited(); }
+            battery-computed: root.battery-computed;
+            battery-totals: root.battery-totals;
         }
     }
+
     Tab {
         title: "Main Battery";
         BatteryTab {
+            fields <=> root.battery0-fields;
+            computed: root.battery-computed[0];
             field-edited => { root.field-edited(); }
+            units-edited => { root.gun-units-edited(0); }
+            gun-type-labels <=> root.gun-type-labels;
+            mount-type-labels <=> root.mount-type-labels;
+            gun-layout-labels <=> root.gun-layout-labels;
+            gun-distribution-labels <=> root.gun-distribution-labels;
+            length-small-labels <=> root.length-small-labels;
         }
     }
     Tab {
         title: "2nd Battery";
         BatteryTab {
+            fields <=> root.battery1-fields;
+            computed: root.battery-computed[1];
             field-edited => { root.field-edited(); }
+            units-edited => { root.gun-units-edited(1); }
+            gun-type-labels <=> root.gun-type-labels;
+            mount-type-labels <=> root.mount-type-labels;
+            gun-layout-labels <=> root.gun-layout-labels;
+            gun-distribution-labels <=> root.gun-distribution-labels;
+            length-small-labels <=> root.length-small-labels;
         }
     }
     Tab {
         title: "3rd Battery";
         BatteryTab {
+            fields <=> root.battery2-fields;
+            computed: root.battery-computed[2];
             field-edited => { root.field-edited(); }
+            units-edited => { root.gun-units-edited(2); }
+            gun-type-labels <=> root.gun-type-labels;
+            mount-type-labels <=> root.mount-type-labels;
+            gun-layout-labels <=> root.gun-layout-labels;
+            gun-distribution-labels <=> root.gun-distribution-labels;
+            length-small-labels <=> root.length-small-labels;
         }
     }
     Tab {
         title: "4th Battery";
         BatteryTab {
+            fields <=> root.battery3-fields;
+            computed: root.battery-computed[3];
             field-edited => { root.field-edited(); }
+            units-edited => { root.gun-units-edited(3); }
+            gun-type-labels <=> root.gun-type-labels;
+            mount-type-labels <=> root.mount-type-labels;
+            gun-layout-labels <=> root.gun-layout-labels;
+            gun-distribution-labels <=> root.gun-distribution-labels;
+            length-small-labels <=> root.length-small-labels;
         }
     }
     Tab {
         title: "5th Battery";
         BatteryTab {
+            fields <=> root.battery4-fields;
+            computed: root.battery-computed[4];
             field-edited => { root.field-edited(); }
+            units-edited => { root.gun-units-edited(4); }
+            gun-type-labels <=> root.gun-type-labels;
+            mount-type-labels <=> root.mount-type-labels;
+            gun-layout-labels <=> root.gun-layout-labels;
+            gun-distribution-labels <=> root.gun-distribution-labels;
+            length-small-labels <=> root.length-small-labels;
         }
     }
 }
