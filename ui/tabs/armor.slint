@@ -76,6 +76,7 @@ export component ArmorTab inherits ScrollView {
     in-out property <ArmorComputed> armor-computed;
 
     in-out property <[string]> length-small-labels: [];
+    in-out property <[string]> length-long-labels: [];
     in-out property <[string]> bh-kind-labels: [];
     in-out property <[string]> deck-kind-labels: [];
 
@@ -108,8 +109,8 @@ export component ArmorTab inherits ScrollView {
 
         Row {
             ColumnLabel { col: 1; text: "Max Thickness:"; }
-            ColumnLabel { text: "Length (X):"; }
-            ColumnLabel { text: "Height (X):"; }
+            ColumnLabel { text: "Length (" + root.length-long-labels[root.armor-fields.units] + "):"; }
+            ColumnLabel { text: "Height (" + root.length-long-labels[root.armor-fields.units] + "):"; }
             ColumnLabel { text: "Weight (tons):"; }
             ColumnLabel { text: "Total weight\n(tons):"; }
         }
