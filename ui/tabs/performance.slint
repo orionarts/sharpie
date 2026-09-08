@@ -120,7 +120,7 @@ export component PerfTab inherits ScrollView {
             }
 
             Row {
-                RowLabel { col: 1;
+                RowLabel { col: 2;
                     text: "Max " +
                         root.perf-computed.damage-shell-size-imp +
                         " \" / " +
@@ -128,7 +128,7 @@ export component PerfTab inherits ScrollView {
                         " mm\n shell hits:";
                 }
                 Entry { text: root.perf-computed.damage-shell-num; enabled: false; }
-                RowLabel { text: "Max 21.00 \" / 533 mm\ntorpedo hits:"; }
+                RowLabel { col: 4; text: "Max 21.00 \" / 533 mm\ntorpedo hits:"; }
                 Entry { text: root.perf-computed.damage-torp-num; enabled: false; }
             }
 
