@@ -340,6 +340,23 @@ impl Battery { // {{{2
     pub fn mag_wgt(&self) -> f64 {
         (self.num * self.shells) as f64 * self.shell_wgt().imp() / Ship::POUND2TON * (1.0 + Self::CORDITE_FACTOR)
     }
+
+    // desc {{{3
+    /// Print description of number and type of guns.
+    ///
+    pub fn desc(&self) -> String {
+        if self.num > 0 {
+            format!("{} - {:.2}\" / {} mm {:.1} cal gun{}",
+                self.num,
+                self.diam.imp(),
+                num!(self.diam.metric(), if self.diam.imp() * 25.4 < 100.0 { 1 } else { 0 }),
+                self.len,
+                plural(self.num),
+            )
+        } else {
+            "".to_string()
+        }
+    }
 }
 
 // Internals Output {{{2

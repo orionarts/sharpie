@@ -1567,12 +1567,8 @@ impl Ship { // {{{3
             let main_gun = i == 0;
 
             if b.num == 0 { continue; }
-            addto!(r, "    {} - {:.2}\" / {} mm {:.1} cal gun{} - {}lbs / {}kg shells, {} per gun",
-                b.num,
-                b.diam.imp(),
-                num!(b.diam.metric(), if b.diam.imp() * 25.4 < 100.0 { 1 } else { 0 }),
-                b.len,
-                plural(b.num),
+            addto!(r, "    {} - {}lbs / {}kg shells, {} per gun",
+                b.desc(),
                 num!(b.shell_wgt().imp(), 2),
                 num!(b.shell_wgt().metric(), 2),
                 num!(b.shells),
