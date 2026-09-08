@@ -34,7 +34,7 @@ export component FreeboardTab inherits ScrollView {
         GridBox { // {{{2
             Row {
                 Button {
-                    col: 1;
+                    col: 0;
                     height: Layout.edit-height;
                     enabled: !root.hull-fields.depth-locked;
                     text: "Flush deck";
@@ -47,6 +47,7 @@ export component FreeboardTab inherits ScrollView {
                     clicked => { root.set-freeboards(1); }
                 }
                 Button {
+                    col: 4;
                     height: Layout.edit-height;
                     text: "Save Picture...";
                     clicked => { root.save-picture(); }
