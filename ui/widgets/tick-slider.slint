@@ -1,4 +1,5 @@
 import { Slider } from "std-widgets.slint";
+import { Layout } from "../layout.slint";
 
 /// A horizontal Slider with tick marks and numeric labels beneath the track.
 ///
@@ -6,6 +7,69 @@ import { Slider } from "std-widgets.slint";
 /// numeric label every `label-step`, formatted with `precision` decimal
 /// places. The default "fluent" style thumb is 20px wide, so its track is
 /// inset 10px (thumb.width/2) on each side and the marks are aligned to it.
+///
+/// With `overhang: true` the strip is drawn below the element instead of
+/// being part of its height, so the widget fits a normal grid row and the
+/// strip extends into the row beneath it.
+///
+/// Otherwise the strip sits inline beneath the Slider and contributes to the
+/// element's height.
+component TickStrip {
+    in property <float> minimum: 0;
+    in property <float> maximum: 100;
+    in property <float> tick-step: 1;
+    in property <int> ticks-per-label: 1;
+    in property <int> precision: 0;
+    in property <string> start-extra: "";
+    in property <string> end-extra: "";
+
+    private property <length> inset: 10px;
+    private property <int> tick-count: max(1, round((root.maximum - root.minimum) / root.tick-step));
+
+    Rectangle {
+        height: 26px;
+        horizontal-stretch: 1;
+
+        for _[i] in root.tick-count + 1 : Rectangle {
+            width: 2px;
+            height: 5px;
+            x: root.inset + (i * root.tick-step / (root.maximum - root.minimum)) * (root.width - 2 * root.inset);
+            y: 1px;
+            background: #888888;
+            border-radius: 1px;
+
+            Text {
+                visible: Math.mod(i, root.ticks-per-label) == 0;
+                text: (root.minimum + i * root.tick-step).to-fixed(root.precision);
+                font-size: 10px;
+                color: #888888;
+                width: 40px;
+                horizontal-alignment: center;
+                x: -20px;
+                y: 7px;
+            }
+
+            Text {
+                visible: i == 0 && root.start-extra != "";
+                text: root.start-extra;
+                font-size: 10px;
+                color: #888888;
+                x: 22px;
+                y: 7px;
+            }
+
+            Text {
+                visible: i == root.tick-count && root.end-extra != "";
+                text: root.end-extra;
+                font-size: 10px;
+                color: #888888;
+                x: -22px - self.width;
+                y: 7px;
+            }
+        }
+    }
+}
+
 export component TickSlider {
     in property <float> minimum: 0;
     in property <float> maximum: 100;
@@ -15,6 +79,7 @@ export component TickSlider {
     in property <int> precision: 0;
     in property <string> start-extra: "";
     in property <string> end-extra: "";
+    in property <bool> overhang: false;
     in-out property <float> value: 0;
 
     callback changed(value: float);
@@ -25,7 +90,7 @@ export component TickSlider {
 
     horizontal-stretch: 1;
 
-    VerticalLayout {
+    if !root.overhang : VerticalLayout {
         spacing: 0;
 
         Slider {
@@ -78,5 +143,30 @@ export component TickSlider {
                 }
             }
         }
+    }
+
+    if root.overhang : VerticalLayout {
+        spacing: 0;
+        height: Layout.edit-height;
+
+        Slider {
+            minimum: root.minimum;
+            maximum: root.maximum;
+            step: root.step;
+            value <=> root.value;
+            changed(v) => { root.changed(v); }
+        }
+    }
+
+    if root.overhang : TickStrip {
+        y: Layout.edit-height;
+        width: 100%;
+        minimum: root.minimum;
+        maximum: root.maximum;
+        tick-step: root.tick-step;
+        ticks-per-label: root.ticks-per-label;
+        precision: root.precision;
+        start-extra: root.start-extra;
+        end-extra: root.end-extra;
     }
 }

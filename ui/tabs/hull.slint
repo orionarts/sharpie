@@ -232,6 +232,9 @@ export component HullTab inherits ScrollView {
                     }
                 }
             }
+            // Spacer, otherwise the Slider flows into the next row
+            Row { Text { height: Layout.edit-height; } }
+
             Row {
                 ColumnLabel { text: "Block\nCoefficient:"; col: 1; }
                 ColumnLabel { text: "Displacement:"; }

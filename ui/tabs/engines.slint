@@ -100,6 +100,7 @@ export component EnginesTab inherits ScrollView {
                     tick-step: 5;
                     label-step: 10;
                     precision: 0;
+                    overhang: true;
                     start-extra: "Max knots";
                     value <=> root.engine-fields.vmax-value;
                     changed => { root.vmax-slider-changed(); }
