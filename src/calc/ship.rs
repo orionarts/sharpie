@@ -34,6 +34,14 @@ use std::io::{BufRead, BufReader, Write};
 /// The Ship file version created by this version of sharpie.
 pub const SHIP_FILE_VERSION: u32 = 1;
 
+// plural {{{1
+/// Return an "s" if num is anything other than 1.
+///
+pub fn plural(num: u32) -> String {
+    match num { 1 => "".to_string(), _ => "s".to_string() }
+}
+
+
 // Version {{{1
 /// Holds Ship file version information.
 ///
@@ -1493,13 +1501,6 @@ impl Ship { // Convenience wrappers {{{2
 }
 
 // Report {{{2
-// plural {{{3
-/// Return an "s" if num is anything other than 1.
-///
-fn plural(num: u32) -> String {
-    match num { 1 => "".to_string(), _ => "s".to_string() }
-}
-
 impl Ship { // {{{3
     // report {{{4
     /// Print report.

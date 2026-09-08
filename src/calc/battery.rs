@@ -1,4 +1,4 @@
-use crate::calc::{Armor, Hull, Measurement, Ship, UnitType, Units};
+use crate::calc::{Armor, Hull, Measurement, plural, Ship, UnitType, Units};
 use crate::choice_enum;
 
 use serde::{Deserialize, Serialize};
