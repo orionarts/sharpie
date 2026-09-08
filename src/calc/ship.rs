@@ -707,8 +707,22 @@ impl Ship { // {{{2
             )
     }
 
+    // damage_torp_size {{{3
+    /// Size of torpedoes used when displaying the number of
+    /// torpedo hits required to sink the ship.
+    ///
+    pub fn damage_torp_size(&self) -> Measurement {
+        let size = if self.torps[0].wgt_weaps() > 0.0 {
+            self.torps[0].diam.imp()
+        } else {
+            20.0
+        };
+
+        Measurement::new(size, LengthSmall, Imperial)
+    }
+
     // damage_torp_num {{{3
-    /// Number of non-critical 20" torpedo hits required to sink the ship.
+    /// Number of non-critical torpedo hits required to sink the ship.
     ///
     pub fn damage_torp_num(&self) -> f64 {
         (
