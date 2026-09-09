@@ -125,6 +125,7 @@ export component MainWindow inherits Window {
     callback armor-default();
     callback set-all-units(which: int);
     callback gun-units-edited(row: int);
+    callback ship-year-edited();
 
     // Menu bar {{{2
     //
@@ -164,6 +165,7 @@ export component MainWindow inherits Window {
                         field-edited => { root.field-edited(); }
                         draft-edited => { root.draft-edited(); }
                         hull-units-edited => { root.hull-units-edited(); }
+                        ship-year-edited => { root.ship-year-edited(); }
                         length-long-labels <=> root.length-long-labels;
                     }
                 }

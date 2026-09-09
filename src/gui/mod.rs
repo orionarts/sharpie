@@ -289,6 +289,18 @@ fn draft_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     push_derived(&s, ui);
 }
 
+// ship_year_edited {{{2
+/// Set every battery's date to the ship's laid-down year. The year is
+/// validated into `ship.year` by pull_identity; the year boxes are then
+/// updated to match, leaving all other battery fields alone.
+///
+fn ship_year_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let mut s = ship.borrow_mut();
+    pull_all(ui, &mut s);
+    gui_map::set_battery_years(&mut s, ui);
+    push_derived(&s, ui);
+}
+
 // depth_lock_toggled {{{2
 fn depth_lock_toggled(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     let mut s = ship.borrow_mut();
@@ -388,6 +400,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_armor_units_edited ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_units_edited (&h.unwrap(), &s); }});
     ui.on_armor_default      ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_default      (&h.unwrap(), &s); }});
     ui.on_set_all_units      ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_all_units      (&h.unwrap(), &s, which); }});
+    ui.on_ship_year_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { ship_year_edited   (&h.unwrap(), &s); }});
 
     match ui.run() {
         Ok(_)    => Ok(()),

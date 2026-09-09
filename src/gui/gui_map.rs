@@ -1244,6 +1244,23 @@ pub fn push_shell_wgt(ship: &Ship, ui: &MainWindow) {
     }
 }
 
+// set_battery_years {{{2
+/// Set every battery's date to the ship's laid-down year and update the
+/// year boxes on the battery tabs. `ship.year` has already been validated
+/// (by pull_identity), so an invalid entry leaves the last good year in
+/// place. Other editable battery fields are preserved verbatim.
+///
+pub fn set_battery_years(ship: &mut Ship, ui: &MainWindow) {
+    for b in ship.batteries.iter_mut() {
+        b.year = ship.year;
+    }
+    for (i, b) in ship.batteries.iter().enumerate() {
+        let Some(mut fields) = battery_fields(ui, i) else { continue };
+        fields.year = b.year.to_string().into();
+        set_battery_fields(ui, i, fields);
+    }
+}
+
 // push_guns_derived {{{2
 /// Refresh only the read-only computed fields on the battery tabs,
 /// leaving the editable fields (and any active caret) untouched.
