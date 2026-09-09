@@ -19,6 +19,7 @@ use crate::calc::{
     SternType,
     TorpedoMountType,
     UnitType,
+    Units,
 
     SHIP_FILE_EXT,
     SS_SHIP_FILE_EXT,
@@ -27,6 +28,7 @@ use crate::calc::{
 
 use slint::{
     ComponentHandle,
+    Model,
     ModelRc,
     SharedString,
     VecModel,
@@ -227,49 +229,85 @@ fn vmax_slider_changed(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 /// new unit system rather than re-parsing the displayed text.
 ///
 fn torp_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
-    gui_map::convert_torp_units(&mut ship.borrow_mut(), ui, row);
+    let Some(fields) = ui.get_torp_fields().row_data(row as usize) else { return };
+    let u: Units = fields.units.max(0).into();
+    gui_map::convert_torp_units(&mut ship.borrow_mut(), ui, row, u);
 }
 
 // mine_units_edited {{{2
 /// Convert the mines' units when its units combobox changes.
 ///
 fn mine_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
-    gui_map::convert_mines_units(&mut ship.borrow_mut(), ui);
+    let Some(fields) = ui.get_mine_fields().row_data(0) else { return };
+    let u: Units = fields.units.max(0).into();
+    gui_map::convert_mines_units(&mut ship.borrow_mut(), ui, u);
 }
 
 // asw_units_edited {{{2
 /// Convert an ASW set's units when its units combobox changes.
 ///
 fn asw_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
-    gui_map::convert_asw_units(&mut ship.borrow_mut(), ui, row);
+    let Some(fields) = ui.get_asw_fields().row_data(row as usize) else { return };
+    let u: Units = fields.units.max(0).into();
+    gui_map::convert_asw_units(&mut ship.borrow_mut(), ui, row, u);
 }
 
 // gun_units_edited {{{2
 /// Convert a battery's units when its units combobox changes.
 ///
 fn gun_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32) {
-    gui_map::convert_guns_units(&mut ship.borrow_mut(), ui, row);
+    let Some(fields) = gui_map::battery_fields(ui, row as usize) else { return };
+    let u: Units = fields.units.max(0).into();
+    gui_map::convert_guns_units(&mut ship.borrow_mut(), ui, row, u);
 }
 
 // set_all_units {{{2
 /// Set all entry fields to imperial or metric.
 ///
+/// Every section's stored Measurements are re-expressed in the target
+/// unit system and the whole UI is refreshed.
+///
 fn set_all_units(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, which: i32) {
+    let mut s = ship.borrow_mut();
+    let u: Units = which.max(0).into();
 
+    gui_map::convert_hull_units(&mut s, ui, u);
+    gui_map::convert_armor_units(&mut s, ui, u);
+
+    let n = s.batteries.len();
+    for row in 0..n {
+        gui_map::convert_guns_units(&mut s, ui, row as i32, u);
+    }
+
+    gui_map::convert_mines_units(&mut s, ui, u);
+
+    let n = s.torps.len();
+    for row in 0..n {
+        gui_map::convert_torp_units(&mut s, ui, row as i32, u);
+    }
+
+    let n = s.asw.len();
+    for row in 0..n {
+        gui_map::convert_asw_units(&mut s, ui, row as i32, u);
+    }
+
+    push_derived(&s, ui);
 }
 
 // hull_units_edited {{{2
 /// Convert the hull's units when its units combobox changes.
 ///
 fn hull_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
-    gui_map::convert_hull_units(&mut ship.borrow_mut(), ui);
+    let u: Units = ui.get_hull_fields().units.max(0).into();
+    gui_map::convert_hull_units(&mut ship.borrow_mut(), ui, u);
 }
 
 // armor_units_edited {{{2
 /// Set the armor's units when its units combobox changes.
 ///
 fn armor_units_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
-    gui_map::convert_armor_units(&mut ship.borrow_mut(), ui);
+    let u: Units = ui.get_armor_fields().units.max(0).into();
+    gui_map::convert_armor_units(&mut ship.borrow_mut(), ui, u);
 }
 
 // armor_default {{{2

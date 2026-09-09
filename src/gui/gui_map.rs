@@ -499,50 +499,64 @@ pub fn push_hull_derived(ship: &Ship, ui: &MainWindow) {
 }
 
 // convert_hull_units {{{2
-/// Re-express the hull's stored length in a new unit system when its units
-/// combobox changes, mirroring convert_mines_units. Only the stored length
-/// is converted; the derived counterpart (LOA from LWL or vice-versa) is
-/// recomputed by push_hull. The other hull dimensions will follow once their
-/// units handling is wired in.
+/// Re-express the hull's stored Measurements in a new unit system.
 ///
-pub fn convert_hull_units(ship: &mut Ship, ui: &MainWindow) {
-    let f = ui.get_hull_fields();
+/// Used by the hull units combobox and the "All imperial/metric" buttons; the
+/// Measurements are re-expressed so the physical ship is unchanged. Each unit
+/// system's labels drive the editable value; the derived counterpart (LOA
+/// from LWL or vice-versa) is recomputed by push_hull.
+///
+pub fn convert_hull_units(ship: &mut Ship, ui: &MainWindow, u: Units) {
     let h = &mut ship.hull;
-    let new_units: Units = f.units.max(0).into();
-    if h.units != new_units {
-        h.units = new_units;
+    h.units = u;
+
+    match &mut h.len {
+        Length::Lwl(m) | Length::Loa(m) => m.set_units(u),
     }
+    h.b.set_units(u);
+    h.bb.set_units(u);
+    h.t.set_units(u);
+    if let BowType::Ram(m) | BowType::BulbForward(m) = &mut h.bow_type {
+        m.set_units(u);
+    }
+    h.stern_overhang.set_units(u);
+    let fb = &mut h.freeboard;
+    fb.fc_fwd.set_units(u);
+    fb.fc_aft.set_units(u);
+    fb.fd_fwd.set_units(u);
+    fb.fd_aft.set_units(u);
+    fb.ad_fwd.set_units(u);
+    fb.ad_aft.set_units(u);
+    fb.qd_fwd.set_units(u);
+    fb.qd_aft.set_units(u);
+
     push_hull(ship, ui);
 }
 
 // convert_armor_units {{{2
-/// Set all armor Measurements to a new unit system when its units combobox
-/// changes, mirroring convert_torp_units.
+/// Re-express all armor Measurements in a new unit system.
 ///
-/// The combobox presents LengthSmall options, but the Armor struct holds both
-/// LengthSmall (thicknesses) and LengthLong (lengths/heights) Measurements,
-/// so every one is re-expressed in the selected unit system.
+/// The armor tab's unit combobox presents LengthSmall options, but the Armor
+/// struct holds both LengthSmall (thicknesses) and LengthLong
+/// (lengths/heights) Measurements, so every one is re-expressed in `u`.
 ///
-pub fn convert_armor_units(ship: &mut Ship, ui: &MainWindow) {
-    let f = ui.get_armor_fields();
+pub fn convert_armor_units(ship: &mut Ship, ui: &MainWindow, u: Units) {
+    ship.armor.units = u;
     let a = &mut ship.armor;
-    let new_units: Units = f.units.max(0).into();
-    if a.units != new_units {
-        a.units = new_units;
-        let u = a.units;
-        for belt in [&mut a.main, &mut a.end, &mut a.upper,
-                     &mut a.bulge, &mut a.bulkhead] {
-            belt.thick.set_units(u);
-            belt.len.set_units(u);
-            belt.hgt.set_units(u);
-        }
-        a.bh_beam.set_units(u);
-        a.deck.fc.set_units(u);
-        a.deck.md.set_units(u);
-        a.deck.qd.set_units(u);
-        a.ct_fwd.thick.set_units(u);
-        a.ct_aft.thick.set_units(u);
+
+    for belt in [&mut a.main, &mut a.end, &mut a.upper,
+                 &mut a.bulge, &mut a.bulkhead] {
+        belt.thick.set_units(u);
+        belt.len.set_units(u);
+        belt.hgt.set_units(u);
     }
+    a.bh_beam.set_units(u);
+    a.deck.fc.set_units(u);
+    a.deck.md.set_units(u);
+    a.deck.qd.set_units(u);
+    a.ct_fwd.thick.set_units(u);
+    a.ct_aft.thick.set_units(u);
+
     push_armor(ship, ui);
 }
 
@@ -992,13 +1006,12 @@ pub fn pull_torpedoes(ui: &MainWindow, ship: &mut Ship) {
 /// combobox changes. Re-expresses the stored Measurements in the new units
 /// (so the saved ship stays consistent) and refreshes the UI.
 ///
-pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
+pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: i32, u: Units) {
     let row = row as usize;
     let Some(t) = ship.torps.get_mut(row) else { return };
-    let Some(fields) = ui.get_torp_fields().row_data(row) else { return };
-    t.units = fields.units.max(0).into();
-    t.diam.set_units(t.units);
-    t.len.set_units(t.units);
+    t.units = u;
+    t.diam.set_units(u);
+    t.len.set_units(u);
     push_torpedoes(ship, ui);
 }
 
@@ -1006,10 +1019,9 @@ pub fn convert_torp_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
 /// Convert the mines' weight to a new unit system when its units combobox
 /// changes, mirroring convert_torp_units.
 ///
-pub fn convert_mines_units(ship: &mut Ship, ui: &MainWindow) {
-    let Some(fields) = ui.get_mine_fields().row_data(0) else { return };
-    ship.mines.units = fields.units.max(0).into();
-    ship.mines.wgt.set_units(ship.mines.units);
+pub fn convert_mines_units(ship: &mut Ship, ui: &MainWindow, u: Units) {
+    ship.mines.units = u;
+    ship.mines.wgt.set_units(u);
     push_mines(ship, ui);
 }
 
@@ -1017,12 +1029,11 @@ pub fn convert_mines_units(ship: &mut Ship, ui: &MainWindow) {
 /// Convert one ASW set's weight to a new unit system when its units combobox
 /// changes, mirroring convert_torp_units.
 ///
-pub fn convert_asw_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
+pub fn convert_asw_units(ship: &mut Ship, ui: &MainWindow, row: i32, u: Units) {
     let row = row as usize;
     let Some(t) = ship.asw.get_mut(row) else { return };
-    let Some(fields) = ui.get_asw_fields().row_data(row) else { return };
-    t.units = fields.units.max(0).into();
-    t.wgt.set_units(t.units);
+    t.units = u;
+    t.wgt.set_units(u);
     push_asw(ship, ui);
 }
 
@@ -1102,7 +1113,7 @@ pub fn push_weight_derived(ship: &Ship, ui: &MainWindow) {
 /// two-way-bind to an array element), so the index is matched onto the five
 /// generated accessors rather than read from a model row.
 ///
-fn battery_fields(ui: &MainWindow, row: usize) -> Option<BatteryFields> {
+pub fn battery_fields(ui: &MainWindow, row: usize) -> Option<BatteryFields> {
     match row {
         0 => Some(ui.get_battery0_fields()),
         1 => Some(ui.get_battery1_fields()),
@@ -1377,19 +1388,17 @@ pub fn push_guns_derived(ship: &Ship, ui: &MainWindow) {
 /// Convert a battery's calibre and armor measurements to a new unit system
 /// when its units combobox changes, mirroring convert_torp_units.
 ///
-pub fn convert_guns_units(ship: &mut Ship, ui: &MainWindow, row: i32) {
+pub fn convert_guns_units(ship: &mut Ship, ui: &MainWindow, row: i32, u: Units) {
     let row = row as usize;
     let Some(b) = ship.batteries.get_mut(row) else { return };
-    let Some(fields) = battery_fields(ui, row) else { return };
-    let new_units = fields.units.max(0);
-    if b.units == new_units.into() {
-        return;
-    }
-    b.units = new_units.into();
-    b.diam.set_units(b.units);
-    b.armor_face.set_units(b.units);
-    b.armor_back.set_units(b.units);
-    b.armor_barb.set_units(b.units);
+
+    b.units = u;
+    b.diam.set_units(u);
+    b.armor_face.set_units(u);
+    b.armor_back.set_units(u);
+    b.armor_barb.set_units(u);
+    // TODO: Change shell_wgt units
+
     push_guns(ship, ui);
 }
 

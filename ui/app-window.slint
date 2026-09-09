@@ -167,6 +167,7 @@ export component MainWindow inherits Window {
                         hull-units-edited => { root.hull-units-edited(); }
                         ship-year-edited => { root.ship-year-edited(); }
                         length-long-labels <=> root.length-long-labels;
+                        set-all-units(which) => { root.set-all-units(which); }
                     }
                 }
                 Tab {
