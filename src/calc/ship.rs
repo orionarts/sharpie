@@ -1608,6 +1608,8 @@ impl Ship { // {{{3
 
         addto!(r, "Armament:"); // {{{5
         for (i, b) in self.batteries.iter().enumerate() {
+            if b.num == 0 { continue; }
+
             for s in b.long_desc(i == 0, self.hull.clone()).iter() {
                 if !s.is_empty() {
                     addto!(r, "    {}", s);
