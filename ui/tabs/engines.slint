@@ -234,13 +234,12 @@ export component EnginesTab inherits ScrollView {
             }
 
             Row {
-                Text { col: 1; colspan: 5; text: root.engine-computed.fuel-desc; }
-            }
-            Row {
-                Text { col: 1; colspan: 5; text: root.engine-computed.boiler-desc; }
-            }
-            Row {
-                Text { col: 1; colspan: 5; text: root.engine-computed.drive-desc; }
+                Text { col: 1; colspan: 5;
+                text:
+                    root.engine-computed.fuel-desc + ", " +
+                    root.engine-computed.boiler-desc + ", " +
+                    root.engine-computed.drive-desc;
+                }
             }
 
             Row { Text { } }
