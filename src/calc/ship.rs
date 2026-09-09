@@ -1564,92 +1564,9 @@ impl Ship { // {{{3
 
         addto!(r, "Armament:"); // {{{5
         for (i, b) in self.batteries.iter().enumerate() {
-            let main_gun = i == 0;
-
-            if b.num == 0 { continue; }
-            addto!(r, "    {} - {}lbs / {}kg shells, {} per gun",
-                b.desc(),
-                num!(b.shell_wgt().imp(), 2),
-                num!(b.shell_wgt().metric(), 2),
-                num!(b.shells),
-            );
-            addto!(r, "        {} gun{} in {} mount{}, {} Model",
-                b.kind,
-                plural(b.num),
-                b.mount_kind,
-                plural(b.num),
-                b.year
-            );
-
-            for (i, sb) in b.groups.iter().enumerate() {
-                let sb_super = match i {
-                    // TODO: This duplicates SpringSharp but might be a bug. See gunString()
-                    0 => sb.above < (b.mount_num - b.groups[1].above),
-                    1 => sb.above < (2 * sb.num_mounts() - sb.above),
-                    _ => panic!("Only two sub-batteries supported!"),
-                };
-
-                if sb.num_mounts() == 0 { continue; }
-                addto!(r, "        {} x {} mount{} on {}",
-                    sb.num_mounts(),
-                    sb.layout,
-                    plural(sb.num_mounts()),
-                    sb.distribution.desc(sb.num_mounts(), self.hull.freeboard.fc_len + self.hull.freeboard.fd_len)
-                );
-                if sb.above > 0 {
-                    addto!(r, "        {} {}raised mount{}{}",
-                        sb.above,
-                        match sb.two_mounts_up { true => "double ", false => "", },
-                        if sb.above > 1 { "s" } else if sb.distribution.super_aft() && main_gun { " aft" } else { "" },
-                        if sb_super {
-                            match sb.distribution {
-                                GunDistributionType::CenterlineEven |
-                                GunDistributionType::CenterlineFD |
-                                GunDistributionType::CenterlineAD |
-                                GunDistributionType::SidesEven |
-                                GunDistributionType::SidesFD |
-                                GunDistributionType::SidesAD |
-                                GunDistributionType::None => "",
-
-                                _ => match b.mount_kind {
-                                    MountType::Broadside => "",
-                                    MountType::ColesTurret => "",
-                                    MountType::OpenBarbette => "",
-                                    MountType::Casemate => "",
-
-                                    _ => " - superfiring",
-                                },
-                            }
-                        } else {
-                            ""
-                        }
-                    );
-                }
-
-                if sb.below > 0 {
-                    addto!(r, "        {} hull mount{} {}- Limited use in {}",
-                        sb.below,
-                        if sb.above > 1 { "s" } else if sb.distribution.super_aft() && main_gun { " aft" } else { "" },
-                        if b.mount_kind == MountType::Broadside {
-                            (match sb.lower_deck { true => "on gundeck", false => "on upperdeck", }).into()
-                        } else {
-                            format!("in {}casemate{}",
-                                addif!(sb.lower_deck, "{}", "lower "),
-                                plural(sb.below),
-                            )
-                        },
-                        if b.free(self.hull.clone()) < 12.0 ||
-                            (b.free(self.hull.clone()) < 19.0 && sb.lower_deck)
-                        {
-                            "any sea"
-                        } else if b.free(self.hull.clone()) < 16.0 ||
-                            (b.free(self.hull.clone()) < 24.0 && sb.lower_deck)
-                        {
-                            "all but light seas"
-                        } else {
-                            "heavy seas"
-                        }
-                    );
+            for s in b.long_desc(i == 0, self.hull.clone()).iter() {
+                if !s.is_empty() {
+                    addto!(r, "    {}", s);
                 }
             }
         }

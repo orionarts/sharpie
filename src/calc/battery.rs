@@ -1,5 +1,5 @@
 use crate::calc::{Armor, Hull, Measurement, plural, Ship, UnitType, Units};
-use crate::choice_enum;
+use crate::{addif, addto, choice_enum, num};
 
 use serde::{Deserialize, Serialize};
 
@@ -356,6 +356,106 @@ impl Battery { // {{{2
         } else {
             "".to_string()
         }
+    }
+
+    // long_desc {{{3
+    ///
+    ///
+    pub fn long_desc(&self, main: bool, hull: Hull) -> Vec<String> {
+        let mut d: Vec<String> = Vec::new();
+
+        if self.num == 0 {
+            addto!(d, "")
+        } else {
+            addto!(d, "{} - {}lbs / {}kg shells, {} per gun",
+                self.desc(),
+                num!(self.shell_wgt().imp(), 2),
+                num!(self.shell_wgt().metric(), 2),
+                num!(self.shells),
+            );
+            addto!(d, "    {} gun{} in {} mount{}, {} Model",
+                self.kind,
+                plural(self.num),
+                self.mount_kind,
+                plural(self.num),
+                self.year
+            );
+
+            for (i, sb) in self.groups.iter().enumerate() {
+                let sb_super = match i {
+                    // TODO: This duplicates SpringSharp but might be a bug. See gunString()
+                    0 => sb.above < (self.mount_num - self.groups[1].above),
+                    1 => sb.above < (2 * sb.num_mounts() - sb.above),
+                    _ => panic!("Only two sub-batteries supported!"),
+                };
+
+                if sb.num_mounts() == 0 { continue; }
+                addto!(d, "    {} x {} mount{} on {}",
+                    sb.num_mounts(),
+                    sb.layout,
+                    plural(sb.num_mounts()),
+                    sb.distribution.desc(sb.num_mounts(), hull.freeboard.fc_len + hull.freeboard.fd_len)
+                );
+                if sb.above > 0 {
+                    addto!(d, "        {} {}raised mount{}{}",
+                        sb.above,
+                        match sb.two_mounts_up { true => "double ", false => "", },
+                        if sb.above > 1 { "s" } else if sb.distribution.super_aft() && main { " aft" } else { "" },
+                        if sb_super {
+                            match sb.distribution {
+                                GunDistributionType::CenterlineEven |
+                                GunDistributionType::CenterlineFD |
+                                GunDistributionType::CenterlineAD |
+                                GunDistributionType::SidesEven |
+                                GunDistributionType::SidesFD |
+                                GunDistributionType::SidesAD |
+                                GunDistributionType::None => "",
+
+                                _ => match self.mount_kind {
+                                    MountType::Broadside => "",
+                                    MountType::ColesTurret => "",
+                                    MountType::OpenBarbette => "",
+                                    MountType::Casemate => "",
+
+                                    _ => " - superfiring",
+                                },
+                            }
+                        } else {
+                            ""
+                        }
+                    );
+                }
+
+                if sb.below > 0 {
+                    addto!(d, "    {} hull mount{} {}- Limited use in {}",
+                        sb.below,
+                        if sb.above > 1 { "s" } else if sb.distribution.super_aft() && main { " aft" } else { "" },
+                        if self.mount_kind == MountType::Broadside {
+                            (match sb.lower_deck { true => "on gundeck", false => "on upperdeck", }).into()
+                        } else {
+                            format!("in {}casemate{}",
+                                addif!(sb.lower_deck, "{}", "lower "),
+                                plural(sb.below),
+                            )
+                        },
+                        if self.free(hull.clone()) < 12.0 ||
+                            (self.free(hull.clone()) < 19.0 && sb.lower_deck)
+                        {
+                            "any sea"
+                        } else if self.free(hull.clone()) < 16.0 ||
+                            (self.free(hull.clone()) < 24.0 && sb.lower_deck)
+                        {
+                            "all but light seas"
+                        } else {
+                            "heavy seas"
+                        }
+                    );
+                }
+            }
+        }
+
+        d
+
     }
 }
 
