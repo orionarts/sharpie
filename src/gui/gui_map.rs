@@ -12,7 +12,7 @@ use slint::{
     VecModel,
 };
 
-use crate::editor::{armor_default, depth_lock, freeboard_est};
+use crate::editor::{armor_default, depth_lock, freeboard_est, power_lock};
 use crate::calc::hull_draw;
 
 use crate::{
@@ -665,9 +665,16 @@ pub fn push_freeboard_est(ship: &mut Ship, ui: &MainWindow, which: i32) {
 /// `shaftsBoxTextChanged` -> `hull.waterplaneAreaCalc`.
 ///
 pub fn pull_engine(ui: &MainWindow, ship: &mut Ship) {
-    let f = ui.get_engine_fields();
+    let mut f = ui.get_engine_fields();
 
-    if let Some(v) = parse(&f.vmax) {
+    if f.power_locked {
+        // While the power is locked the max speed box is a frozen Recalc
+        // result, not a design input, and must not be pulled. The editable
+        // "target hp" box instead feeds the stashed locked power.
+        if let Some(v) = parse(&f.hp_target) {
+            f.hp_stash = v as f32;
+        }
+    } else if let Some(v) = parse(&f.vmax) {
         ship.engine.vmax = v.clamp(0.0, 50.0);
     }
     if let Some(v) = parse(&f.vcruise) {
@@ -705,12 +712,20 @@ pub fn pull_engine(ui: &MainWindow, ship: &mut Ship) {
     ship.engine.fuel = fuel;
     ship.engine.boiler = boiler;
     ship.engine.drive = drive;
+
+    if f.power_locked {
+        // Persist the (possibly edited) target hp back into the hidden
+        // stash held in the UI fields.
+        ui.set_engine_fields(f);
+    }
 }
 
 // push_engine {{{2
 /// Push editable engine fields from the ship into the UI.
 ///
 pub fn push_engine(ship: &Ship, ui: &MainWindow) {
+    let old = ui.get_engine_fields();
+
     ui.set_engine_fields(EngineFields {
         vmax: num!(ship.engine.vmax, 3).into(),
         vmax_value: ship.engine.vmax as f32,
@@ -733,6 +748,13 @@ pub fn push_engine(ship: &Ship, ui: &MainWindow) {
         drive_geared:    ship.engine.drive.contains(DriveType::Geared),
         drive_electric:  ship.engine.drive.contains(DriveType::Electric),
         drive_hydraulic: ship.engine.drive.contains(DriveType::Hydraulic),
+
+        // Preserve the power-lock state verbatim; it is UI state, not a
+        // ship value (mirror SpringSharp, which keeps the lock in the form).
+        power_locked: old.power_locked,
+        hp_target:    old.hp_target,
+        hp_stash:     old.hp_stash,
+        bunker_stash: old.bunker_stash,
     });
 }
 
@@ -740,10 +762,73 @@ pub fn push_engine(ship: &Ship, ui: &MainWindow) {
 /// Pull the max speed from the slider into the ship and mirror it into the
 /// speed box so both stay in step (mirrors SpringSharp's `speedMaxBarScroll`).
 ///
+/// While the power is locked the slider is a frozen Recalc result, so it is
+/// ignored just like the speed box (see [`pull_engine`]).
+///
 pub fn sync_engine_vmax_from_slider(ship: &mut Ship, ui: &MainWindow) {
+    if ui.get_engine_fields().power_locked { return; }
+
     ship.engine.vmax = ui.get_engine_fields().vmax_value as f64;
     let mut f = ui.get_engine_fields();
     f.vmax = num!(ship.engine.vmax, 3).into();
+    ui.set_engine_fields(f);
+}
+
+// stash_power_lock {{{2
+/// Engage or release the engine power lock.
+///
+/// On engage the current required horsepower and bunkerage weight are
+/// stashed in the UI fields and the domain [`crate::calc::engine::Engine::power_lock`]
+/// override is set, freezing the engine readouts and machinery weight at the
+/// locked power (SpringSharp's `storePower`/`storeBunker`). On release the
+/// override is cleared so power is again derived from max speed.
+///
+pub fn stash_power_lock(ship: &mut Ship, ui: &MainWindow) {
+    let mut f = ui.get_engine_fields();
+
+    if f.power_locked {
+        let hp = ship.hp_max().imp();
+        f.hp_target = num!(hp, 0).into();
+        f.hp_stash = hp as f32;
+        f.bunker_stash = ship.wgt_bunker() as f32;
+        ship.engine.power_lock = Some(hp);
+    } else {
+        ship.engine.power_lock = None;
+    }
+
+    ui.set_engine_fields(f);
+    push_engine(ship, ui);
+}
+
+// recalc_power {{{2
+/// Recalculate the max speed (and range) from the locked power.
+///
+/// Mirrors SpringSharp's "Recalc" button: solve the max speed whose required
+/// horsepower is the locked target, and the range whose bunkerage weight is
+/// the locked bunker. The lock stays engaged.
+///
+pub fn recalc_power(ship: &mut Ship, ui: &MainWindow) {
+    let f = ui.get_engine_fields();
+
+    ship.engine.vmax = power_lock::solve_vmax(ship, f64::from(f.hp_stash));
+    ship.engine.range = power_lock::solve_range(ship, f64::from(f.bunker_stash));
+    ship.engine.power_lock = Some(f64::from(f.hp_stash));
+
+    push_engine(ship, ui);
+}
+
+// release_power_lock {{{2
+/// Release any active power lock and reset the lock UI (SpringSharp unlocks
+/// power when a ship is opened, see `SpringSharp3b3.cs` `openShip`).
+///
+pub fn release_power_lock(ship: &mut Ship, ui: &MainWindow) {
+    ship.engine.power_lock = None;
+
+    let mut f = ui.get_engine_fields();
+    f.power_locked = false;
+    f.hp_target = "".into();
+    f.hp_stash = 0.0;
+    f.bunker_stash = 0.0;
     ui.set_engine_fields(f);
 }
 

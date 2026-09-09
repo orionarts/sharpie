@@ -114,6 +114,8 @@ export component MainWindow inherits Window {
     callback trim-slider-changed();
     callback shafts-edited();
     callback vmax-slider-changed();
+    callback power-lock-toggled();
+    callback power-recalc();
     callback draft-edited();
     callback depth-lock-toggled();
     callback freeboards-est(which: int);
@@ -246,6 +248,8 @@ export component MainWindow inherits Window {
                         field-edited => { root.field-edited(); }
                         shafts-edited => { root.shafts-edited(); }
                         vmax-slider-changed => { root.vmax-slider-changed(); }
+                        power-lock-toggled => { root.power-lock-toggled(); }
+                        power-recalc => { root.power-recalc(); }
                     }
                 }
                 Tab {

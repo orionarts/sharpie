@@ -23,6 +23,13 @@ export struct EngineFields {
     range: string,
     pct-coal: string,
 
+    // Power lock (SpringSharp's "Lock Power"). UI state only; the two
+    // stashes hold the horsepower and bunkerage captured when locked.
+    power-locked: bool,
+    hp-target: string,
+    hp-stash: float,
+    bunker-stash: float,
+
     fuel-coal: bool,
     fuel-oil: bool,
     fuel-diesel: bool,
@@ -70,6 +77,8 @@ export component EnginesTab inherits ScrollView {
     callback field-edited();
     callback shafts-edited();
     callback vmax-slider-changed();
+    callback power-lock-toggled();
+    callback power-recalc();
 
     in-out property <EngineFields>   engine-fields;
     in-out property <EngineComputed> engine-computed;
@@ -96,7 +105,7 @@ export component EnginesTab inherits ScrollView {
 
             Row {
                 RowLabel { text: "Max speed:"; }
-                Entry { text <=> root.engine-fields.vmax; edited => { root.field-edited(); } }
+                Entry { text <=> root.engine-fields.vmax; edited => { root.field-edited(); }; enabled: !root.engine-fields.power-locked; }
                 TickSlider {
                     colspan: 4;
                     minimum: 0;
@@ -115,11 +124,36 @@ export component EnginesTab inherits ScrollView {
             Row {
                 RowLabel { text: "Cruise speed:"; }
                 Entry { text <=> root.engine-fields.vcruise; edited => { root.field-edited(); } }
+                // Power lock (SpringSharp's "Lock Power" / "Recalc"). While
+                // locked the max speed is a frozen Recalc result; the target
+                // horsepower is edited instead and the power and bunkerage
+                // derived from it.
+                Button {
+                    col: 3;
+                    text: root.engine-fields.power-locked ? "Unlock Power" : "Lock Power";
+                    clicked => {
+                        root.engine-fields.power-locked = !root.engine-fields.power-locked;
+                        root.power-lock-toggled();
+                    }
+                }
+                Button {
+                    visible: root.engine-fields.power-locked;
+                    text: "Recalc";
+                    enabled: root.engine-fields.power-locked;
+                    clicked => { root.power-recalc(); }
+                }
             }
 
             Row {
                 RowLabel { text: "No. of shafts:"; }
                 Entry { text <=> root.engine-fields.shafts; edited => { root.shafts-edited(); } }
+                RowLabel { visible: root.engine-fields.power-locked; text: "Desired hp:"; }
+                Entry {
+                    visible: root.engine-fields.power-locked;
+                    text <=> root.engine-fields.hp-target;
+                    enabled: root.engine-fields.power-locked;
+                    edited => { root.field-edited(); }
+                }
             }
 
             Row {

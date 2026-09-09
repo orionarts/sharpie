@@ -166,6 +166,7 @@ fn save_file_dialog(title: &str, ext: &str, default_name: &str) -> Option<String
 // clear_ship {{{2
 fn clear_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     *ship.borrow_mut() = Ship::default();
+    gui_map::release_power_lock(&mut ship.borrow_mut(), ui);
     push_all(&ship.borrow(), ui);
 }
 
@@ -174,6 +175,7 @@ fn convert_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     if let Some(file) = pick_file("SpringSharp file to convert", SS_SHIP_FILE_EXT) {
         if let Ok(loaded) = Ship::convert(file) {
             *ship.borrow_mut() = loaded;
+            gui_map::release_power_lock(&mut ship.borrow_mut(), ui);
             push_all(&ship.borrow(), ui);
         }
     }
@@ -346,6 +348,31 @@ fn depth_lock_toggled(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     gui_map::stash_depth_lock(&s, ui);
 }
 
+// power_lock_toggled {{{2
+/// Engage or release the engine power lock (SpringSharp's "Lock Power").
+///
+/// The lock state lives in the engine fields; this handler commits the
+/// current fields, then stashes (or clears) the locked power and bunker in
+/// the domain so the engine readouts freeze at the locked power.
+///
+fn power_lock_toggled(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let mut s = ship.borrow_mut();
+    pull_all(ui, &mut s);
+    gui_map::stash_power_lock(&mut s, ui);
+    push_derived(&s, ui);
+}
+
+// power_recalc {{{2
+/// Recalculate the max speed and range from the locked power
+/// (SpringSharp's "Recalc").
+///
+fn power_recalc(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let mut s = ship.borrow_mut();
+    pull_all(ui, &mut s);
+    gui_map::recalc_power(&mut s, ui);
+    push_derived(&s, ui);
+}
+
 // set_freeboards {{{2
 fn set_freeboards(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, which: i32) {
     let mut s = ship.borrow_mut();
@@ -359,6 +386,7 @@ fn load_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     if let Some(file) = pick_file("Sharpie file to load", SHIP_FILE_EXT) {
         if let Ok(loaded) = Ship::load(file) {
             *ship.borrow_mut() = loaded;
+            gui_map::release_power_lock(&mut ship.borrow_mut(), ui);
             push_all(&ship.borrow(), ui);
         }
     }
@@ -437,6 +465,8 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_hull_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { hull_units_edited  (&h.unwrap(), &s); }});
     ui.on_armor_units_edited ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_units_edited (&h.unwrap(), &s); }});
     ui.on_armor_default      ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_default      (&h.unwrap(), &s); }});
+    ui.on_power_lock_toggled ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { power_lock_toggled (&h.unwrap(), &s); }});
+    ui.on_power_recalc       ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { power_recalc       (&h.unwrap(), &s); }});
     ui.on_set_all_units      ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_all_units      (&h.unwrap(), &s, which); }});
     ui.on_ship_year_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { ship_year_edited   (&h.unwrap(), &s); }});
 

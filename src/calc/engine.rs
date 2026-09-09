@@ -36,6 +36,16 @@ pub struct Engine {
 
     /// Percentage of bunker weight devoted to coal.
     pub pct_coal: f64,
+
+    /// Installed horsepower override in imperial horsepower.
+    ///
+    /// While `Some`, [`Engine::hp_max`] reports this value instead of the
+    /// horsepower required at [`Engine::vmax`], pinning the machinery weight
+    /// and derived engine readouts to the locked power (SpringSharp's
+    /// "Lock Power"). Managed by the GUI; never persisted (`#[serde(skip)]`).
+    ///
+    #[serde(skip)]
+    pub power_lock: Option<f64>,
 }
 
 impl Engine { // {{{2
@@ -63,7 +73,7 @@ impl Engine { // {{{2
     // hp {{{3
     /// Horsepower required to achieve a given speed.
     ///
-    fn hp(&self, v: f64, d: f64, lwl: f64, leff: f64, cs: f64, ws: f64) -> f64 {
+    pub(crate) fn hp(&self, v: f64, d: f64, lwl: f64, leff: f64, cs: f64, ws: f64) -> f64 {
         let len_hp =
             if v <= 15.0 {
                 lwl - (leff - lwl)
@@ -88,8 +98,14 @@ impl Engine { // {{{2
     // hp_max {{{3
     /// Horsepower required to achieve maximum speed.
     ///
+    /// When the power is locked the installed horsepower override is
+    /// returned instead, matching SpringSharp's frozen `hpMax`.
+    ///
     pub fn hp_max(&self, d: f64, lwl: f64, leff: f64, cs: f64, ws: f64) -> f64 {
-        self.hp(self.vmax, d, lwl, leff, cs, ws)
+        match self.power_lock {
+            Some(hp) => hp,
+            None     => self.hp(self.vmax, d, lwl, leff, cs, ws),
+        }
     }
 
     // hp_cruise {{{3
@@ -171,11 +187,21 @@ impl Engine { // {{{2
     /// Bunkerage weight.
     ///
     pub fn bunker(&self, d: f64, lwl: f64, leff: f64, cs: f64, ws: f64) -> f64 {
+        self.bunker_for_range(self.range as f64, d, lwl, leff, cs, ws)
+    }
+
+    // bunker_for_range {{{3
+    /// Bunkerage weight for a given range in nautical miles.
+    ///
+    /// Split out of `bunker` so the power-lock Recalc can solve the range
+    /// whose bunkerage matches a stored target.
+    ///
+    pub(crate) fn bunker_for_range(&self, range: f64, d: f64, lwl: f64, leff: f64, cs: f64, ws: f64) -> f64 {
         if self.vcruise == 0.0 { return 0.0; } // catch divide by zero
         if self.boiler.bunker_factor(self.year) == 0.0 { return 0.0 };
         if self.hp_cruise(d, lwl, leff, cs, ws) == 0.0 { return 0.0 };
 
-        let bunker = self.range as f64 / (1.0 + 0.4 * (1.0 - self.pct_coal));
+        let bunker = range / (1.0 + 0.4 * (1.0 - self.pct_coal));
         let bunker = bunker / self.boiler.bunker_factor(self.year);
 
         bunker /
