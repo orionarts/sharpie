@@ -1159,8 +1159,11 @@ pub fn pull_guns(ui: &MainWindow, ship: &mut Ship) {
             set_meas(&mut b.diam, &row.diam, b.units, LengthSmall);
 
             if let Some(v) = parse(&row.shells)   { b.shells = v as u32; }
-            if let Some(v) = parse(&row.shell_wgt) {
-                b.set_shell_wgt(v, Units::Imperial);
+
+            if b.units == Units::Imperial {
+                if let Some(v) = parse(&row.shell_wgt) {
+                    b.set_shell_wgt(v, Units::Imperial);
+                }
             } else if let Some(v) = parse(&row.shell_wgt_metric) {
                 b.set_shell_wgt(v, Units::Metric);
             }
