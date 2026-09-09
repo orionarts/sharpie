@@ -94,6 +94,7 @@ impl Armor { // {{{2
     /// Percentage of the "vital areas" covered by the main belt.
     ///
     pub fn belt_coverage(&self, lwl: f64) -> f64 {
+        if lwl == 0.0 { return 0.0 }
         self.main.len.imp() / (lwl * 0.65)
     }
 
@@ -105,6 +106,7 @@ impl Armor { // {{{2
         use std::f64::consts::PI;
 
         let radians = self.incline * PI / 180.0;
+        if radians.abs().cos() == 0.0 { return 0.0 }
 
         (t + dist) * (1.0 / radians.abs().cos()) + 0.02
     }
@@ -137,6 +139,8 @@ impl Belt { // {{{2
         let len   = self.len.imp();
         let hgt   = self.hgt.imp();
         let thick = self.thick.imp();
+
+        if lwl == 0.0 { return 0.0; }
 
         // Calculate the area of one bulkhead across the beam
         let beam_bulkhead = match self.kind {
@@ -304,6 +308,8 @@ impl DeckType { // {{{2
         fc_len: f64, qd_len:f64,
         wp: f64, cwp: f64,
         wgt_engine: f64, wgt_mag: f64) -> f64 {
+
+        if d == 0.0 { return 0.0; }
 
         match self {
             Self::MultipleArmored |

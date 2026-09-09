@@ -172,6 +172,8 @@ impl Engine { // {{{2
     ///
     pub fn bunker(&self, d: f64, lwl: f64, leff: f64, cs: f64, ws: f64) -> f64 {
         if self.vcruise == 0.0 { return 0.0; } // catch divide by zero
+        if self.boiler.bunker_factor(self.year) == 0.0 { return 0.0 };
+        if self.hp_cruise(d, lwl, leff, cs, ws) == 0.0 { return 0.0 };
 
         let bunker = self.range as f64 / (1.0 + 0.4 * (1.0 - self.pct_coal));
         let bunker = bunker / self.boiler.bunker_factor(self.year);
@@ -206,6 +208,8 @@ impl Engine { // {{{2
             } else {
                 1.0
             };
+
+        if early == 0.0 { return 0.0; }
 
         (
             self.hp_max(d, lwl, leff, cs, ws) /

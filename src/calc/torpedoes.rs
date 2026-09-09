@@ -42,11 +42,12 @@ impl Torpedoes { // {{{2
     /// Weight of torpedoes in the set.
     ///
     pub fn wgt_weaps(&self) -> f64 {
+        let divisor = (f64::max(1907.0 - self.year as f64, 0.0) + 25.0) * 937.0;
+        if divisor == 0.0 { return 0.0; }
+
         (
             PI * self.diam.imp().powf(2.0) * self.len.imp() /
-            (
-                (f64::max(1907.0 - self.year as f64, 0.0) + 25.0) * 937.0
-            ) + (self.year as f64 - 1890.0) * 0.004
+                ( divisor) + (self.year as f64 - 1890.0) * 0.004
         ) * self.num as f64
     }
 
@@ -142,6 +143,8 @@ impl TorpedoMountType { // {{{2
     /// Deck space taken up by torpedo mounts.
     ///
     pub fn deck_space(&self, b: f64, num: u32, len: f64, diam: f64, mounts: u32) -> f64 {
+        if mounts == 0 { return 0.0; }
+
         let num = num as f64;
         let mounts = mounts as f64;
 

@@ -114,6 +114,7 @@ impl Freeboard { // {{{2
     /// Mean freeboard over the fore and aft decks ("distributed" freeboard)
     ///
     pub fn distributed(&self) -> f64 {
+        if self.fd_len + self.ad_len() == 0.0 { return 0.0; }
         (self.fd() * self.fd_len + self.ad() * self.ad_len()) / (self.fd_len + self.ad_len())
     }
 }

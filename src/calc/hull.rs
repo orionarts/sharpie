@@ -171,6 +171,8 @@ impl Hull { // {{{2
     /// Prismatic Coefficient.
     ///
     pub fn cp(block: f64) -> f64 {
+        let cm = Hull::cm(block);
+        if cm == 0.0 { return 0.0; }
         block / Hull::cm(block)
     }
 
@@ -332,7 +334,7 @@ impl Hull { // {{{2
     /// Draft at given displacement.
     ///
     pub fn t_calc(&self, d: f64) -> f64 {
-        self.t.imp() + (d - self.d()) / (self.wp().imp() / Hull::FT3_PER_TON_SEA)
+        self.t.imp() + (d - self.d()) / (self.wp().imp() / Self::FT3_PER_TON_SEA)
     }
 
     // ts {{{3
@@ -366,7 +368,9 @@ impl Hull { // {{{2
     /// below deck
     ///
     pub fn free_cap(&self, cap_calc_broadside: bool) -> f64 {
-        if self.freeboard.average().imp() > (self.b.imp() / 3.0) {
+        if self.b.imp() == 0.0 {
+            0.0
+        } else if self.freeboard.average().imp() > (self.b.imp() / 3.0) {
             self.freeboard.average().imp().powf(2.0) * 3.0 / self.b.imp()
         } else if cap_calc_broadside {
             self.freeboard.average().imp() - 6.0

@@ -154,6 +154,8 @@ impl Ship { // {{{2
     /// displacement adjusted for above water torpedoes.
     ///
     pub fn deck_space(&self) -> f64 {
+        if self.hull.wp().imp() == 0.0 { return 0.0; }
+
         let mut space = 0.0;
         for w in self.torps.iter() {
             space += w.deck_space(self.hull.b.imp());
@@ -170,6 +172,8 @@ impl Ship { // {{{2
     /// length.
     ///
     pub fn hull_space(&self) -> f64 {
+        if self.hull.d() == 0.0 { return 0.0; }
+
         let mut space = 0.0;
         for w in self.torps.iter() {
             space += w.hull_space();
@@ -273,6 +277,9 @@ impl Ship { // {{{2
     /// bulkheads, hull mounted torpedoes and miscellaneous weights to displacement.
     ///
     fn room(&self) -> f64 {
+        let divisor = 1.0 - self.hull_space();
+        if divisor == 0.0 { return 0.0; }
+
         (
             self.wgt_mag() +
             self.hull.d() * 0.02 +
@@ -280,13 +287,15 @@ impl Ship { // {{{2
             self.wgt_engine() * 3.0 +
             self.wgts.vital as f64 +
             self.wgts.hull as f64
-        ) / (self.hull.d() * 0.94) / (1.0 - self.hull_space())
+        ) / (self.hull.d() * 0.94) / divisor
     }
 
     // hull_room {{{3
     /// A numerical measure of the amount of available space within the hull.
     ///
     pub fn hull_room(&self) -> f64 {
+        if self.armor.bh_beam.imp() == 0.0 { return 0.0; }
+
         self.room() *
             if self
                 .armor
@@ -300,6 +309,8 @@ impl Ship { // {{{2
     /// A numerical measure of the amount of available deck space.
     ///
     pub fn deck_room(&self) -> f64 {
+        if self.crew_min() == 0 { return 0.0; }
+
         self.hull.wp().imp() /
             Hull::FT3_PER_TON_SEA /
             15.0 * (1.0 - self.deck_space()) /
@@ -362,6 +373,8 @@ impl Ship { // {{{2
     /// A relative calculation of the ability of the ship to handle her weight of gunfire.
     ///
     pub fn recoil(&self) -> f64 {
+        if self.hull.bb.imp() == 0.0 { return 0.0; }
+
         (
             (self.wgt_broad().imp()/self.hull.d() * self.hull.freeboard.distributed() * self.gun_super_factor() / self.hull.bb.imp()) *
 
@@ -383,6 +396,14 @@ impl Ship { // {{{2
     /// Intermediate calculations for seakeeping() and steadiness().
     ///
     fn seaboat(&self) -> f64 {
+        if self.hull.d() == 0.0 ||
+           self.hull.bb.imp() == 0.0 ||
+           self.hull.lwl().imp() == 0.0 ||
+           self.rf_max() + self.rw_max() == 0.0
+        {
+            return 0.0;
+        }
+
         let a = (self.hull.free_cap(self.cap_calc_broadside()) / (2.4 * self.hull.d().powf(0.2))).sqrt() *
             (
                 (self.stability() * 5.0 * (self.hull.bb.imp() / self.hull.lwl().imp())).powf(0.2) *
@@ -526,6 +547,7 @@ impl Ship { // {{{2
     /// Roll period of the ship.
     ///
     pub fn roll_period(&self) -> f64 {
+        if self.metacenter().imp() == 0.0 { return 0.0; }
         0.42 * self.hull.bb.imp() / self.metacenter().imp().sqrt()
     }
 
@@ -542,6 +564,8 @@ impl Ship { // {{{2
     /// the trim adjustment.
     ///
     fn stability(&self) -> f64 {
+        if self.hull.t.imp() == 0.0 || self.hull.len2beam() == 0.0 { return 0.0; }
+
         let a =
             (self.armor.ct_fwd.wgt(self.hull.d()) + self.armor.ct_aft.wgt(self.hull.d())) * 5.0 +
             (self.wgt_borne() + self.wgt_gun_armor()) * (2.0 * self.gun_super_factor() - 1.0) * 4.0 +
@@ -580,14 +604,12 @@ impl Ship { // {{{2
     /// stressed ship of less than 5,000 tons.
     ///
     pub fn d_factor(&self) -> f64 {
-        f64::min(
-            self.hull.d() /
-            (
+        let divisor =
                 self.engine.d_engine(self.hull.d(), self.hull.lwl().imp(), self.hull.leff(), self.hull.cs(), self.hull.ws()) +
-                    8.0 * self.wgt_borne() + self.wgt_armor() + self.wgts.wgt() as f64
-            ),
-            10.0
-        )
+                    8.0 * self.wgt_borne() + self.wgt_armor() + self.wgts.wgt() as f64;
+        if divisor == 0.0 { return 0.0; }
+
+        f64::min( self.hull.d() / divisor, 10.0)
     }
 
     // cap_calc_broadside {{{3
@@ -606,6 +628,8 @@ impl Ship { // {{{2
     /// hits required to sink or destroy the ship.
     ///
     pub fn flotation(&self) -> Measurement {
+        if self.room() == 0.0 { return Measurement::new(0.0, Weight, Imperial); }
+
         let a =
             if self.cap_calc_broadside() {
                 self.hull.free_cap(self.cap_calc_broadside())
@@ -636,8 +660,12 @@ impl Ship { // {{{2
             concentration = 1.0 + self.gun_concentration();
         }
 
-        let mut str_cross = self.wgt_struct().imp() / f64::sqrt(self.hull.bb.imp() * (self.hull.t.imp() + self.hull.freeboard.distributed())) /
-            ((self.hull.d() + ((self.wgt_broad().imp() + self.wgt_borne() + self.wgt_gun_armor() + self.armor.ct_fwd.wgt(self.hull.d()) + self.armor.ct_aft.wgt(self.hull.d())) * (concentration * self.gun_super_factor()) + f64::max(self.hp_max().imp(), 0.0) / 100.0)) / self.hull.d()) * 0.6;
+        let a = f64::sqrt(self.hull.bb.imp() * (self.hull.t.imp() + self.hull.freeboard.distributed()));
+        let b = (self.hull.d() + ((self.wgt_broad().imp() + self.wgt_borne() + self.wgt_gun_armor() + self.armor.ct_fwd.wgt(self.hull.d()) + self.armor.ct_aft.wgt(self.hull.d())) * (concentration * self.gun_super_factor()) + f64::max(self.hp_max().imp(), 0.0) / 100.0)) / self.hull.d();
+
+        if a == 0.0 || b == 0.0 { return 0.0; }
+
+        let mut str_cross = self.wgt_struct().imp() / a / b * 0.6;
 
         if self.year < 1900 {
             str_cross *= 1.0 - (1900.0 - self.year as f64) / 100.0;
@@ -650,15 +678,10 @@ impl Ship { // {{{2
     /// Longitudinal strength.
     ///
     pub fn str_long(&self) -> f64 {
-        (
-            self.wgt_hull_plus() + match self.armor.bh_kind {
-                BulkheadType::Additional =>
-                    self.armor.bulkhead.wgt(self.hull.lwl().imp(), self.hull.cwp(), self.hull.b.imp()),
-                BulkheadType::Strengthened => 0.0,
-            }
-        ) /
-            (
-                (self.hull.lwl().imp() / (self.hull.t.imp() + self.hull.free_cap(self.cap_calc_broadside()))).powf(2.0) *
+        let divisor = self.hull.t.imp() + self.hull.free_cap(self.cap_calc_broadside());
+        if divisor == 0.0 { return 0.0; }
+
+        let a = (self.hull.lwl().imp() / divisor).powf(2.0) *
                 (
                     self.hull.d() +
                     self.armor.end.wgt(self.hull.lwl().imp(), self.hull.cwp(), self.hull.b.imp()) *
@@ -666,15 +689,24 @@ impl Ship { // {{{2
                         self.wgt_borne() +
                         self.wgt_gun_armor()
                         ) * self.super_factor_long() * 2.0
-                )
-            ) *
-            850.0 * if self.year < 1900 { 1 - (1900 - self.year) / 100 } else { 1 } as f64
+                );
+        if a == 0.0 { return 0.0; }
+
+        (
+            self.wgt_hull_plus() + match self.armor.bh_kind {
+                BulkheadType::Additional =>
+                    self.armor.bulkhead.wgt(self.hull.lwl().imp(), self.hull.cwp(), self.hull.b.imp()),
+                BulkheadType::Strengthened => 0.0,
+            }
+        ) / a * 850.0 * if self.year < 1900 { 1 - (1900 - self.year) / 100 } else { 1 } as f64
     }
 
     // str_comp {{{3
     /// Composite strength.
     ///
     pub fn str_comp(&self) -> f64 {
+        if self.str_long() == 0.0 || self.str_cross() == 0.0 { return 0.0; }
+
         if self.str_cross() > self.str_long() {
             self.str_long() * (self.str_cross() / self.str_long()).powf(0.25)
         } else {
@@ -709,6 +741,8 @@ impl Ship { // {{{2
     /// main battery or 6" shells if the ship has no main battery.
     ///
     pub fn damage_shell_num(&self) -> f64 {
+        if Self::year_adj(self.year) == 0.0 { return 0.0; }
+
         self.flotation().imp() / (
             self.damage_shell_size().imp().powf(3.0) /
             2.0 * Self::year_adj(self.year)
@@ -733,6 +767,14 @@ impl Ship { // {{{2
     /// Number of non-critical torpedo hits required to sink the ship.
     ///
     pub fn damage_torp_num(&self) -> f64 {
+        if self.hull.lwl().imp() == 0.0 ||
+           self.hull.t.imp() == 0.0 ||
+           (self.hull.t.imp() + self.hull.t.imp()) == 0.0 ||
+           self.room() == 0.0 ||
+           self.torps[0].num == 0 ||
+           self.torps[0].wgt_weaps() == 0.0
+        { return 0.0; }
+
         (
             (
                 (
@@ -818,6 +860,11 @@ impl Ship { // {{{2
     /// Weight per square feet of hull.
     ///
     pub fn wgt_struct(&self) -> Measurement {
+        let divisor = self.hull.ws() +
+                2.0 * self.hull.lwl().imp() * self.hull.free_cap(self.cap_calc_broadside()) +
+                self.hull.wp().imp();
+        if divisor == 0.0 { return Measurement::new(0.0, WeightPerArea, Imperial); }
+
         Measurement::new(
             (
                 self.wgt_hull_plus() +
@@ -826,11 +873,7 @@ impl Ship { // {{{2
                         self.armor.bulkhead.wgt(self.hull.lwl().imp(), self.hull.cwp(), self.hull.b.imp()),
                     BulkheadType::Strengthened => 0.0,
                 }
-            ) * Self::POUND2TON / (
-                self.hull.ws() +
-                2.0 * self.hull.lwl().imp() * self.hull.free_cap(self.cap_calc_broadside()) +
-                self.hull.wp().imp()
-            ),
+            ) * Self::POUND2TON / divisor,
             WeightPerArea, Imperial
         )
     }
@@ -967,6 +1010,7 @@ impl Ship { // {{{2
     /// XXX: I do not know what this does.
     ///
     fn gun_super_factor(&self) -> f64 {
+        if self.wgt_gun_armor() + self.wgt_guns() + self.wgt_gun_mounts() == 0.0 { return 0.0; }
         self.gun_wtf() / (self.wgt_gun_armor() + self.wgt_guns() + self.wgt_gun_mounts())
     }
 
