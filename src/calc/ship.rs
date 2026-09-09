@@ -117,6 +117,12 @@ impl Default for Ship { // {{{2
         };
 
         ship.engine.year = ship.year;
+        ship.mines.year  = ship.year;
+
+        for b in ship.batteries.iter_mut() { b.year = ship.year; }
+        for a in ship.asw.iter_mut()       { a.year = ship.year; }
+        for t in ship.torps.iter_mut()     { t.year = ship.year; }
+
         ship
     }
 }
