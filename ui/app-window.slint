@@ -335,6 +335,7 @@ export component MainWindow inherits Window {
         }
 
         StatusBar { // {{{2
+            width: Layout.tab-width;
             status-text: "Composite strength = " + root.perf-computed.str-comp;
         }
     }
