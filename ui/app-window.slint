@@ -8,6 +8,7 @@ import {
     VerticalBox,
 } from "std-widgets.slint";
 
+import { StatusBar }    from "widgets/status-bar.slint";
 import { HullFields,
          HullComputed,
          HullTab,
@@ -264,6 +265,10 @@ export component MainWindow inherits Window {
                 visible: root.report-visible;
                 report := TextEdit { text: root.report_str; read-only: true; }
             }
+        }
+
+        StatusBar { // {{{2
+            status-text: "Composite strength = " + root.perf-computed.str-comp;
         }
     }
 }

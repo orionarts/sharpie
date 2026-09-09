@@ -1,0 +1,55 @@
+import {
+    Palette,
+} from "std-widgets.slint";
+
+import { Layout } from "../layout.slint";
+
+component StatusPanel inherits Rectangle {
+    in property <string> text: "";
+
+    Text {
+        text: root.text;
+        color: Palette.alternate-foreground;
+        font-size: 11px;
+        vertical-alignment: center;
+        horizontal-alignment: left;
+        x: 8px;
+    }
+}
+
+component StatusDivider inherits Rectangle {
+    width: 1px;
+    background: Palette.border;
+}
+
+export component StatusBar inherits Rectangle {
+    in property <string> status-text: "Ready";
+    in property <[string]> extra-panels: [];
+
+    height: 24px;
+    background: Palette.alternate-background;
+
+    Rectangle {
+        y: 0;
+        height: 1px;
+        background: Palette.border;
+    }
+
+    HorizontalLayout {
+        padding-left: 4px;
+        padding-right: 4px;
+
+        StatusPanel {
+            text: root.status-text;
+            horizontal-stretch: 1;
+        }
+
+        for panel-text[i] in root.extra-panels: HorizontalLayout {
+            StatusDivider {}
+            StatusPanel {
+                text: panel-text;
+                horizontal-stretch: 0;
+            }
+        }
+    }
+}
