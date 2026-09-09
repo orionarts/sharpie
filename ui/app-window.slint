@@ -99,6 +99,7 @@ export component MainWindow inherits Window {
     in-out property <[string]> weights-labels: [];
 
     in-out property <string> report-str: "Load or create a ship";
+    in-out property <string> notes-str;
     in-out property <bool> report-visible: false;
     in-out property <bool> sidebar-visible: false;
 
@@ -272,9 +273,20 @@ export component MainWindow inherits Window {
             GroupBox { // Report {{{2
                 title: "Report";
                 visible: root.report-visible;
-                report := TextEdit { text: root.report_str; read-only: true; }
                 width: root.report-visible ? Layout.report-width : 0px;
                 horizontal-stretch: 0;
+
+                VerticalBox {
+                    report := TextEdit { text: root.report_str; read-only: true; }
+                    StatusBar {
+                        status-text: "Additional notes—included at end of report and saved to *.ship file:";
+                    }
+                    TextEdit {
+                        height: Layout.gui-height * 0.25;
+                        text: root.notes_str;
+                        edited => { root.field-edited(); }
+                    }
+                }
             }
 
             sidebar := GroupBox { // Sidebar {{{2
