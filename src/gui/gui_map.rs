@@ -949,6 +949,7 @@ pub fn push_perf_derived(ship: &Ship, ui: &MainWindow) {
     c.steadiness               = num!(ship.steadiness()).into();
     c.metacenter               = fmt_meas(ship.metacenter(), Units::Imperial, 2).into();
     c.seakeeping               = num!(ship.seakeeping(), 2).into();
+    c.belt_coverage            = pct!(ship.armor.belt_coverage(ship.hull.lwl().imp()), 1).into();
     c.damage_shell_size_metric = fmt_meas(ship.damage_shell_size(), Units::Metric, 0).into();
     c.damage_shell_size_imp    = fmt_meas(ship.damage_shell_size(), Units::Imperial, 2).into();
     c.damage_shell_num         = num!(ship.damage_shell_num(), 1).into();
