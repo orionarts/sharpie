@@ -214,22 +214,15 @@ mod tests {
         imp_wgt_area_i:  (1.0, 1.0, UnitType::WeightPerArea, Units::Imperial),
     }
 
-    // Test labels and ALL {{{2
+    // Test all_labels {{{2
     #[test]
     fn labels_match_expected() {
-        assert_eq!(UnitType::LengthSmall.labels(),   &["in", "mm"]);
-        assert_eq!(UnitType::LengthLong.labels(),    &["ft", "m"]);
-        assert_eq!(UnitType::Area.labels(),          &["sq ft", "sq m"]);
-        assert_eq!(UnitType::Weight.labels(),        &["lbs", "kg"]);
-        assert_eq!(UnitType::Power.labels(),         &["hp", "kW"]);
-        assert_eq!(UnitType::WeightPerArea.labels(), &["lbs/sq ft", "kg/sq m"]);
-
-        assert_eq!(UnitType::LengthSmall.ALL(),   &["in", "mm"]);
-        assert_eq!(UnitType::LengthLong.ALL(),    &["ft", "m"]);
-        assert_eq!(UnitType::Area.ALL(),          &["sq ft", "sq m"]);
-        assert_eq!(UnitType::Weight.ALL(),        &["lbs", "kg"]);
-        assert_eq!(UnitType::Power.ALL(),         &["hp", "kW"]);
-        assert_eq!(UnitType::WeightPerArea.ALL(), &["lbs/sq ft", "kg/sq m"]);
+        assert_eq!(UnitType::LengthSmall.all_labels(),   &["in", "mm"]);
+        assert_eq!(UnitType::LengthLong.all_labels(),    &["ft", "m"]);
+        assert_eq!(UnitType::Area.all_labels(),          &["sq ft", "sq m"]);
+        assert_eq!(UnitType::Weight.all_labels(),        &["lbs", "kg"]);
+        assert_eq!(UnitType::Power.all_labels(),         &["hp", "kW"]);
+        assert_eq!(UnitType::WeightPerArea.all_labels(), &["lbs/sq ft", "kg/sq m"]);
     }
 
     // Test from_index {{{2
