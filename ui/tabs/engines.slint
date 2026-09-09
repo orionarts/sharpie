@@ -60,6 +60,10 @@ export struct EngineComputed {
     wgt-load: string,
     wgt-hull: string,
     d-factor: string,
+
+    fuel-desc: string,
+    boiler-desc: string,
+    drive-desc: string,
 }
 
 export component EnginesTab inherits ScrollView {
@@ -196,7 +200,13 @@ export component EnginesTab inherits ScrollView {
             }
 
             Row {
-                Text { col: 1; text: "DESCRIPTION"; }
+                Text { col: 1; colspan: 5; text: root.engine-computed.fuel-desc; }
+            }
+            Row {
+                Text { col: 1; colspan: 5; text: root.engine-computed.boiler-desc; }
+            }
+            Row {
+                Text { col: 1; colspan: 5; text: root.engine-computed.drive-desc; }
             }
 
             Row { Text { } }

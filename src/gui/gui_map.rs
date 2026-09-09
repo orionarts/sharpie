@@ -779,6 +779,10 @@ pub fn push_engine_derived(ship: &Ship, ui: &MainWindow) {
         wgt_load:     num!(ship.wgt_load()).into(),
         wgt_hull:     num!(ship.wgt_hull()).into(),
         d_factor:     num!(ship.d_factor(), 2).into(),
+
+        fuel_desc:    ship.engine.fuel.to_string().into(),
+        boiler_desc:  ship.engine.boiler.to_string().into(),
+        drive_desc:   ship.engine.drive.to_string().into(),
     });
 }
 
