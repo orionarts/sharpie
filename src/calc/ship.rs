@@ -1663,16 +1663,10 @@ impl Ship { // {{{3
             addto!(r, "    {} DC/AS Mortars",
                 match i { 0 => "Main", 1 => "2nd", _ => "Other", }
             );
-            addto!(r, "    {} - {:.2} lbs / {:.2} kg {}{} - {:.3} t total",
-                asw.num,
-                asw.wgt.imp(),
-                asw.wgt.metric(),
-                asw.kind.desc(),
-                addif!(asw.reload > 0, " + {} reloads", asw.reload),
-                asw.wgt_weaps()
-            );
-            if asw.kind.dc_desc() != "" {
-                addto!(r, "        {}", asw.kind.dc_desc());
+            for s in asw.long_desc().iter() {
+                if !s.is_empty() {
+                    addto!(r, "    {}", s);
+                }
             }
         }
 
