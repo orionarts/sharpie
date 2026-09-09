@@ -57,7 +57,7 @@ impl Default for Battery { // {{{2
 
             num: 0,
             diam: Measurement::new(0.0, UnitType::LengthSmall, Units::Imperial),
-            len: 0.0,
+            len: 45.0,
             year: 1920,
             shells: 0,
             shell_wgt: None,
