@@ -1579,10 +1579,10 @@ impl Ship { // {{{3
         for (i, torp) in self.torps.iter().enumerate() {
             if torp.num == 0 { continue; }
 
-            addto!(r, "{} Torpedoes",
+            addto!(r, "    {} Torpedoes",
                 match i { 0 => "Main", 1 => "2nd", _ => "Other", }
             );
-            addto!(r, "{} - {:.1}\" / {:.0} mm, {:.2} ft / {:.2} m torpedo{} {:.3} t total",
+            addto!(r, "    {} - {:.1}\" / {:.0} mm, {:.2} ft / {:.2} m torpedo{} {:.3} t total",
                 torp.num,
                 torp.diam.imp(),
                 torp.diam.metric(),
@@ -1594,21 +1594,21 @@ impl Ship { // {{{3
                 },
                 torp.wgt_weaps()
             );
-            addto!(r, "    {}",
+            addto!(r, "        {}",
                 torp.kind.desc(torp.num, torp.mounts)
             );
         }
 
         if self.mines.num != 0 {
-            addto!(r, "Mines");
-            addto!(r, "{} - {:.2} lbs / {:.2} kg mines{} - {:.3} t total",
+            addto!(r, "    Mines");
+            addto!(r, "    {} - {:.2} lbs / {:.2} kg mines{} - {:.3} t total",
                 self.mines.num,
                 self.mines.wgt.imp(),
                 self.mines.wgt.metric(),
                 addif!(self.mines.reload > 0, " + {} reloads", self.mines.reload),
                 self.mines.wgt_weaps()
             );
-            addto!(r, "    {}",
+            addto!(r, "        {}",
                 self.mines.kind.desc()
             );
         }
@@ -1616,10 +1616,10 @@ impl Ship { // {{{3
         for (i, asw) in self.asw.iter().enumerate() {
             if asw.num == 0 { continue; }
 
-            addto!(r, "{} DC/AS Mortars",
+            addto!(r, "    {} DC/AS Mortars",
                 match i { 0 => "Main", 1 => "2nd", _ => "Other", }
             );
-            addto!(r, "{} - {:.2} lbs / {:.2} kg {}{} - {:.3} t total",
+            addto!(r, "    {} - {:.2} lbs / {:.2} kg {}{} - {:.3} t total",
                 asw.num,
                 asw.wgt.imp(),
                 asw.wgt.metric(),
@@ -1628,7 +1628,7 @@ impl Ship { // {{{3
                 asw.wgt_weaps()
             );
             if asw.kind.dc_desc() != "" {
-                addto!(r, "    {}", asw.kind.dc_desc());
+                addto!(r, "        {}", asw.kind.dc_desc());
             }
         }
 
