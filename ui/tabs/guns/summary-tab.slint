@@ -1,6 +1,7 @@
 import {
     Button,
     GridBox,
+    Palette,
     ScrollView,
     VerticalBox,
 } from "std-widgets.slint";
@@ -79,74 +80,75 @@ export component SummaryTab inherits ScrollView {
 
             Row {
                 RowLabel { text: "Guns:"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].wgt-guns; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].wgt-guns; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].wgt-guns; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].wgt-guns; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].wgt-guns; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.wgt-guns; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].wgt-guns; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].wgt-guns; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].wgt-guns; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].wgt-guns; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].wgt-guns; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.wgt-guns; } }
             }
             Row {
                 RowLabel { text: "Mounts:"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].wgt-mounts; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].wgt-mounts; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].wgt-mounts; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].wgt-mounts; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].wgt-mounts; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.wgt-mounts; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].wgt-mounts; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].wgt-mounts; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].wgt-mounts; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].wgt-mounts; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].wgt-mounts; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.wgt-mounts; } }
             }
             Row {
                 RowLabel { text: "Armour:"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].wgt-armor; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].wgt-armor; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].wgt-armor; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].wgt-armor; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].wgt-armor; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.wgt-armor; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].wgt-armor; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].wgt-armor; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].wgt-armor; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].wgt-armor; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].wgt-armor; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.wgt-armor; } }
             }
 
             Row {
-                Rectangle { colspan: 7; height: 1px; background: white; }
+                Rectangle { colspan: 7; height: 1px; background:
+                Palette.alternate-foreground; }
             }
 
             Row {
                 RowLabel { text: "Total (t):"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].wgt-total; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].wgt-total; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].wgt-total; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].wgt-total; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].wgt-total; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.wgt-total; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].wgt-total; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].wgt-total; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].wgt-total; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].wgt-total; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].wgt-total; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.wgt-total; } }
             }
 
             Row { Text { } }
 
             Row {
                 RowLabel { text: "Broadside (lbs):"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].broadside-lbs; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].broadside-lbs; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].broadside-lbs; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].broadside-lbs; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].broadside-lbs; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.broadside-lbs; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].broadside-lbs; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].broadside-lbs; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].broadside-lbs; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].broadside-lbs; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].broadside-lbs; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.broadside-lbs; } }
             }
             Row {
                 RowLabel { text: "Broadside (kg):"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].broadside-kg; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].broadside-kg; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].broadside-kg; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].broadside-kg; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].broadside-kg; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.broadside-kg; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].broadside-kg; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].broadside-kg; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].broadside-kg; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].broadside-kg; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].broadside-kg; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.broadside-kg; } }
             }
             Row {
                 RowLabel { text: "Magazine (t):"; }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[0].mag-wgt; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[1].mag-wgt; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[2].mag-wgt; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[3].mag-wgt; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-computed[4].mag-wgt; } }
-                Rectangle { border-width: 0px; border-color: white; Text { text: battery-totals.mag-wgt; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].mag-wgt; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].mag-wgt; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[2].mag-wgt; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[3].mag-wgt; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[4].mag-wgt; } }
+                Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-totals.mag-wgt; } }
             }
 
         }

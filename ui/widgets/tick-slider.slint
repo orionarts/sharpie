@@ -1,4 +1,6 @@
-import { Slider } from "std-widgets.slint";
+import {
+    Palette,
+    Slider } from "std-widgets.slint";
 import { Layout } from "../layout.slint";
 
 /// A horizontal Slider with tick marks and numeric labels beneath the track.
@@ -35,14 +37,14 @@ component TickStrip {
             height: 5px;
             x: root.inset + (i * root.tick-step / (root.maximum - root.minimum)) * (root.width - 2 * root.inset);
             y: 1px;
-            background: #888888;
+            background: Palette.foreground;
             border-radius: 1px;
 
             Text {
                 visible: Math.mod(i, root.ticks-per-label) == 0;
                 text: (root.minimum + i * root.tick-step).to-fixed(root.precision);
                 font-size: 10px;
-                color: #888888;
+                color: Palette.foreground;
                 width: 40px;
                 horizontal-alignment: center;
                 x: -20px;
@@ -53,7 +55,7 @@ component TickStrip {
                 visible: i == 0 && root.start-extra != "";
                 text: root.start-extra;
                 font-size: 10px;
-                color: #888888;
+                color: Palette.foreground;
                 x: 22px;
                 y: 7px;
             }
@@ -62,7 +64,7 @@ component TickStrip {
                 visible: i == root.tick-count && root.end-extra != "";
                 text: root.end-extra;
                 font-size: 10px;
-                color: #888888;
+                color: Palette.foreground;
                 x: -22px - self.width;
                 y: 7px;
             }
@@ -110,14 +112,14 @@ export component TickSlider {
                 height: 5px;
                 x: root.inset + (i * root.tick-step / (root.maximum - root.minimum)) * (tick-strip.width - 2 * root.inset);
                 y: 1px;
-                background: #888888;
+                background: Palette.foreground;
                 border-radius: 1px;
 
                 Text {
                     visible: Math.mod(i, root.ticks-per-label) == 0;
                     text: (root.minimum + i * root.tick-step).to-fixed(root.precision);
                     font-size: 10px;
-                    color: #888888;
+                    color: Palette.foreground;
                     width: 40px;
                     horizontal-alignment: center;
                     x: -20px;
@@ -128,7 +130,7 @@ export component TickSlider {
                     visible: i == 0 && root.start-extra != "";
                     text: root.start-extra;
                     font-size: 10px;
-                    color: #888888;
+                    color: Palette.foreground;
                     x: 22px;
                     y: 7px;
                 }
@@ -137,7 +139,7 @@ export component TickSlider {
                     visible: i == root.tick-count && root.end-extra != "";
                     text: root.end-extra;
                     font-size: 10px;
-                    color: #888888;
+                    color: Palette.foreground;
                     x: -22px - self.width;
                     y: 7px;
                 }

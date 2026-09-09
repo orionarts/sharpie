@@ -4,6 +4,7 @@ import {
     ComboBox,
     GridBox,
     HorizontalBox,
+    Palette,
     ScrollView,
     VerticalBox,
 } from "std-widgets.slint";
@@ -102,7 +103,7 @@ export component BatteryTab inherits ScrollView {
 
                     Rectangle {
                         border-width: 1px;
-                        border-color: white;
+                        border-color: Palette.alternate-foreground;
                         horizontal-stretch: 1;
                         preferred-width: 0;
                         min-width: 0;
@@ -140,7 +141,7 @@ export component BatteryTab inherits ScrollView {
 
                     Rectangle {
                         border-width: 1px;
-                        border-color: white;
+                        border-color: Palette.alternate-foreground;
                         horizontal-stretch: 1;
                         preferred-width: 0;
                         min-width: 0;
