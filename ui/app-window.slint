@@ -44,8 +44,10 @@ export { AboutDialog } from "dialogs/about-dialog.slint";
 //
 export component MainWindow inherits Window {
     title: "Sharpie";
-    width: Layout.tab-width +
-        (root.report-visible ? Layout.report-width : 0px);
+    preferred-width: Layout.tab-width +
+        (root.report-visible ? Layout.report-width : 0px) +
+        (root.sidebar-visible ? Layout.sidebar-width: 0px)
+        ;
     height: Layout.gui-height;
 
     in-out property <ShipIdentity> identity;
@@ -98,6 +100,7 @@ export component MainWindow inherits Window {
 
     in-out property <string> report-str: "Load or create a ship";
     in-out property <bool> report-visible: false;
+    in-out property <bool> sidebar-visible: false;
 
     // Menu callbacks
     callback load-ship();
@@ -106,6 +109,7 @@ export component MainWindow inherits Window {
     callback clear-ship();
     callback exit-app();
     callback toggle-report();
+    callback toggle-sidebar();
     callback show-about();
 
     // Other callbacks
@@ -146,6 +150,7 @@ export component MainWindow inherits Window {
         Menu {
             title: "View";
             MenuItem { title: root.report-visible ? "Hide Report" : "Show Report"; shortcut: @keys(Control + R); activated => { root.toggle-report(); } }
+            MenuItem { title: root.sidebar-visible ? "Hide Sidebar" : "Show Sidebar"; shortcut: @keys(Alt + S); activated => { root.toggle-sidebar(); } }
         }
         Menu {
             title: "Help";
@@ -264,10 +269,56 @@ export component MainWindow inherits Window {
                 }
             }
 
-            GroupBox {
+            GroupBox { // Report {{{2
                 title: "Report";
                 visible: root.report-visible;
                 report := TextEdit { text: root.report_str; read-only: true; }
+                width: root.report-visible ? Layout.report-width : 0px;
+                horizontal-stretch: 0;
+            }
+
+            sidebar := GroupBox { // Sidebar {{{2
+                horizontal-stretch: 0;
+                width: root.sidebar-visible ? Layout.sidebar-width : 0px;
+                visible: root.sidebar-visible;
+
+                VerticalBox {
+                    Text { text: "Performance:"; font-weight: 700; vertical-alignment: center; }
+                    Text { horizontal-alignment: center; text: "Composite strength:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.str-comp; }
+                    Text { horizontal-alignment: center; text: "Seakeeping:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.seakeeping; }
+                    Text { horizontal-alignment: center; text: "Stability:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.stability; }
+                    Text { horizontal-alignment: center; text: "Steadiness:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.steadiness; }
+                    Text { horizontal-alignment: center; text: "Hull space:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.hull-room + " %"; }
+                    Text { horizontal-alignment: center; text: "Armor coverage:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.belt-coverage + " %"; }
+                    Text { horizontal-alignment: center; text: "Work space:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.deck-room + " %"; }
+
+                    Text { text: "Displacement:"; font-weight: 700; vertical-alignment: center; }
+                    Text { horizontal-alignment: center; text: "Maximum displacement:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.d-max; }
+                    Text { horizontal-alignment: center; text: "Normal displacement:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.d-norm; }
+                    Text { horizontal-alignment: center; text: "Standard displacement:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.d-std; }
+                    Text { horizontal-alignment: center; text: "Light displacement:"; }
+                    Text { horizontal-alignment: right; text: root.perf-computed.d-lite; }
+
+                    Text { text: "Guns and engines:"; font-weight: 700; vertical-alignment: center; }
+                    Text { horizontal-alignment: center; text: root.battery-computed[0].desc; }
+                    Text { horizontal-alignment: center; text: root.battery-computed[1].desc; }
+                    Text { horizontal-alignment: center; text: root.battery-computed[2].desc; }
+                    Text { horizontal-alignment: center; text: root.battery-computed[3].desc; }
+                    Text { horizontal-alignment: center; text: root.battery-computed[4].desc; }
+                    Text { horizontal-alignment: center; text: root.engine-computed.fuel-desc + ","; }
+                    Text { horizontal-alignment: center; text: root.engine-computed.boiler-desc + ","; }
+                    Text { horizontal-alignment: center; text: root.engine-computed.drive-desc; }
+                }
             }
         }
 
