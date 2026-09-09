@@ -1626,21 +1626,11 @@ impl Ship { // {{{3
             addto!(r, "    {} Torpedoes",
                 match i { 0 => "Main", 1 => "2nd", _ => "Other", }
             );
-            addto!(r, "    {} - {:.1}\" / {:.0} mm, {:.2} ft / {:.2} m torpedo{} {:.3} t total",
-                torp.num,
-                torp.diam.imp(),
-                torp.diam.metric(),
-                torp.len.imp(),
-                torp.len.metric(),
-                match torp.num {
-                    1 => " -".to_string(),
-                    _ => format!("es - {:.3} t each,", torp.wgt_weaps() / torp.num as f64),
-                },
-                torp.wgt_weaps()
-            );
-            addto!(r, "        {}",
-                torp.kind.desc(torp.num, torp.mounts)
-            );
+            for s in torp.long_desc().iter() {
+                if !s.is_empty() {
+                    addto!(r, "    {}", s);
+                }
+            }
         }
 
         if self.mines.num != 0 {

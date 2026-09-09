@@ -1,5 +1,5 @@
 use crate::calc::{Measurement, Units};
-use crate::choice_enum;
+use crate::{addto, choice_enum};
 
 use serde::{Deserialize, Serialize};
 
@@ -70,6 +70,41 @@ impl Torpedoes { // {{{2
     ///
     pub fn deck_space(&self, b: f64) -> f64 {
         self.kind.deck_space(b, self.num, self.len.imp(), self.diam.imp(), self.mounts)
+    }
+
+    // desc {{{3
+    /// Print a description of the number and type of torpedoes.
+    ///
+    pub fn desc(&self) -> String {
+        format!("{} - {:.1}\" / {:.0} mm, {:.2} ft / {:.2} m torpedo{}",
+            self.num,
+            self.diam.imp(),
+            self.diam.metric(),
+            self.len.imp(),
+            self.len.metric(),
+            match self.num { 1 => "", _ => "es", },
+        )
+    }
+
+    // long_desc {{{3
+    /// Print a full description of the torpedoes.
+    ///
+    pub fn long_desc(&self) -> Vec<String> {
+        let mut d: Vec<String> = Vec::new();
+
+        addto!(d, "{} {} {:.3} t total",
+            self.desc(),
+            match self.num {
+                1 => "-".to_string(),
+                _ => format!("- {:.3} t each,", self.wgt_weaps() / self.num as f64),
+            },
+            self.wgt_weaps()
+        );
+        addto!(d, "    {}",
+            self.kind.desc(self.num, self.mounts)
+        );
+
+        d
     }
 }
 
