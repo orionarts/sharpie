@@ -1645,16 +1645,11 @@ impl Ship { // {{{3
 
         if self.mines.num != 0 {
             addto!(r, "    Mines");
-            addto!(r, "    {} - {:.2} lbs / {:.2} kg mines{} - {:.3} t total",
-                self.mines.num,
-                self.mines.wgt.imp(),
-                self.mines.wgt.metric(),
-                addif!(self.mines.reload > 0, " + {} reloads", self.mines.reload),
-                self.mines.wgt_weaps()
-            );
-            addto!(r, "        {}",
-                self.mines.kind.desc()
-            );
+            for s in self.mines.long_desc().iter() {
+                if !s.is_empty() {
+                    addto!(r, "    {}", s);
+                }
+            }
         }
 
         for (i, asw) in self.asw.iter().enumerate() {

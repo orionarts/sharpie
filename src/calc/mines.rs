@@ -1,5 +1,5 @@
 use crate::calc::{Measurement, Ship, Units};
-use crate::choice_enum;
+use crate::{addif, addto, choice_enum};
 
 use serde::{Deserialize, Serialize};
 
@@ -48,6 +48,35 @@ impl Mines { // {{{2
     ///
     pub fn wgt_mounts(&self) -> f64 {
         self.wgt_weaps() * self.kind.wgt_factor()
+    }
+
+    // desc {{{3
+    /// Print a description of the number and type of mines.
+    ///
+    pub fn desc(&self) -> String {
+        format!("{} - {:.2} lbs / {:.2} kg mines{}",
+            self.num,
+            self.wgt.imp(),
+            self.wgt.metric(),
+            addif!(self.reload > 0, " + {} reloads", self.reload),
+        )
+    }
+
+    // long_desc {{{3
+    /// Print a full description of the mines.
+    ///
+    pub fn long_desc(&self) -> Vec<String> {
+        let mut d: Vec<String> = Vec::new();
+
+        addto!(d, "{} - {:.3} t total",
+            self.desc(),
+            self.wgt_weaps()
+        );
+        addto!(d, "    {}",
+            self.kind.desc()
+        );
+
+        d
     }
 }
 
