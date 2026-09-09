@@ -195,6 +195,11 @@ export component BatteryTab inherits ScrollView {
                 Entry { text: root.computed.wgt-armor; enabled: false; }
             }
 
+            Row { Text { } }
+
+            Row {
+                Text { col: 1; colspan: 5; text: root.computed.long-desc; }
+            }
         }
     }
 }

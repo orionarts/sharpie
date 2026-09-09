@@ -909,16 +909,19 @@ pub fn push_asw(ship: &Ship, ui: &MainWindow) {
     }).collect();
 
     ui.set_asw_fields(ModelRc::new(VecModel::from(model)));
-    push_asw_total_wgt(ship, ui);
+    push_asw_derived(ship, ui);
 }
 
-// push_asw_total_wgt {{{2
+// push_asw_derived {{{2
 /// Refresh only the read-only total weight fields on the ASW tab,
 /// leaving the editable fields (and any active caret) untouched.
 ///
-pub fn push_asw_total_wgt(ship: &Ship, ui: &MainWindow) {
+pub fn push_asw_derived(ship: &Ship, ui: &MainWindow) {
     let model: Vec<ASWDerived> = ship.asw.iter().map(|t| {
-        ASWDerived { wgt_weaps: num!(t.wgt_weaps(), 3).into() }
+        ASWDerived {
+            wgt_weaps: num!(t.wgt_weaps(), 3).into(),
+            long_desc: t.long_desc().join("\n").into(),
+        }
     }).collect();
 
     ui.set_asw_derived(ModelRc::new(VecModel::from(model)));
@@ -952,13 +955,16 @@ pub fn push_mines(ship: &Ship, ui: &MainWindow) {
     ].to_vec();
 
     ui.set_mine_fields(ModelRc::new(VecModel::from(model)));
-    push_mine_total_wgt(ship, ui);
+    push_mine_derived(ship, ui);
 }
 
-// push_mine_total_wgt {{{2
-pub fn push_mine_total_wgt(ship: &Ship, ui: &MainWindow) {
+// push_mine_derived {{{2
+pub fn push_mine_derived(ship: &Ship, ui: &MainWindow) {
     let derived: Vec<MineDerived> = [
-        MineDerived { wgt_weaps: num!(ship.mines.wgt_weaps(), 3).into() }
+        MineDerived {
+            wgt_weaps: num!(ship.mines.wgt_weaps(), 3).into(),
+            long_desc: ship.mines.long_desc().join("\n").into(),
+        }
     ].to_vec();
 
     ui.set_mine_derived(ModelRc::new(VecModel::from(derived)));
@@ -1034,16 +1040,19 @@ pub fn push_torpedoes(ship: &Ship, ui: &MainWindow) {
     }).collect();
 
     ui.set_torp_fields(ModelRc::new(VecModel::from(model)));
-    push_torp_wgt(ship, ui);
+    push_torp_derived(ship, ui);
 }
 
-// push_torp_wgt {{{2
+// push_torp_derived {{{2
 /// Refresh only the read-only weight fields on the torpedoes tab,
 /// leaving the editable fields (and any active caret) untouched.
 ///
-pub fn push_torp_wgt(ship: &Ship, ui: &MainWindow) {
+pub fn push_torp_derived(ship: &Ship, ui: &MainWindow) {
     let model: Vec<TorpedoDerived> = ship.torps.iter().map(|t| {
-        TorpedoDerived { wgt_weaps: num!(t.wgt_weaps(), 3).into() }
+        TorpedoDerived {
+            wgt_weaps: num!(t.wgt_weaps(), 3).into(),
+            long_desc: t.long_desc().join("\n").into(),
+        }
     }).collect();
 
     ui.set_torp_derived(ModelRc::new(VecModel::from(model)));
@@ -1336,6 +1345,7 @@ pub fn push_guns_derived(ship: &Ship, ui: &MainWindow) {
                                    }
                                ).to_string()
                            }.into(),
+            long_desc:     b.long_desc(i == 0, hull.clone()).join("\n").into(),
             wgt_guns:      num!(guns, 2).into(),
             wgt_mounts:    num!(mounts, 2).into(),
             wgt_armor:     num!(armor, 2).into(),

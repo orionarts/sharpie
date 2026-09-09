@@ -96,9 +96,9 @@ fn push_derived(ship: &Ship, ui: &MainWindow) {
     gui_map::push_armor_derived(ship, ui);
     gui_map::push_hull_derived(ship, ui);
     gui_map::push_hull_image(ship, ui);
-    gui_map::push_torp_wgt(ship, ui);
-    gui_map::push_mine_total_wgt(ship, ui);
-    gui_map::push_asw_total_wgt(ship, ui);
+    gui_map::push_torp_derived(ship, ui);
+    gui_map::push_mine_derived(ship, ui);
+    gui_map::push_asw_derived(ship, ui);
     gui_map::push_weight_derived(ship, ui);
     gui_map::push_perf_derived(ship, ui);
     gui_map::push_engine_derived(ship, ui);

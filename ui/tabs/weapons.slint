@@ -41,16 +41,19 @@ export struct ASWFields {
     kind: int,
 }
 
-// Derived (read-only) weight fields {{{1
+// Derived fields {{{1
 //
 export struct TorpedoDerived {
     wgt_weaps: string,
+    long-desc: string,
 }
 export struct MineDerived {
     wgt_weaps: string,
+    long-desc: string,
 }
 export struct ASWDerived {
     wgt_weaps: string,
+    long-desc: string,
 }
 
 // Weight entry fields {{{1
@@ -125,8 +128,9 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text: torp-derived[i].wgt_weaps; enabled: false; }
             }
 
-            // TODO: Make this a custom widget and set color based on system theme
-            Rectangle { colspan: 6; height: 1px; background: white; }
+            Row {
+                Text { col: 1; colspan: 4; text: root.torp-derived[i].long-desc; }
+            }
         }
 
         for mines[i] in root.mine-fields: GridBox { // {{{2
@@ -160,8 +164,9 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text: mine-derived[i].wgt_weaps; enabled: false; }
             }
 
-            // TODO: Make this a custom widget and set color based on system theme
-            Rectangle { colspan: 6; height: 1px; background: white; }
+            Row {
+                Text { col: 1; colspan: 4; text: root.mine-derived[0].long-desc; }
+            }
         }
 
         for asw[i] in root.asw-fields: GridBox { // {{{2
@@ -188,8 +193,9 @@ export component WeaponsTab inherits ScrollView {
                 Entry { text: asw-derived[i].wgt_weaps; enabled: false; }
             }
 
-            // TODO: Make this a custom widget and set color based on system theme
-            Rectangle { colspan: 6; height: 1px; background: white; }
+            Row {
+                Text { col: 1; colspan: 4; text: root.asw-derived[i].long-desc; }
+            }
         }
 
         GridBox { // Weights {{{2
