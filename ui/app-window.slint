@@ -303,7 +303,7 @@ export component MainWindow inherits Window {
                 Button { text: "Save report"; clicked => { root.save-report(); } }
             }
 
-            report := TextEdit { text: root.report_str; read-only: true; }
+            report := TextEdit { text: root.report-str; read-only: true; }
             StatusBar {
                 status-text: "Additional notes—included at end of report and saved to *.ship file:";
             }
