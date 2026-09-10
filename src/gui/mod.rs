@@ -28,12 +28,10 @@ use crate::calc::{
 
 use slint::{
     ComponentHandle,
-    LogicalSize,
     Model,
     ModelRc,
     SharedString,
     VecModel,
-    WindowSize,
 };
 
 use std::cell::RefCell;
@@ -46,18 +44,6 @@ pub mod gui_map;
 
 // GUI helpers {{{1
 //
-// resize_window {{{2
-/// Reset window size.
-///
-fn resize_window(ui: &MainWindow) {
-    let report_w: f32 = if ui.get_report_visible() { 650.0 } else { 0.0 };
-    let sidebar_w: f32 = if ui.get_sidebar_visible() { 250.0 } else { 0.0 };
-    let tab_w: f32 = 990.0;
-
-    let new_size = LogicalSize::new(report_w + sidebar_w + tab_w, 1_000.0);
-    ui.window().set_size(WindowSize::Logical(new_size));
-}
-
 // set_enum_models {{{2
 /// Fill dropdown label models from each enum's `.sship` order.
 ///
@@ -444,13 +430,11 @@ fn show_about(_ui: &MainWindow) {
 // toggle_report {{{2
 fn toggle_report(ui: &MainWindow) {
     ui.set_report_visible(!ui.get_report_visible());
-    resize_window(ui);
 }
 
 // toggle_sidebar {{{2
 fn toggle_sidebar(ui: &MainWindow) {
     ui.set_sidebar_visible(!ui.get_sidebar_visible());
-    resize_window(ui);
 }
 
 // Run the GUI {{{1
