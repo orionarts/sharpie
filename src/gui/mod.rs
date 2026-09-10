@@ -469,6 +469,15 @@ fn save_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     }
 }
 
+// save_report {{{2
+fn save_report(ui: &MainWindow) {
+    let name = format!("{}.txt", ui.get_identity().name.to_string());
+
+    if let Some(file) = save_file_dialog("Sharpie report", "txt", &name) {
+        let _ = std::fs::write(file, ui.get_report_str());
+    }
+}
+
 // save_picture {{{2
 //
 /// Export the hull side-profile SVG to a file chosen by the user.
@@ -530,6 +539,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_new_window         ({ let h = ui.as_weak();                       move ||      { new_window         (&h.unwrap()); }});
     ui.on_save_picture       ({                       let s = ship.clone(); move ||      { save_picture       (             &s); }});
     ui.on_save_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_ship          (&h.unwrap(), &s); }});
+    ui.on_save_report        ({ let h = ui.as_weak();                       move ||      { save_report        (&h.unwrap()); }});
     ui.on_show_about         ({ let h = ui.as_weak();                       move ||      { show_about         (&h.unwrap()); }});
     ui.on_toggle_report      ({ let h = ui.as_weak();                       move ||      { toggle_report      (&h.unwrap()); }});
     ui.on_toggle_sidebar     ({ let h = ui.as_weak();                       move ||      { toggle_sidebar     (&h.unwrap()); }});

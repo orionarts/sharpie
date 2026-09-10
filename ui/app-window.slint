@@ -1,6 +1,7 @@
 // Sharpie main window {{{1
 //
 import {
+    Button,
     GroupBox,
     HorizontalBox,
     ScrollView,
@@ -110,6 +111,7 @@ export component MainWindow inherits Window {
     callback save-ship();
     callback convert-ship();
     callback clear-ship();
+    callback save-report();
     callback exit-app();
     callback toggle-report();
     callback toggle-sidebar();
@@ -149,6 +151,7 @@ export component MainWindow inherits Window {
             MenuSeparator {}
             MenuItem { title: "Open ship";                shortcut: @keys(Control + O);         activated => { root.load-ship(); } }
             MenuItem { title: "Save ship";                shortcut: @keys(Control + S);         activated => { root.save-ship(); } }
+            MenuItem { title: "Save report";              shortcut: @keys(Control + D);         activated => { root.save-report(); } }
             MenuItem { title: "Convert SpringSharp ship"; shortcut: @keys(Control + Shift + O); activated => { root.convert-ship(); } }
             MenuSeparator {}
             MenuItem { title: "Clear all";                                                      activated => { root.clear-ship(); } }
@@ -295,7 +298,10 @@ export component MainWindow inherits Window {
             horizontal-stretch: 0;
             vertical-stretch: 1;
 
-            Text { text: "Report"; font-weight: 900; }
+            HorizontalLayout {
+                Text { text: "Report"; font-weight: 900; vertical-alignment: center; }
+                Button { text: "Save report"; clicked => { root.save-report(); } }
+            }
 
             report := TextEdit { text: root.report_str; read-only: true; }
             StatusBar {
