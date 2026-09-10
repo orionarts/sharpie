@@ -1,24 +1,33 @@
 //! Command-line execution for the sharpie binary.
 
 use clap::{Parser, Subcommand};
+use constcat::concat;
 use crate::calc::{hull_draw, Ship};
 use crate::gui;
 
 use std::error::Error;
 
-// Command line parsing {{{1
+// Version and legal text {{{1
 //
-#[derive(Parser)]
-#[command(version = concat!(
-    env!("CARGO_PKG_VERSION"), "\n",
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const ABOUT: &str = "A warship design simulator (a SpringSharp 3b3 clone)";
+pub const AUTHOR: &str = "Written by Jeremy Brubaker.";
+
+pub const LEGAL: &str = concat!(
     "Copyright (C) 2024 Jeremy Brubaker\n",
     "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n",
     "This is free software: you are free to change and redistribute it.\n",
     "There is NO WARRANTY, to the extent permitted by law.\n",
     "\n",
-    "Written by Jeremy Brubaker.\n",
-))]
-#[command(about = "SpringSharp 3b3 clone", long_about = None)]
+);
+
+pub const LONG_VERSION: &str = concat!(VERSION, "\n", LEGAL, AUTHOR);
+
+// Command line parsing {{{1
+//
+#[derive(Parser)]
+#[command(version = LONG_VERSION)]
+#[command(about = ABOUT, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
