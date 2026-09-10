@@ -1403,29 +1403,70 @@ pub fn push_shell_wgt(ship: &Ship, ui: &MainWindow) {
 /// (weights, broadside, etc.) can be refreshed.
 ///
 pub fn toggle_shell_wgt_lock(ship: &mut Ship, ui: &MainWindow, row: usize) {
+    if battery_fields(ui, row).map(|fields| fields.shell_wgt_locked).unwrap_or(true) {
+        unlock_shell_wgt(ui, row);
+    } else {
+        lock_shell_wgt(ship, ui, row);
+    }
+    push_shell_wgt(ship, ui);
+}
+
+// lock_shell_wgt {{{2
+/// Freeze one battery's shell weight at its current value.
+///
+/// An unparseable or empty box falls back to the estimate, so the battery is
+/// locked either way (matching SpringSharp). Does nothing if already locked.
+///
+fn lock_shell_wgt(ship: &mut Ship, ui: &MainWindow, row: usize) {
     let Some(b) = ship.batteries.get_mut(row) else { return };
     let Some(mut fields) = battery_fields(ui, row) else { return };
-
     if fields.shell_wgt_locked {
-        fields.shell_wgt_locked = false;
-    } else {
-        let stored = if b.units == Units::Imperial {
-            match parse(&fields.shell_wgt) {
-                Some(v) => { b.set_shell_wgt(v, Units::Imperial); true }
-                None    => false,
-            }
-        } else {
-            match parse(&fields.shell_wgt_metric) {
-                Some(v) => { b.set_shell_wgt(v, Units::Metric); true }
-                None    => false,
-            }
-        };
-        if stored {
-            fields.shell_wgt_locked = true;
-        }
+        return;
     }
 
+    let stored = if b.units == Units::Imperial {
+        parse(&fields.shell_wgt)
+    } else {
+        parse(&fields.shell_wgt_metric)
+    };
+    match stored {
+        Some(v) => { b.set_shell_wgt(v, b.units); }
+        None    => { b.set_shell_wgt(b.shell_wgt_est(), Units::Imperial); }
+    }
+    fields.shell_wgt_locked = true;
     set_battery_fields(ui, row, fields);
+}
+
+// unlock_shell_wgt {{{2
+/// Release one battery's shell weight lock, keeping the current value in
+/// place (it is only replaced by the estimate once diameter, length or year
+/// change while unlocked).
+///
+fn unlock_shell_wgt(ui: &MainWindow, row: usize) {
+    let Some(mut fields) = battery_fields(ui, row) else { return };
+    if fields.shell_wgt_locked {
+        fields.shell_wgt_locked = false;
+        set_battery_fields(ui, row, fields);
+    }
+}
+
+// lock_all_shell_wgts {{{2
+/// Lock every battery's shell weight at its current value.
+///
+pub fn lock_all_shell_wgts(ship: &mut Ship, ui: &MainWindow) {
+    for row in 0..ship.batteries.len() {
+        lock_shell_wgt(ship, ui, row);
+    }
+    push_shell_wgt(ship, ui);
+}
+
+// unlock_all_shell_wgts {{{2
+/// Unlock every battery's shell weight, keeping the current values in place.
+///
+pub fn unlock_all_shell_wgts(ui: &MainWindow, ship: &Ship) {
+    for row in 0..ship.batteries.len() {
+        unlock_shell_wgt(ui, row);
+    }
     push_shell_wgt(ship, ui);
 }
 

@@ -12,6 +12,8 @@ export component GunsTab inherits TabWidget {
     callback field-edited();
     callback gun-units-edited(row: int);
     callback lock-shell-weight-toggled(row: int);
+    callback lock-all-shell-weights();
+    callback unlock-all-shell-weights();
 
     in-out property <BatteryFields>    battery0-fields;
     in-out property <BatteryFields>    battery1-fields;
@@ -34,6 +36,8 @@ export component GunsTab inherits TabWidget {
         SummaryTab {
             battery-computed: root.battery-computed;
             battery-totals: root.battery-totals;
+            lock-all-shell-weights => { root.lock-all-shell-weights(); }
+            unlock-all-shell-weights => { root.unlock-all-shell-weights(); }
         }
     }
 

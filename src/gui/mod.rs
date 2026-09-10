@@ -273,6 +273,24 @@ fn lock_shell_weight_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, row: i32)
     push_derived(&s, ui);
 }
 
+// lock_all_shell_weights_edited {{{2
+/// Lock every battery's shell weight, then refresh derived values.
+///
+fn lock_all_shell_weights_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let mut s = ship.borrow_mut();
+    gui_map::lock_all_shell_wgts(&mut s, ui);
+    push_derived(&s, ui);
+}
+
+// unlock_all_shell_weights_edited {{{2
+/// Unlock every battery's shell weight, then refresh derived values.
+///
+fn unlock_all_shell_weights_edited(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
+    let s = ship.borrow();
+    gui_map::unlock_all_shell_wgts(ui, &s);
+    push_derived(&s, ui);
+}
+
 // set_all_units {{{2
 /// Set all entry fields to imperial or metric.
 ///
@@ -479,6 +497,8 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_asw_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { asw_units_edited   (&h.unwrap(), &s, row); }});
     ui.on_gun_units_edited   ({ let h = ui.as_weak(); let s = ship.clone(); move |row|   { gun_units_edited   (&h.unwrap(), &s, row); }});
     ui.on_lock_shell_weight_edited({ let h = ui.as_weak(); let s = ship.clone(); move |row| { lock_shell_weight_edited(&h.unwrap(), &s, row); }});
+    ui.on_lock_all_shell_weights_edited({ let h = ui.as_weak(); let s = ship.clone(); move || { lock_all_shell_weights_edited(&h.unwrap(), &s); }});
+    ui.on_unlock_all_shell_weights_edited({ let h = ui.as_weak(); let s = ship.clone(); move || { unlock_all_shell_weights_edited(&h.unwrap(), &s); }});
     ui.on_hull_units_edited  ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { hull_units_edited  (&h.unwrap(), &s); }});
     ui.on_armor_units_edited ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_units_edited (&h.unwrap(), &s); }});
     ui.on_armor_default      ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { armor_default      (&h.unwrap(), &s); }});
