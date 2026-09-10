@@ -11,6 +11,7 @@ import { BatteryFields, BatteryComputed, BatteryTotals } from "./battery-structs
 export component GunsTab inherits TabWidget {
     callback field-edited();
     callback gun-units-edited(row: int);
+    callback lock-shell-weight-toggled(row: int);
 
     in-out property <BatteryFields>    battery0-fields;
     in-out property <BatteryFields>    battery1-fields;
@@ -43,6 +44,7 @@ export component GunsTab inherits TabWidget {
             computed: root.battery-computed[0];
             field-edited => { root.field-edited(); }
             units-edited => { root.gun-units-edited(0); }
+            lock-shell-weight-toggled => { root.lock-shell-weight-toggled(0); }
             gun-type-labels <=> root.gun-type-labels;
             mount-type-labels <=> root.mount-type-labels;
             gun-layout-labels <=> root.gun-layout-labels;
@@ -57,6 +59,7 @@ export component GunsTab inherits TabWidget {
             computed: root.battery-computed[1];
             field-edited => { root.field-edited(); }
             units-edited => { root.gun-units-edited(1); }
+            lock-shell-weight-toggled => { root.lock-shell-weight-toggled(1); }
             gun-type-labels <=> root.gun-type-labels;
             mount-type-labels <=> root.mount-type-labels;
             gun-layout-labels <=> root.gun-layout-labels;
@@ -71,6 +74,7 @@ export component GunsTab inherits TabWidget {
             computed: root.battery-computed[2];
             field-edited => { root.field-edited(); }
             units-edited => { root.gun-units-edited(2); }
+            lock-shell-weight-toggled => { root.lock-shell-weight-toggled(2); }
             gun-type-labels <=> root.gun-type-labels;
             mount-type-labels <=> root.mount-type-labels;
             gun-layout-labels <=> root.gun-layout-labels;
@@ -85,6 +89,7 @@ export component GunsTab inherits TabWidget {
             computed: root.battery-computed[3];
             field-edited => { root.field-edited(); }
             units-edited => { root.gun-units-edited(3); }
+            lock-shell-weight-toggled => { root.lock-shell-weight-toggled(3); }
             gun-type-labels <=> root.gun-type-labels;
             mount-type-labels <=> root.mount-type-labels;
             gun-layout-labels <=> root.gun-layout-labels;
@@ -99,6 +104,7 @@ export component GunsTab inherits TabWidget {
             computed: root.battery-computed[4];
             field-edited => { root.field-edited(); }
             units-edited => { root.gun-units-edited(4); }
+            lock-shell-weight-toggled => { root.lock-shell-weight-toggled(4); }
             gun-type-labels <=> root.gun-type-labels;
             mount-type-labels <=> root.mount-type-labels;
             gun-layout-labels <=> root.gun-layout-labels;

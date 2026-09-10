@@ -22,6 +22,7 @@ import { BatteryFields, BatteryComputed } from "./battery-structs.slint";
 export component BatteryTab inherits ScrollView {
     callback field-edited();
     callback units-edited();
+    callback lock-shell-weight-toggled();
 
     in-out property <BatteryFields> fields;
     in-out property <BatteryComputed> computed;
@@ -74,12 +75,13 @@ export component BatteryTab inherits ScrollView {
             Row {
                 ComboBox { col: 1; colspan: 2; model: root.gun-type-labels; current-index <=> root.fields.kind; selected => root.field-edited(); }
                 Entry { text <=> root.fields.shells; edited => { root.field-edited(); } }
-                Entry { text <=> root.fields.shell-wgt; edited => { root.field-edited(); } enabled: root.fields.units == 0; }
-                Entry { text <=> root.fields.shell-wgt-metric; edited => { root.field-edited(); } enabled: root.fields.units == 1; }
+                Entry { text <=> root.fields.shell-wgt; edited => { root.field-edited(); } enabled: !root.fields.shell-wgt-locked && root.fields.units == 0; }
+                Entry { text <=> root.fields.shell-wgt-metric; edited => { root.field-edited(); } enabled: !root.fields.shell-wgt-locked && root.fields.units == 1; }
             }
 
             Row {
                 Text { text: "Mounts:"; colspan: 4; font-weight: 700; vertical-alignment: bottom; }
+                Button { height: Layout.edit-height; col: 4; colspan: 2; text: root.fields.shell-wgt-locked ? "Unlock shell weight" : "Lock shell weight"; clicked => { root.lock-shell-weight-toggled(); } }
             }
 
             Row {

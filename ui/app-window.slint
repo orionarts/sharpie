@@ -134,6 +134,7 @@ export component MainWindow inherits Window {
     callback armor-default();
     callback set-all-units(which: int);
     callback gun-units-edited(row: int);
+    callback lock-shell-weight-edited(row: int);
     callback ship-year-edited();
 
     // Menu bar {{{2
@@ -211,6 +212,7 @@ export component MainWindow inherits Window {
                         length-small-labels <=> root.length-small-labels;
                         field-edited => { root.field-edited(); }
                         gun-units-edited(row) => { root.gun-units-edited(row); }
+                        lock-shell-weight-toggled(row) => { root.lock-shell-weight-edited(row); }
                     }
                 }
                 Tab {

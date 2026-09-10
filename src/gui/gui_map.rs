@@ -1231,10 +1231,11 @@ fn set_battery_fields(ui: &MainWindow, row: usize, fields: BatteryFields) {
 // pull_guns {{{2
 /// Pull editable gun battery fields from the UI into the ship.
 ///
-/// The shell weight box can hold either pounds or kilograms; the box that
-/// parses wins, with the chosen unit system preserved so the other box is
-/// recomputed by push_guns. Anything unparsable leaves the corresponding
-/// domain value untouched.
+/// The shell weight is kept in the editable box unless one of the gun
+/// parameters that feeds the estimate (diameter, length, year) changes: only
+/// then is the estimate written in (see push_shell_wgt). A locked shell
+/// weight survives even a parameter change. Anything unparsable leaves the
+/// corresponding domain value untouched.
 ///
 pub fn pull_guns(ui: &MainWindow, ship: &mut Ship) {
     // Gun armor unit system is set by the Armor unit system
@@ -1244,19 +1245,15 @@ pub fn pull_guns(ui: &MainWindow, ship: &mut Ship) {
         if let Some(row) = battery_fields(ui, i) {
             b.units = row.units.max(0).into();
 
+            // Record the gun parameters that feed the shell weight estimate
+            // so a change in any of them can discard a user-entered value.
+            let old_params = (b.diam.imp(), b.len, b.year);
+
             if let Some(v) = parse(&row.num)      { b.num = v as u32; }
             if let Some(v) = parse(&row.len)      { b.len = v; }
             set_meas(&mut b.diam, &row.diam, b.units, LengthSmall);
 
             if let Some(v) = parse(&row.shells)   { b.shells = v as u32; }
-
-            if b.units == Units::Imperial {
-                if let Some(v) = parse(&row.shell_wgt) {
-                    b.set_shell_wgt(v, Units::Imperial);
-                }
-            } else if let Some(v) = parse(&row.shell_wgt_metric) {
-                b.set_shell_wgt(v, Units::Metric);
-            }
 
             let year_str = row.year.to_string();
             if year_str.len() == 4 {
@@ -1264,6 +1261,29 @@ pub fn pull_guns(ui: &MainWindow, ship: &mut Ship) {
                     if (YEAR_MIN..=YEAR_MAX).contains(&y) {
                         b.year = y;
                     }
+                }
+            }
+
+            // Diameter, length or year changed: unless the weight is locked,
+            // drop any explicit value so the fresh estimate is shown. With no
+            // such change a typed value stays in place; an empty box restores
+            // the estimate.
+            let params_changed =
+                old_params.0 != b.diam.imp() || old_params.1 != b.len || old_params.2 != b.year;
+
+            if !row.shell_wgt_locked {
+                if params_changed {
+                    b.clear_shell_wgt();
+                } else if b.units == Units::Imperial {
+                    if let Some(v) = parse(&row.shell_wgt) {
+                        b.set_shell_wgt(v, Units::Imperial);
+                    } else if row.shell_wgt.trim().is_empty() {
+                        b.clear_shell_wgt();
+                    }
+                } else if let Some(v) = parse(&row.shell_wgt_metric) {
+                    b.set_shell_wgt(v, Units::Metric);
+                } else if row.shell_wgt_metric.trim().is_empty() {
+                    b.clear_shell_wgt();
                 }
             }
 
@@ -1318,6 +1338,7 @@ pub fn push_guns(ship: &Ship, ui: &MainWindow) {
             shells: b.shells.to_string().into(),
             shell_wgt:        num!(b.shell_wgt().imp(), 2).into(),
             shell_wgt_metric: num!(b.shell_wgt().metric(), 2).into(),
+            shell_wgt_locked:  b.shell_wgt_set(),
             kind:       b.kind.index() as i32,
             mount_num:  b.mount_num.to_string().into(),
             mount_kind: b.mount_kind.index() as i32,
@@ -1336,18 +1357,32 @@ pub fn push_guns(ship: &Ship, ui: &MainWindow) {
 }
 
 // push_shell_wgt {{{2
-/// Refresh the read-only shell weight box on each battery tab.
+/// Refresh the shell weight boxes on each battery tab.
 ///
 /// The battery tabs expose two shell weight boxes (lbs and kg); only the box
 /// matching the battery's unit system is editable, the other just mirrors the
 /// conversion drawn from the ship. `push_guns` sets both boxes, but that only
-/// runs on load and unit changes, so refresh the read-only box here on every
-/// field edit. The editable box's member is preserved verbatim, so an active
-/// caret is left untouched; the read-only box is updated from `b.shell_wgt()`.
+/// runs on load and unit changes, so refresh them here on every field edit.
+///
+/// The editable box keeps whatever value it holds (estimate, a typed value,
+/// or a locked value) unless no explicit value is in force, in which case it
+/// tracks the estimate from `Battery::shell_wgt_est()`. Locking is driven
+/// entirely from the tab's `shell-wgt-locked` flag (set by `push_guns` on
+/// load and by the lock/unlock button), which is preserved here. The
+/// read-only mirror is always updated from `b.shell_wgt()`.
 ///
 pub fn push_shell_wgt(ship: &Ship, ui: &MainWindow) {
     for (i, b) in ship.batteries.iter().enumerate() {
         let Some(mut fields) = battery_fields(ui, i) else { continue };
+
+        if !b.shell_wgt_set() {
+            if b.units == Units::Imperial {
+                fields.shell_wgt = num!(b.shell_wgt().imp(), 2).into();
+            } else {
+                fields.shell_wgt_metric = num!(b.shell_wgt().metric(), 2).into();
+            }
+        }
+
         if b.units == Units::Imperial {
             fields.shell_wgt_metric = num!(b.shell_wgt().metric(), 2).into();
         } else {
@@ -1357,15 +1392,58 @@ pub fn push_shell_wgt(ship: &Ship, ui: &MainWindow) {
     }
 }
 
+// toggle_shell_wgt_lock {{{2
+/// Lock or unlock one battery's shell weight based on the tab's flag.
+///
+/// The lock is a UI-only flag on the battery tab; it is not stored on the
+/// ship. Locking reads the shell weight box currently on the tab and stores
+/// it so it is frozen; unlocking keeps that value in place, only releasing
+/// the freeze so the estimate is restored once diameter, length or year
+/// change. Either way the tab's locked flag is flipped so the derived values
+/// (weights, broadside, etc.) can be refreshed.
+///
+pub fn toggle_shell_wgt_lock(ship: &mut Ship, ui: &MainWindow, row: usize) {
+    let Some(b) = ship.batteries.get_mut(row) else { return };
+    let Some(mut fields) = battery_fields(ui, row) else { return };
+
+    if fields.shell_wgt_locked {
+        fields.shell_wgt_locked = false;
+    } else {
+        let stored = if b.units == Units::Imperial {
+            match parse(&fields.shell_wgt) {
+                Some(v) => { b.set_shell_wgt(v, Units::Imperial); true }
+                None    => false,
+            }
+        } else {
+            match parse(&fields.shell_wgt_metric) {
+                Some(v) => { b.set_shell_wgt(v, Units::Metric); true }
+                None    => false,
+            }
+        };
+        if stored {
+            fields.shell_wgt_locked = true;
+        }
+    }
+
+    set_battery_fields(ui, row, fields);
+    push_shell_wgt(ship, ui);
+}
+
 // set_battery_years {{{2
 /// Set every battery's date to the ship's laid-down year and update the
 /// year boxes on the battery tabs. `ship.year` has already been validated
 /// (by pull_identity), so an invalid entry leaves the last good year in
 /// place. Other editable battery fields are preserved verbatim.
 ///
+/// Changing the year is a date alteration, so an explicit shell weight is
+/// dropped (restoring the estimate) unless the battery's weight is locked.
+///
 pub fn set_battery_years(ship: &mut Ship, ui: &MainWindow) {
-    for b in ship.batteries.iter_mut() {
+    for (i, b) in ship.batteries.iter_mut().enumerate() {
         b.year = ship.year;
+        if !battery_fields(ui, i).map(|f| f.shell_wgt_locked).unwrap_or(true) {
+            b.clear_shell_wgt();
+        }
     }
     for (i, b) in ship.batteries.iter().enumerate() {
         let Some(mut fields) = battery_fields(ui, i) else { continue };

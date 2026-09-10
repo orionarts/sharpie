@@ -27,7 +27,7 @@ pub struct Battery {
 
     /// Number of shells in the magazine
     pub shells: u32,
-    /// Weight of each shell.
+    /// Weight of each shell; `None` means follow the estimate.
     shell_wgt: Option<Measurement>,
 
     /// Type of gun.
@@ -266,6 +266,20 @@ impl Battery { // {{{2
         self.shell_wgt = Some(Measurement::new(wgt, UnitType::Weight, units));
 
         wgt
+    }
+
+    // clear_shell_wgt {{{3
+    /// Clear the explicit shell weight so the estimate is used again.
+    ///
+    pub fn clear_shell_wgt(&mut self) {
+        self.shell_wgt = None;
+    }
+
+    // shell_wgt_set {{{3
+    /// True if an explicit shell weight is in place rather than the estimate.
+    ///
+    pub fn shell_wgt_set(&self) -> bool {
+        self.shell_wgt.is_some()
     }
 
     // shell_wgt {{{3
