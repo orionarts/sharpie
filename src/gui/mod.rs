@@ -473,7 +473,9 @@ fn save_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     pull_then_push(ui, &mut s);
     // TODO: This is not the best place to do this
     s.notes = ui.get_notes_str().lines().map(String::from).collect();
-    if let Some(file) = save_file_dialog("Sharpie file to save", SHIP_FILE_EXT, &format!("SHIP.{SHIP_FILE_EXT}")) {
+    // TODO: Use the original file basename if available
+    let name = format!("{}.{}", ui.get_identity().name.to_string(), SHIP_FILE_EXT);
+    if let Some(file) = save_file_dialog("Sharpie file to save", SHIP_FILE_EXT, &name) {
         let _ = s.save(file);
     }
 }
