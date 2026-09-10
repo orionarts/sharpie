@@ -510,6 +510,12 @@ fn save_picture(ship: &Rc<RefCell<Ship>>) {
 // show_about {{{2
 fn show_about(_ui: &MainWindow) {
     let about = AboutDialog::new().unwrap();
+    about.set_name(env!("CARGO_PKG_NAME").into());
+    about.set_version(crate::cli::VERSION.into());
+    about.set_about(crate::cli::ABOUT.into());
+    about.set_author(crate::cli::AUTHOR.into());
+    about.set_legal(crate::cli::LEGAL.into());
+
     let about_weak = about.as_weak();
     about.on_ok_clicked(move || { about_weak.unwrap().hide().unwrap(); });
     let _ = about.run();

@@ -3,17 +3,21 @@ import { VerticalBox, StandardButton } from "std-widgets.slint";
 // AboutDialog {{{1
 //
 export component AboutDialog inherits Dialog {
-    title: "About Sharpie";
-    min-width: 300px;
-    min-height: 150px;
+    title: "About " + name;
+
+    in property <string> name: "";
+    in property <string> version: "";
+    in property <string> about: "";
+    in property <string> author: "";
+    in property <string> legal: "";
 
     VerticalBox {
-        alignment: center;
         padding: 16px;
-        Text {
-            text: "Sharpie\n\nA SpringSharp 3b3 clone";
-            horizontal-alignment: center;
-        }
+        Text { text: root.name + " " + root.version; horizontal-alignment: center; }
+        Text { text: root.about;                     horizontal-alignment: center; }
+        Text { text: root.author;                    horizontal-alignment: center; }
+        Text { }
+        Text { text: root.legal;                     horizontal-alignment: left; font-size: 8pt; }
     }
 
     StandardButton { kind: ok; }
