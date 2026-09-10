@@ -285,9 +285,13 @@ export component MainWindow inherits Window {
             }
         }
 
-        VerticalBox { // Report {{{2
+        // Report {{{2
+        //
+        // Use Layout instead of Box so that it expands to the bottom correctly
+        VerticalLayout {
             visible: root.report-visible;
             width: root.report-visible ? Layout.report-width : 0px;
+            spacing: Layout.grid-spacing;
             horizontal-stretch: 0;
             vertical-stretch: 1;
 
