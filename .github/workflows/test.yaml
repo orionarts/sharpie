@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "master"
-    tags:
-      - '**' # includes x/y tags
   pull_request:
     branches: ["master"]
 
