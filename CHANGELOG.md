@@ -5,18 +5,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A full GUI that largely copies the SpringSharp 3b3 GUI. Many of the warning
+    and error strings are not yet included either because the GUI does not print
+    them or because the underlying library does not yet generate them
+- A MacOS ARM build target
+
 ### Changed
 
 - `convert` subcommand requires `--to` and/or `--report`
+- Stern type "menu" items to match SpringSharp strings
 - Use more accurate imperial<->metric conversions (exact if possible)
-- Decimal parts that would print as all 0s are now truncated in the report.
-    (This is more heavy-handed than how SpringSharp does it)
+- Decimal parts that would print as all 0s are now truncated in the report
+    (This is more heavy-handed than how SpringSharp does it). Other minor
+    changes were made to the report in order to more closely match SpringSharp
+- The code separation between "calculations" and "interface" was made cleaner to
+    better support the GUI and any future UIs. This involved reorganiztion the
+    codebase file structure, including splitting some large files into multiple
+    files. The test modules were also reorganized to be more consistent in
+    naming
 - Freeboard deck lengths now default to their SpringSharp defaults instead of
     zero
 - The `chkreport` script does a better job ignoring minor numerical formatting
     differences
-- The "engine built" year now defaults to the "laid down" year when creating
-    a default Ship
+- All "years" in a default Ship to the default "laid down" year of 1950
+- Changed the default caliber of a battery from 0 to 45
+- All values displayed values to internally store both the imperial and metric
+    value so there is no "loss" when converting back and forth between
+    measurement systems
+- The default filename when saving an image to no longer end in "-hull"
 
 ### Fixed
 
