@@ -21,6 +21,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install fontconfig (Linux)
+        if: runner.os == 'Linux'
+        # Cache installed .debs across runs
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libfontconfig1-dev pkg-config
+          version: 1.0
+
       - name: Build binaries in "${{matrix.BUILD_TARGET}}" mode
         run: cargo build --verbose --profile "${{matrix.BUILD_TARGET}}"
 

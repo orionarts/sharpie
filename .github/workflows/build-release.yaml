@@ -34,6 +34,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install fontconfig (Linux)
+        if: runner.os == 'Linux'
+        # Cache installed .debs across runs
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libfontconfig1-dev pkg-config
+          version: 1.0
+
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v1
         with:
