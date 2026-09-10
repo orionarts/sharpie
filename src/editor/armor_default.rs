@@ -39,11 +39,9 @@ pub fn default_belts(ship: &Ship) -> DefaultBelts {
     let fc_len = ship.hull.freeboard.fc_len;
     let qd_len = ship.hull.freeboard.qd_len;
     let beam   = ship.hull.b.imp();
-    let t      = ship.hull.t.imp();
-    let cb     = ship.hull.cb();
     let dist   = ship.hull.freeboard.distributed();
 
-    let t_side = ((1.006 - 0.0056 * cb.powf(-3.56)) * 2.0 - 1.0) * t;
+    let t_side = ship.hull.ts();
 
     let main_len  = (1.0 - fc_len - qd_len) * lwl;
     let main_hgt  = (1.2 * beam.sqrt()).min(t_side + dist);
