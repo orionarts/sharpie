@@ -6,28 +6,30 @@ on:
       - '**' # includes x/y tags
   workflow_dispatch:
 
+env:
+  EXE_NAME: sharpie
 
 jobs:
   build:
-    name: Build - ${{ matrix.platform.os-name }}
+    name: Build - ${{ matrix.platform.release_for }}
     env:
       CARGO_TERM_COLOR: always
     strategy:
       matrix:
         platform:
-          - os-name: Linux-x86_64
-            runs-on: ubuntu-24.04
+          - release_for: Linux-x86_64
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
 
-          - os-name: Windows-x86_64
-            runs-on: windows-latest
+          - release_for: Windows-x86_64
+            os: windows-latest
             target: x86_64-pc-windows-msvc
 
-          - os-name: macOS-x86_64
-            runs-on: macOS-latest
+          - release_for: macOS-x86_64
+            os: macOS-latest
             target: x86_64-apple-darwin
 
-    runs-on: ${{ matrix.platform.runs-on }}
+    runs-on: ${{ matrix.platform.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,14 +50,12 @@ jobs:
           args: "--release"
           strip: true
 
-      - name: Upload binary
-        uses: actions/upload-artifact@v4
+      - name: Package and upload artifact
+        uses: houseabsolute/actions-rust-release@v1
         with:
-          name: sharpie-${{matrix.platform.target}}
-          # Of course Windows has to be difficult
-          path: |
-            target/${{matrix.platform.target}}/release/sharpie
-            target/${{matrix.platform.target}}/release/sharpie.exe
+          executable-name: ${{ env.EXE_NAME }}
+          target: ${{ matrix.platform.target }}
+          changes-file: CHANGELOG.md
 
   release:
     needs: build
@@ -64,52 +64,12 @@ jobs:
     permissions:
       actions: read
       contents: write
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      tag: ${{ github.ref_name }}
+
     steps:
-      - name: Download binaries
-        uses: actions/download-artifact@v7
+      - uses: actions/checkout@v4
+
+      - name: Create release from artifacts
+        uses: houseabsolute/actions-rust-release/publish@v1
         with:
-          path: artifacts
-
-      - name: Rename files # because some of them have the same name
-        run: |
-          cd artifacts
-          for f in */*; do
-            mv $f ../$(echo $f | sed s@/sharpie@@)
-          done
-
-      - name: Create current release
-        # Delete the 'current' tag, always succeeding then
-        # (re)create the 'current' tag
-        run: |
-          gh release delete current \
-            --repo="$GITHUB_REPOSITORY" \
-            --yes --cleanup-tag || true
-          gh release create current \
-            --repo="$GITHUB_REPOSITORY" \
-            --generate-notes
-
-      - name: Upload files to current release
-        run: |
-          gh release upload current --clobber \
-            --repo="$GITHUB_REPOSITORY" \
-            sharpie-*
-
-      - name: Create tagged release
-        if: github.ref_type == 'tag'
-        run: |
-          gh release create "$tag" \
-            --repo="$GITHUB_REPOSITORY" \
-            --title="${tag#v}" \
-            --generate-notes
-
-      - name: Upload files to tagged release
-        if: github.ref_type == 'tag'
-        run: |
-          gh release upload "$tag" \
-            --repo="$GITHUB_REPOSITORY" \
-            sharpie-*
-
-
+          executable-name: ${{ env.EXE_NAME }}
+          changes-file: CHANGELOG.md
