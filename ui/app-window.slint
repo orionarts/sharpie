@@ -161,8 +161,8 @@ export component MainWindow inherits Window {
 
     // Tabs {{{2
     //
-    VerticalBox {
-        HorizontalBox {
+    HorizontalBox {
+        VerticalLayout {
             TabWidget {
                 width: Layout.tab-width;
                 Tab {
@@ -269,6 +269,10 @@ export component MainWindow inherits Window {
                     }
                 }
             }
+            StatusBar { // {{{2
+                status-text: "Composite strength = " + root.perf-computed.str-comp;
+            }
+        }
 
             GroupBox { // Report {{{2
                 title: "Report";
@@ -334,9 +338,6 @@ export component MainWindow inherits Window {
             }
         }
 
-        StatusBar { // {{{2
-            width: Layout.tab-width;
-            status-text: "Composite strength = " + root.perf-computed.str-comp;
         }
     }
 }
