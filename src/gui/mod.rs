@@ -36,6 +36,7 @@ use slint::{
 
 use std::cell::RefCell;
 use std::error::Error;
+use std::process::Command;
 use std::rc::Rc;
 
 use crate::{AboutDialog, MainWindow};
@@ -136,6 +137,37 @@ fn push_all(ship: &Ship, ui: &MainWindow) {
     ui.set_report_str(ship.report().into());
 }
 
+// spawn_new_window {{{2
+//
+fn spawn_new_window() -> std::io::Result<()> {
+    let exe = std::env::current_exe()?;
+    let mut cmd = Command::new(exe);
+
+    // These blocks prevent the spawned process from exiting when **this** process exits
+    //
+    #[cfg(unix)] // and MacOS
+    {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const DETACHED_PROCESS: u32 = 0x0000_0008;
+        const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+        const CREATE_BREAKAWAY_FROM_JOB: u32 = 0x0100_0000;
+        cmd.creation_flags(DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB);
+    }
+
+    // Do not inherit stdio
+    cmd.stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+
+    cmd.spawn()?;
+    Ok(())
+}
 // pick_file {{{2
 /// Build a FileDialog with title and filter
 ///
@@ -409,6 +441,14 @@ fn set_freeboards(ui: &MainWindow, ship: &Rc<RefCell<Ship>>, which: i32) {
     push_derived(&s, ui);
 }
 
+// new_window {{{2
+fn new_window(_ui: &MainWindow) {
+    // TODO: Show an error in the GUI as well
+    if let Err(e) = spawn_new_window() {
+        eprintln!("Could not spawn new window: {e}");
+    }
+}
+
 // load_ship {{{2
 fn load_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     if let Some(file) = pick_file("Sharpie file to load", SHIP_FILE_EXT) {
@@ -487,6 +527,7 @@ pub fn run_gui() -> Result<(), Box<dyn Error>> {
     ui.on_vmax_slider_changed({ let h = ui.as_weak(); let s = ship.clone(); move ||      { vmax_slider_changed(&h.unwrap(), &s); }});
     ui.on_freeboards_est     ({ let h = ui.as_weak(); let s = ship.clone(); move |which| { set_freeboards     (&h.unwrap(), &s, which); }});
     ui.on_load_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { load_ship          (&h.unwrap(), &s); }});
+    ui.on_new_window         ({ let h = ui.as_weak();                       move ||      { new_window         (&h.unwrap()); }});
     ui.on_save_picture       ({                       let s = ship.clone(); move ||      { save_picture       (             &s); }});
     ui.on_save_ship          ({ let h = ui.as_weak(); let s = ship.clone(); move ||      { save_ship          (&h.unwrap(), &s); }});
     ui.on_show_about         ({ let h = ui.as_weak();                       move ||      { show_about         (&h.unwrap()); }});

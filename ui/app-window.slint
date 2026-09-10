@@ -105,6 +105,7 @@ export component MainWindow inherits Window {
     in-out property <bool> sidebar-visible: false;
 
     // Menu callbacks
+    callback new-window();
     callback load-ship();
     callback save-ship();
     callback convert-ship();
@@ -144,6 +145,8 @@ export component MainWindow inherits Window {
     MenuBar {
         Menu {
             title: "File";
+            MenuItem { title: "Open new ship window";     shortcut: @keys(Control + N);         activated => { root.new-window(); } }
+            MenuSeparator {}
             MenuItem { title: "Open ship";                shortcut: @keys(Control + O);         activated => { root.load-ship(); } }
             MenuItem { title: "Save ship";                shortcut: @keys(Control + S);         activated => { root.save-ship(); } }
             MenuItem { title: "Convert SpringSharp ship"; shortcut: @keys(Control + Shift + O); activated => { root.convert-ship(); } }
