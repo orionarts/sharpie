@@ -86,6 +86,9 @@ fn pull_all(ui: &MainWindow, ship: &mut Ship) {
     gui_map::pull_weights(ui, ship);
     gui_map::pull_perf(ui, ship);
     gui_map::pull_guns(ui, ship);
+
+    // TODO: This is not the best place to do this
+    ship.notes = ui.get_notes_str().lines().map(String::from).collect();
 }
 
 // push_derived {{{2
@@ -107,6 +110,7 @@ fn push_derived(ship: &Ship, ui: &MainWindow) {
     gui_map::push_engine_derived(ship, ui);
     gui_map::push_guns_derived(ship, ui);
     gui_map::push_shell_wgt(ship, ui);
+    // TODO: This is not the best place to do this
     ui.set_report_str(ship.report().into());
 }
 
@@ -134,6 +138,9 @@ fn push_all(ship: &Ship, ui: &MainWindow) {
     gui_map::push_weights(ship, ui);
     gui_map::push_perf(ship, ui);
     gui_map::push_engine_derived(ship, ui);
+
+    // TODO: This is not the best place to do this
+    ui.set_notes_str(ship.notes.join("\n").into());
     ui.set_report_str(ship.report().into());
 }
 
@@ -464,6 +471,8 @@ fn load_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
 fn save_ship(ui: &MainWindow, ship: &Rc<RefCell<Ship>>) {
     let mut s = ship.borrow_mut();
     pull_then_push(ui, &mut s);
+    // TODO: This is not the best place to do this
+    s.notes = ui.get_notes_str().lines().map(String::from).collect();
     if let Some(file) = save_file_dialog("Sharpie file to save", SHIP_FILE_EXT, &format!("SHIP.{SHIP_FILE_EXT}")) {
         let _ = s.save(file);
     }

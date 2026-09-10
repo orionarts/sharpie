@@ -309,7 +309,7 @@ export component MainWindow inherits Window {
             }
             TextEdit {
                 height: Layout.gui-height * 0.25;
-                text: root.notes_str;
+                text <=> root.notes-str;
                 edited => { root.field-edited(); }
             }
         }
