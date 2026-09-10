@@ -23,6 +23,7 @@ export component FreeboardTab inherits ScrollView {
     in-out property <image> hull-image;
     in-out property <[string]> bow-labels: [];
     in-out property <[string]> stern-labels: [];
+    in-out property <[string]> length-long-labels: [];
 
     callback field-edited();
     callback save-picture();
@@ -136,11 +137,11 @@ export component FreeboardTab inherits ScrollView {
             }
 
             Row {
-                Entry { text: root.hull-fields.len-lwl; }
+                Entry { text: root.hull-fields.len-lwl + " " + root.length-long-labels[root.hull-fields.units]; enabled: false; }
                 Entry { text <=> root.hull-fields.bow-angle; edited => { root.field-edited(); } }
                 Entry { text <=> root.hull-fields.ram-len; enabled: root.hull-fields.bow-type >= 2; edited => { root.field-edited(); } }
                 Entry { text <=> root.hull-fields.stern-overhang; edited => { root.field-edited(); } }
-                Entry { text: root.hull-fields.len-loa; }
+                Entry { text: root.hull-fields.len-loa + " " + root.length-long-labels[root.hull-fields.units]; enabled: false; }
             }
         }
     }
