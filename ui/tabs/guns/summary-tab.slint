@@ -79,6 +79,11 @@ export component SummaryTab inherits ScrollView {
             }
 
             Row {
+                Rectangle { colspan: 7; height: 1px; background:
+                Palette.alternate-foreground; }
+            }
+
+            Row {
                 RowLabel { text: "Guns:"; }
                 Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[0].wgt-guns; } }
                 Rectangle { border-width: 0px; border-color: Palette.alternate-foreground; Text { text: battery-computed[1].wgt-guns; } }
