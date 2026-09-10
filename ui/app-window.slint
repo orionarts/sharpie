@@ -3,6 +3,7 @@
 import {
     GroupBox,
     HorizontalBox,
+    ScrollView,
     TabWidget,
     TextEdit,
     VerticalBox,
@@ -293,51 +294,50 @@ export component MainWindow inherits Window {
             }
         }
 
-            sidebar := GroupBox { // Sidebar {{{2
-                horizontal-stretch: 0;
-                width: root.sidebar-visible ? Layout.sidebar-width : 0px;
-                visible: root.sidebar-visible;
+        ScrollView { // Sidebar {{{2
+            visible: root.sidebar-visible;
+            width: root.sidebar-visible ? Layout.sidebar-width : 0px;
+            horizontal-stretch: 0;
 
-                VerticalBox {
-                    Text { text: "Performance:"; font-weight: 700; vertical-alignment: center; }
-                    Text { horizontal-alignment: center; text: "Composite strength:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.str-comp; }
-                    Text { horizontal-alignment: center; text: "Seakeeping:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.seakeeping; }
-                    Text { horizontal-alignment: center; text: "Stability:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.stability; }
-                    Text { horizontal-alignment: center; text: "Steadiness:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.steadiness; }
-                    Text { horizontal-alignment: center; text: "Hull space:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.hull-room + " %"; }
-                    Text { horizontal-alignment: center; text: "Armor coverage:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.belt-coverage + " %"; }
-                    Text { horizontal-alignment: center; text: "Work space:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.deck-room + " %"; }
+            VerticalBox {
+                alignment: start;
 
-                    Text { text: "Displacement:"; font-weight: 700; vertical-alignment: center; }
-                    Text { horizontal-alignment: center; text: "Maximum displacement:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.d-max; }
-                    Text { horizontal-alignment: center; text: "Normal displacement:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.d-norm; }
-                    Text { horizontal-alignment: center; text: "Standard displacement:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.d-std; }
-                    Text { horizontal-alignment: center; text: "Light displacement:"; }
-                    Text { horizontal-alignment: right; text: root.perf-computed.d-lite; }
+                Text { text: "Performance"; font-weight: 900; }
+                Text { horizontal-alignment: center; text: "Composite strength:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.str-comp; }
+                Text { horizontal-alignment: center; text: "Seakeeping:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.seakeeping; }
+                Text { horizontal-alignment: center; text: "Stability:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.stability; }
+                Text { horizontal-alignment: center; text: "Steadiness:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.steadiness; }
+                Text { horizontal-alignment: center; text: "Hull space:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.hull-room + " %"; }
+                Text { horizontal-alignment: center; text: "Armor coverage:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.belt-coverage + " %"; }
+                Text { horizontal-alignment: center; text: "Work space:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.deck-room + " %"; }
 
-                    Text { text: "Guns and engines:"; font-weight: 700; vertical-alignment: center; }
-                    Text { horizontal-alignment: center; text: root.battery-computed[0].desc; }
-                    Text { horizontal-alignment: center; text: root.battery-computed[1].desc; }
-                    Text { horizontal-alignment: center; text: root.battery-computed[2].desc; }
-                    Text { horizontal-alignment: center; text: root.battery-computed[3].desc; }
-                    Text { horizontal-alignment: center; text: root.battery-computed[4].desc; }
-                    Text { horizontal-alignment: center; text: root.engine-computed.fuel-desc + ","; }
-                    Text { horizontal-alignment: center; text: root.engine-computed.boiler-desc + ","; }
-                    Text { horizontal-alignment: center; text: root.engine-computed.drive-desc; }
-                }
+                Text { text: "Displacement:"; font-weight: 700; }
+                Text { horizontal-alignment: center; text: "Maximum displacement:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.d-max; }
+                Text { horizontal-alignment: center; text: "Normal displacement:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.d-norm; }
+                Text { horizontal-alignment: center; text: "Standard displacement:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.d-std; }
+                Text { horizontal-alignment: center; text: "Light displacement:"; }
+                Text { horizontal-alignment: right; text: root.perf-computed.d-lite; }
+
+                Text { text: "Guns and engines:"; font-weight: 700; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.battery-computed[0].desc; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.battery-computed[1].desc; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.battery-computed[2].desc; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.battery-computed[3].desc; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.battery-computed[4].desc; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.engine-computed.fuel-desc + ","; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.engine-computed.boiler-desc + ","; }
+                Text { horizontal-alignment: center; wrap: word-wrap; text: root.engine-computed.drive-desc; }
             }
-        }
-
         }
     }
 }
