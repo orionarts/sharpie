@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     actually have an effect
 - The miscellaneous weight boxes so they immediately have an effect instead of
     requiring another change to be made first
+- The number of unplaced gun mounts were being correctly shown as being in Group
+    1 "on deck" but were not actually being "placed", resulting in incorrect
+    reports and underlying calculations
 
 ## [0.5.1] - 2026-09-11
 

@@ -1305,6 +1305,12 @@ pub fn pull_guns(ui: &MainWindow, ship: &mut Ship) {
                 g.two_mounts_up = f.two_mounts_up;
                 g.lower_deck = f.lower_deck;
             }
+
+            // Group 1 "on deck" guns is derived, not set by the user
+            // TODO: Just pull the value from the UI instead of calculating it
+            b.groups[0].on = b.mount_num -
+                b.groups[0].above -                  b.groups[0].below -
+                b.groups[1].above - b.groups[1].on - b.groups[1].below;
         }
     }
 }
