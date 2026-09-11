@@ -44,7 +44,7 @@ enum Commands {
         file: String,
 
         #[arg(short, long, num_args = 0..=1)]
-        #[arg(help = "Write hull profile image (default name: <file stem>-hull.svg)")]
+        #[arg(help = "Write hull profile image (default name: <file stem>.svg)")]
         image: Option<Option<String>>,
 
         #[arg(short, long)]
@@ -71,7 +71,7 @@ enum Commands {
         report: bool,
 
         #[arg(short, long, num_args = 0..=1)]
-        #[arg(help = "Write hull profile image (default name: <file stem>-hull.svg)")]
+        #[arg(help = "Write hull profile image (default name: <file stem>.svg)")]
         image: Option<Option<String>>,
     },
 }
