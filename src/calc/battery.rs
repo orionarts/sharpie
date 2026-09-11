@@ -434,7 +434,7 @@ impl Battery { // {{{2
             }
 
             if sb.below > 0 {
-                addto!(d, "    {} hull mount{} {}- Limited use in {}",
+                addto!(d, "        {} hull mount{} {}- Limited use in {}",
                     sb.below,
                     if sb.above > 1 { "s" } else if sb.distribution.super_aft() && main { " aft" } else { "" },
                     if self.mount_kind == MountType::Broadside {
