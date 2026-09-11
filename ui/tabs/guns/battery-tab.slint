@@ -160,7 +160,7 @@ export component BatteryTab inherits ScrollView {
                             }
 
                             Row {
-                                CheckBox { text: "2 mounts up"; }
+                                CheckBox { text: "2 mounts up"; checked <=> root.fields.group-2.two-mounts-up; toggled => root.field-edited(); }
                                 Entry { text: root.computed.group-2.tubes-above; width: 75px; enabled: false; }
                                 Entry { text <=> root.fields.group-2.above; width: 75px; edited => root.field-edited(); }
                             }
@@ -171,7 +171,7 @@ export component BatteryTab inherits ScrollView {
                             }
 
                             Row {
-                                CheckBox { text: "Lower deck"; }
+                                CheckBox { text: "Lower deck"; checked <=> root.fields.group-2.lower-deck; toggled => root.field-edited(); }
                                 Entry { text: root.computed.group-2.tubes-below; width: 75px; enabled: false; }
                                 Entry { text <=> root.fields.group-2.below; width: 75px; edited => root.field-edited(); }
                             }
