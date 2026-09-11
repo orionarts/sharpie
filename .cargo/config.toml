@@ -1,0 +1,12 @@
+# The stack on Windows is too small so sharpie overflows the stack. These adjust
+# the stack to be large enough. See https://github.com/slint-ui/slint/issues/4586
+#
+[target.x86_64-pc-windows-msvc]
+rustflags = [
+    "-C", "link-arg=/STACK:10000000"
+ ]
+
+ [target.x86_64-pc-windows.gnu]
+rustflags = [
+    "-C", "link-arg=-Wl,--stack,10000000"
+ ]
