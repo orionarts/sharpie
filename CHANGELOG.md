@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The "2 mounts up" and "Lower deck" check boxes in the gun layouts so they
     actually have an effect
+- The miscellaneous weight boxes so they immediately have an effect instead of
+    requiring another change to be made first
 
 ## [0.5.1] - 2026-09-11
 

@@ -222,11 +222,11 @@ export component WeaponsTab inherits ScrollView {
             }
 
             Row {
-                Entry { col: 1; text <=> root.weight-fields.vital; }
-                Entry { text <=> root.weight-fields.hull; }
-                Entry { text <=> root.weight-fields.on; }
-                Entry { text <=> root.weight-fields.above; }
-                Entry { text <=> root.weight-fields.void; }
+                Entry { col: 1; text <=> root.weight-fields.vital; edited => root.field-edited(); }
+                Entry { text <=> root.weight-fields.hull; edited => root.field-edited(); }
+                Entry { text <=> root.weight-fields.on; edited => root.field-edited(); }
+                Entry { text <=> root.weight-fields.above; edited => root.field-edited(); }
+                Entry { text <=> root.weight-fields.void; edited => root.field-edited(); }
             }
 
             Row {
