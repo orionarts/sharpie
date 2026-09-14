@@ -54,6 +54,15 @@ jobs:
           args: "--locked --release"
           strip: true
 
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Package and upload artifact
         uses: houseabsolute/actions-rust-release@v1
         with:
