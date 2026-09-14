@@ -80,9 +80,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - uses: CSchoel/release-notes-from-changelog@v1
       - name: Create release from artifacts
         uses: houseabsolute/actions-rust-release/publish@v1
         with:
           executable-name: ${{ env.EXE_NAME }}
-          changes-file: CHANGELOG.md
+          changes-file: RELEASE.md
